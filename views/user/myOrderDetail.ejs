@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>MultiShop - Online Shop Website Template</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Free HTML Templates" name="keywords">
+    <meta content="Free HTML Templates" name="description">
+
+    <!-- Favicon -->
+    <link href="/img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">  
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="/css/style.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+</head>
+
+<body>
+    <%- include('../partials/user-header') %>
+
+
+    <div class="container-fluid pb-5">
+        <div class="row px-xl-5">
+            <div class="col-lg-3 mb-30">
+                <div class="bg-light p-3" >
+                    <h6>Hello,</h6>
+                    <span><%=user.username%></span><br>
+                    <h5 style="text-align: center;"><a href="/myorders" style="text-decoration: none;color: #777;">MY ORDERS</a></h5><br>
+                    <h5 style="text-align: center;"><a href="/editProfile" style="text-decoration: none;color: #777;">EDIT PROFILE</a></h5>
+                </div>
+
+            </div>
+
+            <div class="col-lg-9 h-auto mb-30">
+                <div class="h-100 bg-light p-30">
+                        <h2 style="text-align: center;">Order detail</h2>
+                        <h5>Total Price: ₹<%=order.total%></h5>  
+                        <h5>Payment Mode: <%=order.paymentMethod%></h5>
+                        <h4 id="initStatus">Status: <%=order.status%></h4>
+                        <div class="grpBtns" style="display: flex;justify-content: space-between;">
+                            <%if(delivered){%>
+                                <button class="btn btn-primary" type="button" id="return" data-orderid="<%=order._id%>" aria-haspopup="true" aria-expanded="false"> Return </button>
+                                <button class="btn btn-primary" type="button" style="display:none;" id="cancel" data-orderid="<%=order._id%>" aria-haspopup="true" aria-expanded="false"> Cancel Order </button>
+                            <%}else if(returned || cancelled){%>
+                                <button class="btn btn-primary" type="button" style="display: none;" id="return" data-orderid="<%=order._id%>" aria-haspopup="true" aria-expanded="false"> Return </button>
+                                <button class="btn btn-primary" type="button" style="display: none;" id="cancel" data-orderid="<%=order._id%>" aria-haspopup="true" aria-expanded="false"> Cancel Order </button>
+                            <%}else{%>
+                                <button class="btn btn-primary" type="button" style="display: none;" id="return" data-orderid="<%=order._id%>" aria-haspopup="true" aria-expanded="false"> Return </button>
+                                <button class="btn btn-primary" type="button" id="cancel" data-orderid="<%=order._id%>" aria-haspopup="true" aria-expanded="false"> Cancel Order </button>
+                            <%}%>
+
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> More </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                  <a class="dropdown-item orderStatus" id="billAdd" onclick="showBillAddress()" style="cursor: pointer;">Billing Address</a>
+                                  <a class="dropdown-item orderStatus" id="shipAdd" onclick="showShipAddress()" style="cursor: pointer;">Shipping Address</a>
+                                </div>
+                            </div>
+                        </div> 
+
+                        <div id="displayBill" style="display: none;margin-top: 1rem;">
+                            <h4>Billing Address</h4>
+                            <h5>First name: <%=order.billAddress.firstname%></h5>
+                            <h5>Last name: <%=order.billAddress.lastname%></h5>
+                            <h5>Email: <%=order.billAddress.email%></h5>
+                            <h5>Mobile: <%=order.billAddress.mobile%></h5>
+                            <span>Addressline 1: <%=order.billAddress.addressline1%></span> &nbsp;
+                            <span>Addressline 2: <%=order.billAddress.addressline2%></span> &nbsp;
+                            <span>City: <%=order.billAddress.city%></span> &nbsp;
+                            <span>State: <%=order.billAddress.state%></span> &nbsp;
+                            <span>Country: <%=order.billAddress.country%></span> &nbsp;
+                            <span>Pin: <%=order.billAddress.pin%></span>
+                        </div>
+
+                        <div id="displayShip" style="display: none;margin-top: 1rem;">
+                            <h4>Shipping Address</h4>
+                            <h5>First name: <%=order.shipAddress.firstname%></h5>
+                            <h5>Last name: <%=order.shipAddress.lastname%></h5>
+                            <h5>Email: <%=order.shipAddress.email%></h5>
+                            <h5>Mobile: <%=order.shipAddress.mobile%></h5>
+                            <span>Addressline 1: <%=order.shipAddress.addressline1%></span> &nbsp;
+                            <span>Addressline 2: <%=order.shipAddress.addressline2%></span> &nbsp;
+                            <span>City: <%=order.shipAddress.city%></span> &nbsp;
+                            <span>State: <%=order.shipAddress.state%></span> &nbsp;
+                            <span>Country: <%=order.shipAddress.country%></span> &nbsp;
+                            <span>Pin: <%=order.shipAddress.pin%></span> &nbsp;
+                        </div>
+
+                        <div class="table-responsive mb-5">
+                            <table class="table table-light table-borderless table-hover text-center mb-0">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>Products</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Total</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="align-middle">
+                                    <%order.items.reverse().forEach((item,i)=>{%>
+                                        <tr class="trow" data-orderid="<%=order._id%>">
+                                        <td class="align-middle"><img src="/images/<%=item.image%>" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="" style="width: 50px;"><%=item.name%></td>
+                                        <td class="align-middle"><%=item.price%></td>
+                                        <td class="align-middle"><%=item.quantity%></td>
+                                        <td class="align-middle"><%=item.subTotal%></td>
+                                        <td class="align-middle"><%=order.date.toString().slice(0,15)%></td>
+                                        </tr>
+                                    <%})%>
+                                </tbody>
+                                
+                            </table>
+                        </div>
+
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+
+    <!-- Footer Start -->
+    <%- include('../partials/footer.ejs') %>
+
+    <!-- Footer End -->
+
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
+
+    <script>
+
+    function showBillAddress(){
+        const billAddress = document.getElementById('displayBill')
+        billAddress.style.display = 'block';
+      }
+      function showShipAddress(){
+        const shipAddress = document.getElementById('displayShip')
+        shipAddress.style.display = 'block';
+      }
+
+      $(document).ready(()=>{
+        const initStatusTag = document.querySelector('#initStatus')
+        const cancelBtn = document.getElementById('cancel')
+        console.log(cancelBtn.textContent)
+        cancelBtn.addEventListener('click',(e)=>{
+            e.preventDefault();
+            const orderid = e.target.dataset.orderid;
+            const data = {status:"Cancelled",orderid:orderid}
+            $.ajax({
+                url:'/cancelOrder',
+                method:'POST',
+                data:JSON.stringify(data),
+                contentType:"application/json",
+                success: function(data) {
+                    initStatusTag.textContent = "Status: Cancelled"
+                    cancelBtn.style.visibility = 'hidden';
+                },
+                error: function(xhr, status, error) {
+                    console.log('An error occurred: ' + error);
+                }
+            })
+        })
+
+        const returnBtn = document.getElementById('return')
+        console.log(returnBtn.textContent)
+        returnBtn.addEventListener('click',(e)=>{
+            e.preventDefault();
+            const orderid = e.target.dataset.orderid;
+            const data = {status:"Returned",orderid:orderid}
+            $.ajax({
+                url:'/returnOrder',
+                method:'POST',
+                data:JSON.stringify(data),
+                contentType:"application/json",
+                success: function(data) {
+                    initStatusTag.textContent = "Status: Returned"
+                    returnBtn.style.visibility = 'hidden';
+                },
+                error: function(xhr, status, error) {
+                    console.log('An error occurred: ' + error);
+                }
+            })
+        })
+
+      })
+      
+      </script>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="/lib/easing/easing.min.js"></script>
+    <script src="/lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- Contact Javascript File -->
+    <script src="/mail/jqBootstrapValidation.min.js"></script>
+    <script src="/mail/contact.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="/js/main.js"></script>
+</body>
+
+</html>
