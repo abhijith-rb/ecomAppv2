@@ -5,7 +5,7 @@ const Category = require('../models/CategoryModel');
 const bcrypt = require('bcrypt');
 const Cart = require('../models/CartModel');
 const Order = require('../models/OrderModel');
-const Stock = require('../models/StockModel');
+const Coupon = require('../models/CouponModel');
 
 
 const admnCtrl = {}
@@ -24,7 +24,7 @@ admnCtrl.isAdmin = (req, res, next) => {
         next();
     }
     else {
-        res.redirect('/admin/adminLogin');
+        res.redirect('/admin/login');
     }
 }
 
@@ -62,7 +62,7 @@ admnCtrl.getAdminDashboard = async (req, res) => {
         res.render('admin/index.ejs', { adminId, admin });
     }
     else {
-        res.redirect('/admin/adminLogin')
+        res.redirect('/admin/login')
     }
 }
 
@@ -74,7 +74,7 @@ admnCtrl.adminLogout = (req, res) => {
         }
         else {
             res.clearCookie('admin.sid')
-            res.redirect('/admin/adminLogin');
+            res.redirect('/admin/login');
         }
     })
 }
@@ -347,7 +347,7 @@ admnCtrl.getOrders = async (req, res) => {
             if(squery){
                 const regex = new RegExp(squery, 'i');
                 const result =  orderList.filter((order,i)=>{
-                    if(regex.test(order.item.name)){
+                    if(regex.test(order.email)){
                         return order;
                     }
                 })
@@ -388,6 +388,86 @@ admnCtrl.changeStatus = async(req,res)=>{
         },{new:true})
         console.log(order)
         res.status(200).json(order)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+admnCtrl.getCouponMng = async(req,res)=>{
+    try {
+        const admin = await Admin.findById(req.session.adminId)
+        const squery = req.query.search;
+        let coupons = [];
+        if (squery) {
+            const regex = new RegExp(squery, 'i');
+            coupons = await Coupon.find({ code: { $regex: regex } })
+            const noCoupon = 'No Matching Search results'
+            if (coupons.length > 0) {
+                console.log(coupons)
+                res.render('admin/couponMng.ejs', { coupons, adminId:admin._id, admin });
+            } else {
+                res.render('admin/couponMng.ejs', { coupons, noCoupon, adminId:admin._id, admin });
+            }
+        }
+        else {
+            coupons = await Coupon.find();
+            res.render('admin/couponMng.ejs', { coupons, adminId:admin._id, admin })
+        }
+        
+
+    } catch (error) {
+        console.log(error)
+    }
+    
+} 
+
+admnCtrl.getAddCoupon = async(req,res)=>{
+    const admin = await Admin.findById(req.session.adminId)
+
+    res.render('admin/addCoupon.ejs',{admin})
+}
+
+admnCtrl.postAddCoupon = async(req,res)=>{
+    const admin = await Admin.findById(req.session.adminId)
+    const {code,discount,expiryDate,description} = req.body;
+
+    const newCoupon = new Coupon({code,discount,expiryDate,description})
+
+    await newCoupon.save();
+
+    res.redirect('/admin/couponManage')
+}
+
+admnCtrl.getEditCoupon = async(req,res)=>{
+    const admin = await Admin.findById(req.session.adminId);
+    const couponId = req.params.id;
+    const coupon = await Coupon.findById(couponId);
+    res.render('admin/editCoupon.ejs',{admin,coupon})
+}
+
+admnCtrl.postEditCoupon = async(req,res)=>{
+    const couponId = req.params.id;
+    console.log(req.body)
+    const {code,discount,expiryDate,description} = req.body;
+    try {
+        console.log("qwerty")
+        const updtdCoupon = await Coupon.findByIdAndUpdate({_id:couponId},{
+            $set:{code,discount,expiryDate,description}
+        },{new:true});
+        console.log("upd"+updtdCoupon);
+
+        res.status(200).json({msg:"Coupon Updated"})
+        
+    } catch (error) {
+        res.status(500).json({msg:"Something went wrong"})
+    }
+}
+
+admnCtrl.deleteCoupon = async(req,res)=>{
+    const couponId = req.params.id;
+    try {
+        await Coupon.findByIdAndDelete(couponId)
+        res.status(200).json({msg:"deleted coupon"})
     } catch (error) {
         console.log(error)
     }

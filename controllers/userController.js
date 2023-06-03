@@ -7,7 +7,8 @@ const sgMail = require('@sendgrid/mail');
 const Cart = require('../models/CartModel');
 const Order = require('../models/OrderModel');
 const Razorpay=require('razorpay')
-const mongoose = require('mongoose') 
+const mongoose = require('mongoose'); 
+const Coupon = require('../models/CouponModel');
 const instance = new Razorpay({
     key_id: 'rzp_test_6JFoZx1fYTkS3n', 
     key_secret: 'Q15DfBbJFIrDy1K1FTsDE7CA', });
@@ -295,22 +296,29 @@ usrCtrl.addToCart = async(req,res)=>{
   const quantity = 1;
   const subTotal = price * quantity;
   const cart = await Cart.findOne({userId})
-  try {
-    if(cart){
-      const cartId = cart._id;
-      const newItem = {productId,name,price,image,quantity,subTotal}
-      const updatedCart = await Cart.findByIdAndUpdate(cartId,{
-        $push:{items:newItem},
-        $inc:{total:newItem.subTotal}
-      },{new:true})
-      console.log("Cart Update Success",updatedCart)
-      res.redirect('/cart')   
-    }else{
-      usrCtrl.createCart(userId);
-      res.redirect('/cart')   
-    } 
-  } catch (error) {
-      console.log(error)
+
+  if(product.quantity > 0){
+    try {
+      if(cart){
+        const cartId = cart._id;
+        const newItem = {productId,name,price,image,quantity,subTotal}
+        const updatedCart = await Cart.findByIdAndUpdate(cartId,{
+          $push:{items:newItem},
+          $inc:{total:newItem.subTotal}
+        },{new:true})
+        console.log("Cart Update Success",updatedCart)
+        await Product.findByIdAndUpdate(productId,{
+          $inc:{quantity:-1}
+        })
+        res.redirect('/cart')   
+      }else{
+        usrCtrl.createCart(userId);
+        res.redirect('/cart')   
+      } 
+    } catch (error) {
+        console.log(error)
+    }
+
   }
 }
 
@@ -319,8 +327,8 @@ usrCtrl.getCart = async(req,res)=>{
   const categories = await Category.find()
   const cart = await Cart.findOne({userId})
   if(cart){
-    const items = cart.items;
-    if(items.length>0){
+    if(cart.items.length>0){
+        
       res.render('user/cart.ejs',{cart,isEmpty:false,categories,userId});
     }else{
       res.render('user/cart.ejs',{cart,isEmpty:true,categories,userId});
@@ -336,10 +344,14 @@ usrCtrl.removeItem = async(req,res)=>{
     const userId = req.session.userId;
     const itemId = req.params.id;
     const found = await Cart.findOne({userId},{items:{$elemMatch:{_id:itemId}}})
+    const productId = found.items[0].productId;
     const updtCart = await Cart.findOneAndUpdate({userId},{
       $pull:{items:{_id:itemId}},
       $inc:{total:-found.items[0].subTotal}
     },{new:true})
+    await Product.findByIdAndUpdate(productId,{
+      $inc:{quantity:found.items[0].quantity}
+    })
     res.status(200).json({updtCart})
   } catch (error) {
     console.log(error);
@@ -361,16 +373,28 @@ usrCtrl.incQty = async(req,res)=>{
   const price = req.query.price;
   const itemid = req.params.id;
   const newSubTotal = price * qty;
-  try {
-    const updtCart = await Cart.findOneAndUpdate({userId, 'items._id':itemid},{
-      $set:{'items.$.quantity':qty,'items.$.subTotal':newSubTotal},
-      $inc:{total:price}
-    },{new:true});
-    const item = await Cart.findOne({userId}, {items:{$elemMatch:{_id:itemid}}})
-    res.status(200).json({item,updtCart});
-  } catch (error) {
-    console.log(error)
-    res.status(500);
+  const found = await Cart.findOne({userId}, {items:{$elemMatch:{_id:itemid}}})
+  const productId = found.items[0].productId;
+  const product = await Product.findById(productId);
+
+  if(product.quantity > 0){
+    try {
+      const updtCart = await Cart.findOneAndUpdate({userId, 'items._id':itemid},{
+        $set:{'items.$.quantity':qty,'items.$.subTotal':newSubTotal},
+        $inc:{total:price}
+      },{new:true});
+
+      await Product.findByIdAndUpdate(productId,{
+        $inc:{quantity:-1}
+      })
+      res.status(200).json({item:found,updtCart});
+    } catch (error) {
+      console.log(error)
+      res.status(500);
+    }
+  }
+  else{
+    res.json({msg:"Insufficient quantity"})
   }
   
 }
@@ -381,13 +405,18 @@ usrCtrl.decQty = async(req,res)=>{
   const price = req.query.price;
   const itemid = req.params.id;
   const newSubTotal = price * qty;
+  const found = await Cart.findOne({userId}, {items:{$elemMatch:{_id:itemid}}})
+  const productId = found.items[0].productId;
+
   try {
     const updtCart = await Cart.findOneAndUpdate({userId, 'items._id':itemid},{
       $set:{'items.$.quantity':qty,'items.$.subTotal':newSubTotal},
       $inc:{total:-price}
     },{new:true})
-    const item = await Cart.findOne({userId}, {items:{$elemMatch:{_id:itemid}}})
-    res.status(200).json({item,updtCart});
+    await Product.findByIdAndUpdate(productId,{
+      $inc:{quantity:1}
+    })
+    res.status(200).json({item:found,updtCart});
   } catch (error) {
     console.log(error);
     res.status(500);
@@ -621,7 +650,55 @@ usrCtrl.checkVerified = (req,res)=>{
   })
   }
 
+usrCtrl.checkStock = async(req,res)=>{
+  const productId = req.params.id;
+  const product = await Product.findById(productId);
+  const quantity = product.quantity;
+  res.json({quantity:quantity})
+}
 
+usrCtrl.listCoupons = async(req,res)=>{
+  const userId = req.session.userId;
+  const user = await User.findById(userId);
+  const categories = await Category.find()
+  const coupons = await Coupon.find();
+  res.render('user/coupons.ejs',{coupons,categories,user,userId})
+}
+
+usrCtrl.applyCoupon = async(req,res)=>{
+    const {couponCode,cartId,userId} = req.body;
+    const coupon  = await Coupon.findOne({code:couponCode})
+    if(!coupon){
+      res.status(400).json({msg:"coupon not found"})
+    }
+
+    const currentDate = new Date();
+    if(coupon.expiryDate < currentDate){
+      res.status(400).json({msg:"Coupon has expired"})
+    }
+
+    if(coupon.usedBy.includes(userId)){
+      res.status(409).json({msg:"Coupon already used"})
+    }
+
+    const discount = coupon.discount;
+    console.log(discount)
+    const cart = await Cart.findById(cartId);
+    const newTotal = (cart.total - discount) > 0 ? (cart.total - discount) : 0;
+    console.log(newTotal);
+    try {
+      await Coupon.findByIdAndUpdate(coupon._id,{
+        $push:{usedBy:userId}
+      })
+      await Cart.findByIdAndUpdate(cartId,{
+        $set:{total:newTotal}
+      })
+      
+      res.status(200).json({newTotal:newTotal,discount:discount}) 
+    } catch (error) {
+      res.status(500).json({msg:"Something went wrong"})
+    }
+}
 
 module.exports = usrCtrl;
 

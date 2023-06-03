@@ -79,6 +79,11 @@ router.get('/success',usrCtrl.isLoggedOut, usrCtrl.getSuccess)
 
 router.post('/verifyPayment',usrCtrl.isLoggedOut,usrCtrl.checkVerified)
 
+router.get('/checkStock/:id',usrCtrl.isLoggedOut,usrCtrl.checkStock)
+
+router.get('/coupons',usrCtrl.isLoggedOut,usrCtrl.listCoupons)
+
+router.post('/applyCoupon',usrCtrl.isLoggedOut,usrCtrl.applyCoupon)
 
 module.exports = router;
 

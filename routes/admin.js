@@ -31,12 +31,12 @@ const storage = multer.diskStorage({
 
 const upload = multer({storage})
 
-router.get('/adminLogin',admnCtrl.isLoggedin, admnCtrl.getAdminLogin)
+router.get('/login',admnCtrl.isLoggedin, admnCtrl.getAdminLogin)
 
 //adminAuth
-router.post('/adminLogin', admnCtrl.adminAuth)
+router.post('/login', admnCtrl.adminAuth)
 
-router.post('/adminLogout', admnCtrl.adminLogout)
+router.get('/adminLogout', admnCtrl.adminLogout)
 
 //getAdminDashboard
 router.get('/dashboard',admnCtrl.isAdmin, admnCtrl.getAdminDashboard)
@@ -92,5 +92,17 @@ router.get('/getOrders',admnCtrl.isAdmin,admnCtrl.getOrders);
 router.get('/order/:id',admnCtrl.isAdmin, admnCtrl.orderDetail)
 
 router.post('/changeStatus',admnCtrl.isAdmin, admnCtrl.changeStatus)
+
+router.get('/couponManage',admnCtrl.isAdmin, admnCtrl.getCouponMng)
+
+router.get('/addCoupon',admnCtrl.isAdmin, admnCtrl.getAddCoupon)
+
+router.post('/addCoupon',admnCtrl.isAdmin, admnCtrl.postAddCoupon)
+
+router.get('/editCoupon/:id',admnCtrl.isAdmin, admnCtrl.getEditCoupon )
+
+router.post('/editCoupon/:id',admnCtrl.isAdmin, admnCtrl.postEditCoupon )
+
+router.get('/deleteCoupon/:id',admnCtrl.isAdmin, admnCtrl.deleteCoupon)
 
 module.exports = router;

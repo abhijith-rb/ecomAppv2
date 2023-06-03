@@ -56,51 +56,53 @@
       }
     </style>
     <div class="container-scroller">
-
-      <%- include('./adminSidebar') %>
+      <!-- partial:partials/_sidebar.html -->
+      <%- include('./adminSidebar.ejs') %>
       <!-- partial -->
       <div class="container-fluid page-body-wrapper">
-      
-        
-        <%- include('./adminTopbar.ejs') %>
+        <!-- partial:partials/_navbar.html -->
+        <%- include('./adminTopbar.ejs') %>    
         <!-- partial -->
         <div class="main-panel">
           <div class="content-wrapper">
             <div class="col-lg-12 grid-margin stretch-card">
               <div class="card">
                 <div class="card-body">
-                  <h4 class="card-title">Category List</h4>
-                  <a class="btn btn-info" href="/admin/addCategory" style="text-decoration:none;color:white;">Add Category</a>
-
+                  <h3 class="card-title" style="text-align: center;">Coupon List</h3>
+                  <a class="btn btn-info" href="/admin/addCoupon" style="text-decoration:none;color:white;">Add Coupon</a>
                   <div class="table-responsive">
                     <table class="table ">
                       <thead>
                         <tr>
-                          <!-- <th> Index</th> -->
-                          <th> Name </th>
+                          <th> Coupon code </th>
+                          <th> Discount </th>
+                          <th> Expiry Date </th>
                           <th> Description </th>
-                          <th> Image</th>
-                          <th> Actions </th>
+                          <th> Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        <% Categories.forEach((category,i)=>{ %>
+                        <%coupons.forEach((coupon,i)=>{ %>
                           <tr class="trow">
-                          <!-- <th scope="row"><%# i+1 %></th> -->
-                          <td><%=category.name%></td>
-                          <td><%=category.description%></td>
-                          <td><img src="/images/<%=category.image%>" onerror="this.onerror=null;this.src='/images/noImg.png';"  id="prodImg"/></td>
+                          <td><%=coupon.code%></td>
+                          <td>₹<%=coupon.discount%></td>
+                          <td><%=coupon.expiryDate.toString().slice(0,15)%></td>
+                          <td><%=coupon.description%></td>
+                          
                           <td>
-                              <a class="btn btn-info" href="/admin/editCategory/<%=category._id%>" style="text-decoration: none;color:white;">
+                              <a class="btn btn-info" href="/admin/editCoupon/<%=coupon._id%>" style="text-decoration: none;color:white;">
                                 Edit
                               </a>
                           </td>
+
                           <td>
-                              <button class="deleter btn btn-danger " data-categoryid="<%=category._id%>" data-index="<%=i%>">Delete</button>
+                              <button class="deleter btn btn-danger " data-couponid="<%=coupon._id%>" data-index="<%=i%>"  style="text-decoration: none;color:white;">
+                                Delete
+                              </button>
                           </td>
                           
                           </tr>
-                      <% }) %>
+                      <%}) %>
                       </tbody>
                     </table>
                   </div>
@@ -132,20 +134,7 @@
 
     <script>
       const form = document.getElementById('searchForm');
-      const searchForm = document.getElementById('searchForm');
 
-      searchForm.addEventListener('submit',(e)=>{
-          e.preventDefault();
-
-          const squery = document.getElementsByName('search')[0].value;
-
-          if(squery === ''){
-              alert('Enter key to search');
-              return;
-          }
-          
-          searchForm.submit();
-      })
 
       form.addEventListener('submit',(e)=>{
           e.preventDefault();
@@ -165,36 +154,37 @@
       const confirmDelete = document.getElementById('confirmDelete')
       const cancelDelete = document.getElementById('cancelDelete')
 
-      let categoryId = null;
+      let couponId = null;
       let index = null;
 
       deleteButtons.forEach(button=>{
         button.addEventListener('click',()=>{
-          categoryId = button.dataset.categoryid;
+          couponId = button.dataset.couponid;
           index = button.dataset.index;
           deleteModal.style.display='block';
         })
       })
 
       confirmDelete.addEventListener('click',()=>{
-        if(categoryId){
-          deleteCategory(categoryId,index)
+        if(couponId){
+          deleteCoupon(couponId,index)
         }
       })
 
       cancelDelete.addEventListener('click',()=>{
-        categoryId = null;
+        couponId = null;
         index=null;
         deleteModal.style.display = 'none';
       })
 
-      function deleteCategory(categoryId,index){
-          fetch(`/admin/deleteCategory/${categoryId}`)
+
+      function deleteCoupon(couponId,index){
+          fetch(`/admin/deleteCoupon/${couponId}`)
           .then((response)=>{
             const data = response.json();
             if(response.ok){
                 const trow = document.getElementsByClassName('trow')[index];
-                categoryId = null;
+                couponId = null;
                 index=null;
                 trow.style.display = 'none';
                 deleteModal.style.display = 'none';
@@ -204,7 +194,7 @@
             }
           })
       }
-      
+
     </script>
     <!-- container-scroller -->
     <!-- plugins:js -->

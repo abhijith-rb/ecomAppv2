@@ -24,11 +24,11 @@
   </head>
   <body>
     <div class="container-scroller">
-      
+  
       <%- include('./adminSidebar.ejs') %>
       <!-- partial -->
       <div class="container-fluid page-body-wrapper">
-        
+    
         <%- include('./adminTopbar.ejs') %>
         <!-- partial -->
         <div class="main-panel">
@@ -36,34 +36,44 @@
             <div class="col-md-6 grid-margin stretch-card">
               <div class="card">
                 <div class="card-body">
-                  <h4 class="card-title">Add new Product</h4>
-                  <form class="forms-sample" action="/admin/addCategory" method="post" id="addForm" enctype="multipart/form-data">
+                  <h4 class="card-title">Edit Coupon</h4>
+                  <form class="forms-sample" action="/admin/editCoupon/<%=coupon._id%>" method="post" id="editForm" data-couponid="<%=coupon._id%>">
                     
                     <div class="form-group row">
-                      <label for="exampleInputPassword2" class="col-sm-3 col-form-label">Category</label>
+                      <label for="exampleInputPassword2" class="col-sm-3 col-form-label">Coupon code</label>
                       <div class="col-sm-9">
-                        <input type="text"  name="name" class="form-control"  placeholder="Category">
+                        <input type="text"  name="code" class="form-control"  value="<%=coupon.code%>">
                       </div>
                     </div>
+                    
                     <div class="form-group row">
-                      <label for="exampleInputConfirmPassword2" class="col-sm-3 col-form-label">Image</label>
+                      <label for="exampleInputPassword2" class="col-sm-3 col-form-label">Discount</label>
                       <div class="col-sm-9">
-                        <input type="file" name="image" class="form-control"  placeholder="Image">
+                        <input type="number"  name="discount" class="form-control"  value="<%=coupon.discount%>">
                       </div>
                     </div>
+
+                    <div class="form-group row">
+                      <label for="exampleInputPassword2" class="col-sm-3 col-form-label">Expiry Date</label>
+                      <div class="col-sm-9">
+                        <input type="date"  name="expiryDate" class="form-control"  value="<%=coupon.expiryDate.toISOString().split('T')[0]%>">
+                      </div>
+                    </div>
+
                     <div class="form-group row">
                       <label for="exampleInputConfirmPassword2" class="col-sm-3 col-form-label">Description</label>
                       <div class="col-sm-9">
-                        <input type="text" name="description" class="form-control"  placeholder="Description">
+                        <input type="text" name="description" class="form-control"  value="<%=coupon.description%>">
                       </div>
                     </div>
                    
-                    <button type="submit" class="btn btn-primary mr-2">Add Category</button>
-                    <a class="btn btn-secondary" href="/admin/categoryManage" style="text-decoration: none;color:black;align-self:center;">
+                    <button type="submit" class="btn btn-primary mr-2">Update </button>
+                    <a class="btn btn-secondary" href="/admin/couponManage" style="text-decoration: none;color:black;align-self:center;">
                       Cancel
                     </a>
                     <p id="errMsg" style="color: red; text-align: center;margin-top: 10px;"></p>
                   </form>
+                  <p id="errMsg"></p>
                 </div>
               </div>
             </div>
@@ -71,7 +81,7 @@
           <!-- content-wrapper ends -->
           <!-- partial:partials/_footer.html -->
           <footer class="footer">
-            
+           
           </footer>
           <!-- partial -->
         </div>
@@ -81,45 +91,52 @@
     </div>
     <!-- container-scroller -->
     <script>
-    const form = document.getElementById('addForm');
+    const form = document.getElementById('editForm');
     
     form.addEventListener('submit',async(e)=>{
     e.preventDefault();
+    const couponid = e.target.dataset.couponid;
 
-    const name = document.getElementsByName('name')[0].value;
-    const image = document.getElementsByName('image')[0].files[0];
+    const code = document.getElementsByName('code')[0].value;
+    const discount = document.getElementsByName('discount')[0].value;
+    const expiryDate = document.getElementsByName('expiryDate')[0].value;
     const description = document.getElementsByName('description')[0].value;
-    
-    const nameregex = /^[a-zA-Z0-9\s]{3,30}$/
 
-    if(!nameregex.test(name)){
-        alert('Category name must be atleast 3 characters long and valid')
+    if(code == ""){
+        alert('Enter a valid code');
         return;
     }
-
+    if(discount == ""){
+        alert('Enter a valid discount');
+        return;
+    }
+    if(expiryDate == ""){
+        alert('Enter a valid expiry date');
+        return;
+    }
     if(description == ""){
         alert('Enter a valid description');
         return;
     }
 
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('image', image);
-    formData.append('description', description);
-
-    const response = await fetch('/admin/addCategory',{
+    fetch(`/admin/editCoupon/${couponid}`,{
       method:'POST',
-      body:formData
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({code,discount,expiryDate,description})
+    }).then((response)=>{
+      const data = response.json()
+      if(!response.ok){
+        throw new Error('Request failed with status'+ response.status)
+      }else{
+        window.location.href = '/admin/couponManage'
+      }
+    }).catch((error)=>{
+      console.error(error);
     })
 
-    const data = await response.json();
-
-    if(response.ok){
-      window.location.href = `/admin/categoryManage`
-    }else{
-      const errMsg = document.getElementById('errMsg')
-      errMsg.textContent = data.msg;
-    }
+   
   })
   </script>
     <!-- plugins:js -->

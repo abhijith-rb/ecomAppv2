@@ -24,11 +24,11 @@
   </head>
   <body>
     <div class="container-scroller">
-      
+  
       <%- include('./adminSidebar.ejs') %>
       <!-- partial -->
       <div class="container-fluid page-body-wrapper">
-        
+    
         <%- include('./adminTopbar.ejs') %>
         <!-- partial -->
         <div class="main-panel">
@@ -36,21 +36,30 @@
             <div class="col-md-6 grid-margin stretch-card">
               <div class="card">
                 <div class="card-body">
-                  <h4 class="card-title">Add new Product</h4>
-                  <form class="forms-sample" action="/admin/addCategory" method="post" id="addForm" enctype="multipart/form-data">
+                  <h4 class="card-title">Add new Coupon</h4>
+                  <form class="forms-sample" action="/admin/addCoupon" method="post" id="addForm" >
                     
                     <div class="form-group row">
-                      <label for="exampleInputPassword2" class="col-sm-3 col-form-label">Category</label>
+                      <label for="exampleInputPassword2" class="col-sm-3 col-form-label">Coupon code</label>
                       <div class="col-sm-9">
-                        <input type="text"  name="name" class="form-control"  placeholder="Category">
+                        <input type="text"  name="code" class="form-control"  placeholder="Coupon code">
                       </div>
                     </div>
+                    
                     <div class="form-group row">
-                      <label for="exampleInputConfirmPassword2" class="col-sm-3 col-form-label">Image</label>
+                      <label for="exampleInputPassword2" class="col-sm-3 col-form-label">Discount</label>
                       <div class="col-sm-9">
-                        <input type="file" name="image" class="form-control"  placeholder="Image">
+                        <input type="number"  name="discount" class="form-control"  placeholder="Discount">
                       </div>
                     </div>
+
+                    <div class="form-group row">
+                      <label for="exampleInputPassword2" class="col-sm-3 col-form-label">Expiry Date</label>
+                      <div class="col-sm-9">
+                        <input type="date"  name="expiryDate" class="form-control"  placeholder="Expiry Date">
+                      </div>
+                    </div>
+
                     <div class="form-group row">
                       <label for="exampleInputConfirmPassword2" class="col-sm-3 col-form-label">Description</label>
                       <div class="col-sm-9">
@@ -58,8 +67,8 @@
                       </div>
                     </div>
                    
-                    <button type="submit" class="btn btn-primary mr-2">Add Category</button>
-                    <a class="btn btn-secondary" href="/admin/categoryManage" style="text-decoration: none;color:black;align-self:center;">
+                    <button type="submit" class="btn btn-primary mr-2">Add Coupon</button>
+                    <a class="btn btn-secondary" href="/admin/couponManage" style="text-decoration: none;color:black;align-self:center;">
                       Cancel
                     </a>
                     <p id="errMsg" style="color: red; text-align: center;margin-top: 10px;"></p>
@@ -86,40 +95,29 @@
     form.addEventListener('submit',async(e)=>{
     e.preventDefault();
 
-    const name = document.getElementsByName('name')[0].value;
-    const image = document.getElementsByName('image')[0].files[0];
+    const code = document.getElementsByName('code')[0].value;
+    const discount = document.getElementsByName('discount')[0].value;
+    const expiryDate = document.getElementsByName('expiryDate')[0].value;
     const description = document.getElementsByName('description')[0].value;
-    
-    const nameregex = /^[a-zA-Z0-9\s]{3,30}$/
 
-    if(!nameregex.test(name)){
-        alert('Category name must be atleast 3 characters long and valid')
+    if(code == ""){
+        alert('Enter a valid code');
         return;
     }
-
+    if(discount == ""){
+        alert('Enter a valid discount');
+        return;
+    }
+    if(expiryDate == ""){
+        alert('Enter a valid expiry date');
+        return;
+    }
     if(description == ""){
         alert('Enter a valid description');
         return;
     }
 
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('image', image);
-    formData.append('description', description);
-
-    const response = await fetch('/admin/addCategory',{
-      method:'POST',
-      body:formData
-    })
-
-    const data = await response.json();
-
-    if(response.ok){
-      window.location.href = `/admin/categoryManage`
-    }else{
-      const errMsg = document.getElementById('errMsg')
-      errMsg.textContent = data.msg;
-    }
+    form.submit();
   })
   </script>
     <!-- plugins:js -->

@@ -26,8 +26,25 @@
     <link href="css/style.css" rel="stylesheet">
 
     <style>
+       #cancelBtn{
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 41%;
+        margin-right: 41%;
+        color: white;
+       }
        
-
+       #updateBtn{
+        width: 20%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 40%;
+        margin-right: 20%;
+        color: white;
+       }
     </style>
 </head>
 
@@ -62,11 +79,13 @@
                             <input type="text" name="mobile" class="form-control" placeholder="mobile" value=<%=user.mobile%> />
                         </div>
                     
-                        <button type="submit" class="btn btn-primary btn-block m-4">Update</button>
+                        <button type="submit" class="btn btn-primary " id="updateBtn">Update</button>
                     
                     </form>
-        
-                    <a  class="btn btn-warning" href="/profile" style="text-decoration: none;color:white;align-self:center;">
+
+                    <p style="color:red;text-align: center;" id="errMsg"></p>
+
+                    <a  class="btn btn-warning" href="/profile" id="cancelBtn">
                         Cancel
                     </a>
                 </div>
@@ -95,22 +114,26 @@
             const username = document.getElementsByName('username')[0].value;
             const email = document.getElementsByName('email')[0].value;
             const mobile = document.getElementsByName('mobile')[0].value;
-            const unameregex = /^[a-zA-Z0-9]{3,20}$/
+            const unameregex = /^[a-zA-Z0-9]{4,20}$/
             const emailRegex = /^\S+@\S+\.\S+$/;
             const mobileRegex = /^\d{10}$/;
+            const errMsg = document.getElementById('errMsg');
 
             if(!unameregex.test(username)){
-                alert('Username must be atleast 3 characters long and valid')
+                errMsg.textContent = 'Username must be atleast 4 characters long'
+                // alert('Username must be atleast 4 characters long and valid')
                 return;
             }
 
             if(!emailRegex.test(email)){
-                alert('Invalid Email address');
+                errMsg.textContent = 'Invalid Email address';
+                // alert('Invalid Email address');
                 return;
             }
 
             if(!mobileRegex.test(mobile)){
-                alert('Please enter valid mobile number')
+                errMsg.textContent = 'Please enter valid mobile number'
+                // alert('Please enter valid mobile number')
                 return;
             }
 

@@ -26,7 +26,7 @@
             <div class="card col-lg-4 mx-auto">
               <div class="card-body px-5 py-5">
                 <h3 class="card-title text-left mb-3">Login</h3>
-                <form action="/admin/adminLogin" method="post" id="adLoginForm">
+                <form action="/admin/login" method="post" id="adLoginForm">
                   <div class="form-group">
                     <label>Username</label>
                     <input type="text" name="adminname" id="adname" class="form-control p_input">
@@ -96,7 +96,7 @@
               return;
           }
 
-          const response = await fetch('/admin/adminLogin',{
+          const response = await fetch('/admin/login',{
               method:'POST',
               headers:{
                   'Content-Type':'application/json'
