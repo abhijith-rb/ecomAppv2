@@ -28,6 +28,7 @@ app.use((req, res, next) => {
 app.use('/admin',adminRouter)
 app.use('/',userRouter);
 
+
 app.listen(port, ()=>{
     console.log(`Server running on port ${port}`);
 })

@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const session = require('express-session');
-const usrCtrl = require('../controllers/userController.js')
+const axios = require('axios');
+const usrCtrl = require('../controllers/userController.js');
+const User = require('../models/UserModel.js');
+const OtpModel = require('../models/OtpModel.js');
 
 router.use(session({
     name:'user.sid',
@@ -19,7 +22,7 @@ router.use(session({
 router.get('/', usrCtrl.getHome)
 
 router.get('/blockedpage', usrCtrl.getBlockpage)
-//OTP
+//OTP through Email
 router.get('/otpLogin',usrCtrl.isLoggedIn,usrCtrl.getOtpPage)
 
 router.post('/reqOtp',usrCtrl.sendOtp)
@@ -84,6 +87,14 @@ router.get('/checkStock/:id',usrCtrl.isLoggedOut,usrCtrl.checkStock)
 router.get('/coupons',usrCtrl.isLoggedOut,usrCtrl.listCoupons)
 
 router.post('/applyCoupon',usrCtrl.isLoggedOut,usrCtrl.applyCoupon)
+
+//Otp through Sms
+
+router.get('/smsOtp',usrCtrl.getSmsOtpPage)
+
+router.post('/sendSms', usrCtrl.sendSmsOtp);
+
+router.post('/smsVerify', usrCtrl.smsVerify);
 
 module.exports = router;
 

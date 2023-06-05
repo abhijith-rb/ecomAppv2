@@ -125,8 +125,8 @@ usrCtrl.createUser = async(req,res)=>{
 usrCtrl.getHome = async(req,res)=>{
   const categories = await Category.find()
   const Products = await Product.find().limit(16);
-  const recentProducts = Products.slice(0,8);
-  const featuredProducts = Products.slice(8,16);
+  const recentProducts = Products.slice(8,16).reverse();
+  const featuredProducts = Products.slice(0,8);
   if(req.session.userId){
     const userId = req.session.userId;
     const user = await User.findById(userId);
@@ -252,11 +252,63 @@ usrCtrl.verifyOtp = async(req,res)=>{
   
 }
 
+usrCtrl.getSmsOtpPage = (req,res)=>{
+  res.render('user/smsOtp.ejs')
+}
+
+usrCtrl.sendSmsOtp = async (req, res) => {
+  // const mobile = 8848635268
+  const mobile = req.body.mobile;
+  const user = await User.findOne({mobile})
+  if(!user){
+    return res.status(404).json({msg:"You are not registered with us please sign up"})
+  }
+  try {
+
+    const OTP = generateOTP(); 
+    // const OTP = Math.floor(100000 + Math.random() * 900000);
+
+    const otpDoc = new OtpModel({mobile,otp:OTP})
+    await otpDoc.save();
+    const accountSid = "AC11649ceee378f98248ab070b09dd78c2";
+    const authToken = "98d857df3765f86cdf354e89d6f00906";
+
+
+    const client = require("twilio")(accountSid, authToken);
+    client.messages
+      .create({ body: `Your otp is ${OTP}`, from: "+16812461783", to: `+91${mobile}` })
+        .then(message => console.log(message.sid));
+    
+    res.send('Otp send successfullyBE');
+  } catch (error) {
+    console.error('Error sending OTP:', error);
+    res.status(500).send('Error sending OTP');
+  }
+}
+
+usrCtrl.smsVerify = async(req,res)=>{
+  const otp = req.body.otp;
+  const mobile = req.body.mobile;
+  const valid = await OtpModel.findOne({mobile,otp})
+  if(!valid){
+    res.status(403).json({msg:'Invalid Otp number'})
+    return;
+  }
+  // const user = await User.findOne({mobile});
+  // const userId = user._id;
+  // req.session.userId = userId;
+  // req.session.username = user.username;
+  await OtpModel.deleteOne({mobile});
+
+  return res.status(200).json({msg:"ok otp verified ok"});
+  
+}
+
 usrCtrl.getCatPrdts = async(req,res)=>{
   const category = await Category.findById(req.params.id)
   const userId = req.session.userId
   const categories = await Category.find()
-  const Products = await Product.find({category:category._id}).limit(9)
+  const Products = await (await Product.find({category:category._id}).limit(9)).reverse()
   if(req.session.userId){
     res.render('user/category.ejs',{Products,userPresent:true,userId,categories,category})
   }else{
@@ -659,10 +711,16 @@ usrCtrl.checkStock = async(req,res)=>{
 
 usrCtrl.listCoupons = async(req,res)=>{
   const userId = req.session.userId;
-  const user = await User.findById(userId);
-  const categories = await Category.find()
-  const coupons = await Coupon.find();
-  res.render('user/coupons.ejs',{coupons,categories,user,userId})
+  try {
+    const coupons = await Coupon.find();
+    const categories = await Category.find()
+    const user = await User.findById(userId);
+  
+    res.render('user/coupons.ejs',{coupons,categories,user,userId})
+  } catch (error) {
+    console.log(error)
+  }
+
 }
 
 usrCtrl.applyCoupon = async(req,res)=>{

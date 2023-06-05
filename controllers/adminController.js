@@ -430,7 +430,6 @@ admnCtrl.getAddCoupon = async(req,res)=>{
 admnCtrl.postAddCoupon = async(req,res)=>{
     const admin = await Admin.findById(req.session.adminId)
     const {code,discount,expiryDate,description} = req.body;
-
     const newCoupon = new Coupon({code,discount,expiryDate,description})
 
     await newCoupon.save();

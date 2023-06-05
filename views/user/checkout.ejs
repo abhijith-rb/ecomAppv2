@@ -425,8 +425,10 @@
                 })
 
                 const resData = await response.json();
-                if(response.ok){
-                    window.location.href = `/uhome/${resData}`
+                if(resData.codSuccess){
+                    window.location.href = "/success";
+                }else{
+                    razorPayment(resData);
                 }
             }else{
                 const data = {

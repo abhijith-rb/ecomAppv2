@@ -49,9 +49,28 @@
         /* border: 1px solid #d4d4d4; */
         /*set the size of the result div:*/
         width: 400px;
-        height: 350px;
+        height: 400px;
         }
 
+        .imggrp{
+            /* background-color: aquamarine; */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* .mainImg{
+            background-color: rebeccapurple;
+        } */
+
+        .miniImgs{
+            margin-top: 1rem;
+            /* background-color: rgb(242, 159, 4); */
+            display: flex;
+            justify-content: space-around;
+        }
+        .minImg{
+            border: 1px solid #FFD333;
+        }
     </style>
 
 <%if(userPresent){%>
@@ -77,9 +96,24 @@
     <div class="container-fluid pb-5">
         <div class="row px-xl-5">
             <div class="col-lg-7 mb-30">
-                <!-- <img class="w-100 h-100" src="img/product-4.jpg" alt="Image"> -->
                 <div class="img-zoom-container">
-                    <img id="myimage" src="/images/<%=product.image[0].filename%>" onerror="this.onerror=null;this.src='/images/noImg.png';" width="300" height="240" alt="Girl">
+                    <div class="imggrp">
+                        <div class="mainImg">
+                            <img id="myimage" src="/images/<%=product.image[0].filename%>" onerror="this.onerror=null;this.src='/images/noImg.png';" width="350" height="300" alt="">
+                        </div>
+                        <div class="miniImgs">
+                            <div class="minImg" id="min0" onclick="min0toMain()">
+                                <img id="miniimage1" src="/images/<%=product.image[0].filename%>" onerror="this.onerror=null;this.src='/images/noImg.png';" width="100" height="100" alt="">
+                            </div>
+                            <div class="minImg" id="min1" onclick="min1toMain()">
+                                <img id="miniimage1" src="/images/<%=product.image[1].filename%>" onerror="this.onerror=null;this.src='/images/noImg.png';" width="100" height="100" alt="">
+                            </div>
+                            <div class="minImg" id="min2" onclick="min2toMain()">
+                                <img id="miniimage1" src="/images/<%=product.image[1].filename%>" onerror="this.onerror=null;this.src='/images/noImg.png';" width="100" height="100" alt="">
+                            </div>
+                            
+                        </div>
+                    </div>
                     <div id="myresult" class="img-zoom-result"></div>
                 </div>
 
@@ -96,7 +130,7 @@
                             <small class="fas fa-star-half-alt"></small>
                             <small class="far fa-star"></small>
                         </div>
-                        <small class="pt-1">(99 Reviews)</small>
+                        <small class="pt-1"></small>
                     </div>
                     <h3 class="font-weight-semi-bold mb-4">₹<%=product.price%></h3>
                     <p class="mb-4">Volup erat ipsum diam elitr rebum et dolor. Est nonumy elitr erat diam stet sit
@@ -354,6 +388,16 @@
 
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
+
+    <script>
+        
+        function min1toMain(){
+            const mainImg = document.getElementById('myimage')
+            const min1 = document.getElementById('miniimage1')
+            console.log("div clicked");
+            mainImg.setAttribute("src",min1.getAttribute("src"))
+        }
+    </script>
     
     <script>
         function imageZoom(imgID, resultID) {
@@ -413,6 +457,7 @@
             }
 
         imageZoom("myimage", "myresult");
+
     </script>
 </body>
     
