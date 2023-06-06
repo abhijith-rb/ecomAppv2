@@ -209,7 +209,7 @@ usrCtrl.sendOtp = async(req,res)=>{
     const otpDoc = new OtpModel({email,otp:OTP})
     await otpDoc.save();
 
-    sgMail.setApiKey('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')
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY)
     const msg = {
       to: 'rbabhijith@gmail.com', 
       from: 'abhijithrb91@gmail.com', 
