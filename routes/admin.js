@@ -11,7 +11,7 @@ router.use(session({
     saveUninitialized:false,
     resave:false,
     cookie:{
-        maxAge:60*60*1000,
+        maxAge:24*60*60*1000,
         httpOnly:true,
         secure:false
     }
@@ -104,5 +104,7 @@ router.get('/editCoupon/:id',admnCtrl.isAdmin, admnCtrl.getEditCoupon )
 router.post('/editCoupon/:id',admnCtrl.isAdmin, admnCtrl.postEditCoupon )
 
 router.get('/deleteCoupon/:id',admnCtrl.isAdmin, admnCtrl.deleteCoupon)
+
+router.get('/saleschart',admnCtrl.getSalesChart)
 
 module.exports = router;

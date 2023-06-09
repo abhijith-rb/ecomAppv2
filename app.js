@@ -27,6 +27,9 @@ app.use((req, res, next) => {
 
 app.use('/admin',adminRouter)
 app.use('/',userRouter);
+app.use('*',(req,res)=>{
+    res.status(404).render('404page.ejs');
+})
 
 
 app.listen(port, ()=>{

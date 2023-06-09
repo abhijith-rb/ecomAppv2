@@ -48,13 +48,17 @@
                     <h5>Name: <%=user.username%></h5>
                     <h5>Email: <%=user.email%></h5>
                     <h5>Mobile: <%=user.mobile%></h5>
-                    <h4>Address: </h4>
-                    <h5>Address line 1: <%=user.address.addressline1%></h5>
-                    <h5>Address line 2: <%=user.address.addressline2%></h5>
-                    <h5>City: <%=user.address.city%></h5>
-                    <h5>State: <%=user.address.state%></h5>
-                    <h5>Pin: <%=user.address.pin%></h5>
-                    <h5>Country: <%=user.address.country%></h5>
+                    <% if(user.address.length > 0){%>
+                        <%user.address.forEach((addrs,i)=>{%>
+                            <h4>Address <%=i+1%>: </h4>
+                            <h5>Address line 1: <%=addrs.addressline1%></h5>
+                            <h5>Address line 2: <%=addrs.addressline2%></h5>
+                            <h5>City: <%=addrs.city%></h5>
+                            <h5>State: <%=addrs.state%></h5>
+                            <h5>Pin: <%=addrs.pin%></h5>
+                            <h5>Country: <%=addrs.country%></h5>
+                        <%})%>
+                    <%}%>
                 </div>
             </div>
         </div>

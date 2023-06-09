@@ -8,7 +8,7 @@ $(function() {
     labels: ["2013", "2014", "2014", "2015", "2016", "2017"],
     datasets: [{
       label: '# of Votes',
-      data: [10, 19, 3, 5, 2, 3],
+      data: [10, 19, 3, 5, 2, 20],
       backgroundColor: [
         'rgba(255, 99, 132, 0.2)',
         'rgba(54, 162, 235, 0.2)',
@@ -307,14 +307,14 @@ $(function() {
     });
   }
 
-  if ($("#lineChart").length) {
-    var lineChartCanvas = $("#lineChart").get(0).getContext("2d");
-    var lineChart = new Chart(lineChartCanvas, {
-      type: 'line',
-      data: data,
-      options: options
-    });
-  }
+  // if ($("#lineChart").length) {
+  //   var lineChartCanvas = $("#lineChart").get(0).getContext("2d");
+  //   var lineChart = new Chart(lineChartCanvas, {
+  //     type: 'line',
+  //     data: data,
+  //     options: options
+  //   });
+  // }
 
   if ($("#linechart-multi").length) {
     var multiLineCanvas = $("#linechart-multi").get(0).getContext("2d");

@@ -191,9 +191,9 @@
     <div class="container">
       
     <div class="form-1">
-        <h1>Mobile OTP Login</h1>
+        <h1>OTP Login</h1>
         <form class="login-form" action="/sendSms" method="post" id="otpForm">
-            <input type="number" name="mobile" class="form-control" id="phoneNumberInput" placeholder="Enter number"/>
+            <input type="number" name="mobile" class="form-control" id="phoneNumberInput" placeholder="Enter Mobile number"/>
             <button type="submit" class="btn btn-primary btn-block mb-4">Request OTP</button>
         </form>
     
@@ -208,7 +208,6 @@
       
     </div>
 
-    <%- include('../partials/footer.ejs') %>
 
     <script>
         const form = document.getElementById('otpForm');
@@ -244,9 +243,7 @@
 
             const data = await response.json();
             if(response.ok){
-              alert(data.msg);
-              console.log("response received")
-                // window.location.href = '/'
+                window.location.href = '/'
             }
             else{
                 const errorElement = document.getElementById('error-message');

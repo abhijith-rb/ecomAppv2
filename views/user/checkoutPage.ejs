@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>MultiShop - Online Shop Website Template</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Free HTML Templates" name="keywords">
+    <meta content="Free HTML Templates" name="description">
+
+    <!-- Favicon -->
+    <link href="img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">  
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/animate/animate.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <%- include('../partials/user-header') %>
+    <!-- Breadcrumb Start -->
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-12">
+                <nav class="breadcrumb bg-light mb-30">
+                    <a class="breadcrumb-item text-dark" href="#">Home</a>
+                    <a class="breadcrumb-item text-dark" href="#">Shop</a>
+                    <span class="breadcrumb-item active">Checkout</span>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <!-- Breadcrumb End -->
+
+
+    <!-- Checkout Start -->
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-lg-8">
+                <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Billing Address</span></h5>
+
+                <div class="bg-light p-30 mb-5">
+                    <div id="adrsProvider" data-primeaddress="<%=JSON.stringify(user.address[0])%>"></div>
+                    <% if(user.address.length > 0){%>
+                        <%user.address.forEach((addrs,i)=>{%>
+                            <div class="row">
+                                <h4>Address <%=i+1%>: </h4>
+                                <span>Name: <%=addrs.name%></span> &nbsp;
+                                <span>Mobile: <%=addrs.mobile%></span> &nbsp;
+                                <span>Address line 1: <%=addrs.addressline1%></span> &nbsp;
+                                <span>Address line 2: <%=addrs.addressline2%></span> &nbsp;
+                                <span>City: <%=addrs.city%></span> &nbsp;
+                                <span>State: <%=addrs.state%></span> &nbsp;
+                                <span>Pin: <%=addrs.pin%></span> &nbsp;
+                                <span>Country: <%=addrs.country%></span> 
+                            </div>
+                            <button class="deliverBtns" data-address="<%=JSON.stringify(addrs)%>">Deliver here</button>
+                        <%})%>
+                    <%}%>
+
+                    <div class="col-md-12">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="shipto">
+                            <label class="custom-control-label" for="shipto"  data-toggle="collapse" data-target="#shipping-address">Add new address</label>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="collapse mb-5" id="shipping-address">
+                    <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Add new Address</span></h5>
+                    <div class="bg-light p-30">
+                        <form action="/addAddress" method="POST" id="addAdrs">
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <label>Name</label>
+                                    <input class="form-control" name="name" id="nameAdd" type="text" >
+                                </div>
+                               
+                                <div class="col-md-6 form-group">
+                                    <label>Mobile </label>
+                                    <input class="form-control" name="mobile" id="mobileAdd" type="text" >
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label>Address Line 1</label>
+                                    <input class="form-control" name="addressline1" id="al1Add" type="text" >
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label>Address Line 2</label>
+                                    <input class="form-control" name="addressline2" id="al2Add" type="text" >
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label>Country</label>
+                                    <select class="custom-select" name="country" id="ctryAdd">
+                                        <option selected>India</option>
+                                        <option>Afghanistan</option>
+                                        <option>Albania</option>
+                                        <option>Algeria</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label>City</label>
+                                    <input class="form-control" name="city" id="cityAdd" type="text" >
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label>State</label>
+                                    <input class="form-control" name="state" id="stateAdd" type="text" >
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label>PIN Code</label>
+                                    <input class="form-control" name="pin" id="pinAdd" type="text" >
+                                </div>
+                                <button type="submit">Save & Deliver here</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-lg-4">
+                <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Order Total</span></h5>
+                <div class="bg-light p-30 mb-5">
+                    <div class="border-bottom">
+                        <h6 class="mb-3">Products</h6>
+                        <%cart.items.forEach((item,i)=>{%>
+                            <div class="d-flex justify-content-between">
+                            <p><%=item.name%></p>
+                            <p>₹<%=item.subTotal%></p>
+                            </div>
+                        <%})%>
+                    </div>
+                    <div class="border-bottom pt-3 pb-2">
+                        <div class="d-flex justify-content-between mb-3">
+                            <h6>Subtotal</h6>
+                            <h6>₹<%=cart.total%></h6>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <h6 class="font-weight-medium">Delivery charge</h6>
+                            <h6 class="font-weight-medium">₹10</h6>
+                        </div>
+                    </div>
+                    <div class="pt-2">
+                        <div class="d-flex justify-content-between mt-2">
+                            <h5>Total</h5>
+                            <h5>₹<%=cart.total+10%></h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-5">
+                    <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Payment</span></h5>
+                    <div class="bg-light p-30">
+                        <div class="form-group">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="payment" id="upi">
+                                <label class="custom-control-label" for="upi">UPI</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="payment" id="cod">
+                                <label class="custom-control-label" for="cod">Cash on Delivery</label>
+                            </div>
+                        </div>
+                        <div class="form-group mb-4">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="payment" id="debitCard">
+                                <label class="custom-control-label" for="debitCard">Credit/Debit/ATM Card</label>
+                            </div>
+                        </div>
+                        <button class="btn btn-block btn-primary font-weight-bold py-3" id="placeOrder">Place Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Checkout End -->
+
+
+    <!-- Footer Start -->
+    <%- include('../partials/footer.ejs') %>
+
+    <!-- Footer End -->
+
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        const primeAddress = JSON.parse(document.getElementById('adrsProvider').dataset.primeaddress);
+        let address= primeAddress;
+
+        const deliverBtns = document.getElementsByClassName('deliverBtns');
+        for(let i=0; i<deliverBtns.length; i++){
+            deliverBtns[i].addEventListener('click',(e)=>{
+                e.preventDefault();
+                let adrsObj = JSON.parse(e.target.getAttribute('data-address'))
+                address.name = adrsObj.name;
+                address.mobile = adrsObj.mobile;
+                address.addressline1 = adrsObj.addressline1;
+                address.addressline2 = adrsObj.addressline2;
+                address.city = adrsObj.city;
+                address.state = adrsObj.state;
+                address.country = adrsObj.country;
+                address.pin = adrsObj.pin;
+                console.log(address)
+                console.log(typeof address)
+            })
+        }
+
+        const form = document.getElementById('addAdrs')
+
+        form.addEventListener('submit',(e)=>{
+           e.preventDefault();
+        const name = document.getElementById('nameAdd').value
+        const mobile = document.getElementById('mobileAdd').value
+        const al1Add = document.getElementById('al1Add').value
+        const al2Add = document.getElementById('al2Add').value
+        const ctryAdd = document.getElementById('ctryAdd').value
+        const cityAdd = document.getElementById('cityAdd').value
+        const stateAdd = document.getElementById('stateAdd').value
+        const pinAdd = document.getElementById('pinAdd').value
+        address = {
+            name:name,
+            mobile:mobile,
+            addressline1:al1Add,
+            addressline2:al2Add,
+            country:ctryAdd,
+            city:cityAdd,
+            state:stateAdd,
+            pin:pinAdd
+        }
+        fetch('/addAddress',{
+            method:'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(address)
+        })
+        .then(response =>{
+            const data = response.json();
+            if(response.ok){
+                cancelBox()
+            }
+        } )
+        .catch((err)=>console.log(err))
+       })
+
+        const button = document.getElementById('placeOrder');
+
+        button.addEventListener('click',async(e)=>{
+            e.preventDefault();
+            console.log('button clicked')
+           
+            let upi = document.getElementById('upi')
+            let cod = document.getElementById('cod')
+            let cards = document.getElementById('debitCard')
+            let paymentMethod;
+            
+            if(upi.checked){
+                paymentMethod = 'UPI'
+            }else if(cod.checked){
+                paymentMethod = 'COD'
+            }else if(cards.checked){
+                paymentMethod = 'Credit/Debit/ATM Card'
+            }else{
+                alert('Select a payment Method');
+                return;
+            }
+
+        
+            const response = await fetch('/placeOrder',{
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body:JSON.stringify({address,paymentMethod})
+            })
+
+            const resData = await response.json();
+            if(resData.codSuccess){
+                window.location.href = "/success";
+            }else{
+                razorPayment(resData);
+            }
+        })
+
+        const razorPayment= (order)=>{
+            
+            const options = {
+            "key": "rzp_test_6JFoZx1fYTkS3n", 
+            "amount": order.amount,
+            "currency": "INR",
+            "name": "Sole Avenue",
+            "description": "Test Transaction",
+            "image": "https://example.com/your_logo",
+            "order_id": order.id, 
+            "handler": function (response){
+                console.log(response)
+                verifyPayment(response,order)
+            },
+            "prefill": {
+                "name": "Gaurav Kumar",
+                "email": "gaurav.kumar@example.com",
+                "contact": "9999999999"
+            },
+            "notes": {
+                "address": "Razorpay Corporate Office"
+            },
+            "theme": {
+                "color": "#3399cc"
+                    }
+                }
+            const rzp = new Razorpay(options);
+            rzp.open();
+            }
+
+            function verifyPayment(payment,order){
+            $.ajax({
+                url:'/verifyPayment',
+                method:'post',
+                data:{
+                    payment,
+                    order
+                },
+                success:(response)=>{
+                    if(response.status){
+                        window.location.href= '/success'
+                    }else{
+                        alert('Payment Failed')
+                    }
+                },
+                error:(err)=>{
+                    console.log(err)
+                }
+
+            })
+            }
+    </script>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- Contact Javascript File -->
+    <script src="mail/jqBootstrapValidation.min.js"></script>
+    <script src="mail/contact.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="js/main.js"></script>
+</body>
+
+</html>

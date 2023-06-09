@@ -21,6 +21,8 @@
     <link rel="stylesheet" href="/assets/css/style.css">
     <!-- End layout styles -->
     <link rel="shortcut icon" href="/assets/images/favicon.png" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
   </head>
   <body>
     <div class="container-scroller">
@@ -36,6 +38,22 @@
         <!-- partial -->
         <div class="main-panel">
           <div class="content-wrapper">
+            <div class="col-lg-6 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">Sales chart</h4>
+                  <div class="dropdown card-title">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Interval </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                      <a class="dropdown-item orderStatus" onclick="getWeek()">Weekly</a>
+                      <a class="dropdown-item orderStatus" onclick="getMonth()">Monthly</a>
+                      <a class="dropdown-item orderStatus" onclick="getYear()">Yearly</a>
+                    </div>
+                  </div>
+                  <canvas id="lineChart" style="height:250px"></canvas>
+                </div>
+              </div>
+            </div>
           </div>
           <!-- content-wrapper ends -->
           <!-- partial:partials/_footer.html -->
@@ -51,20 +69,305 @@
     <!-- container-scroller -->
     <!-- plugins:js -->
     <script>
-      const searchForm = document.getElementById('searchForm');
+      let labels = [];
+      let data = [];
 
-      searchForm.addEventListener('submit',(e)=>{
-          e.preventDefault();
+      $(function() {
+        fetch('/admin/saleschart?interval=year',{
+          method:'get',
+        }).then(response=> response.json())
+          .then(data=>{
+              console.log(data.labels)
+              console.log(data.data)
+              labels = [...data.labels];
+              data = [...data.data];
 
-          const squery = document.getElementsByName('search')[0].value;
-
-          if(squery === ''){
-              alert('Enter key to search');
-              return;
-          }
-          
-          searchForm.submit();
+              var chartData = {
+              labels: labels,
+              datasets: [{
+                label: '# of Sales',
+                data: data,
+                backgroundColor: [
+                  'rgba(255, 99, 132, 0.2)',
+                  'rgba(54, 162, 235, 0.2)',
+                  'rgba(255, 206, 86, 0.2)',
+                  'rgba(75, 192, 192, 0.2)',
+                  'rgba(153, 102, 255, 0.2)',
+                  'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                  'rgba(255,99,132,1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(255, 206, 86, 1)',
+                  'rgba(75, 192, 192, 1)',
+                  'rgba(153, 102, 255, 1)',
+                  'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1,
+                fill: false
+              }]
+            };
+            var options = {
+              scales: {
+                yAxes: [{
+                  ticks: {
+                    beginAtZero: true
+                  },
+                  gridLines: {
+                    color: "rgba(204, 204, 204,0.1)"
+                  }
+                }],
+                xAxes: [{
+                  gridLines: {
+                    color: "rgba(204, 204, 204,0.1)"
+                  }
+                }]
+              },
+              legend: {
+                display: false
+              },
+              elements: {
+                point: {
+                  radius: 0
+                }
+              }
+            };
+       
+            if ($("#lineChart").length) {
+              var lineChartCanvas = $("#lineChart").get(0).getContext("2d");
+              var lineChart = new Chart(lineChartCanvas, {
+                type: 'line',
+                data: chartData,
+                options: options
+              });
+                }
+          })
+          .catch((error)=> console.log(error))
       })
+
+      function getYear(){
+        fetch('/admin/saleschart?interval=year',{
+            method:'get',
+          }).then(response=> response.json())
+            .then(data=>{
+                console.log(data.labels)
+                console.log(data.data)
+                labels = [...data.labels];
+                data = [...data.data];
+  
+                var chartData = {
+                labels: labels,
+                datasets: [{
+                  label: '# of Sales',
+                  data: data,
+                  backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                  ],
+                  borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                  ],
+                  borderWidth: 1,
+                  fill: false
+                }]
+              };
+              var options = {
+                scales: {
+                  yAxes: [{
+                    ticks: {
+                      beginAtZero: true
+                    },
+                    gridLines: {
+                      color: "rgba(204, 204, 204,0.1)"
+                    }
+                  }],
+                  xAxes: [{
+                    gridLines: {
+                      color: "rgba(204, 204, 204,0.1)"
+                    }
+                  }]
+                },
+                legend: {
+                  display: false
+                },
+                elements: {
+                  point: {
+                    radius: 0
+                  }
+                }
+              };
+         
+              if ($("#lineChart").length) {
+                var lineChartCanvas = $("#lineChart").get(0).getContext("2d");
+                var lineChart = new Chart(lineChartCanvas, {
+                  type: 'line',
+                  data: chartData,
+                  options: options
+                });
+                  }
+            })
+            .catch((error)=> console.log(error))
+
+      }
+      
+      function getMonth(){
+        fetch('/admin/saleschart?interval=month',{
+            method:'get',
+          }).then(response=> response.json())
+            .then(data=>{
+                console.log(data.labels)
+                console.log(data.data)
+                labels = [...data.labels];
+                data = [...data.data];
+  
+                var chartData = {
+                labels: labels,
+                datasets: [{
+                  label: '# of Sales',
+                  data: data,
+                  backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                  ],
+                  borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                  ],
+                  borderWidth: 1,
+                  fill: false
+                }]
+              };
+              var options = {
+                scales: {
+                  yAxes: [{
+                    ticks: {
+                      beginAtZero: true
+                    },
+                    gridLines: {
+                      color: "rgba(204, 204, 204,0.1)"
+                    }
+                  }],
+                  xAxes: [{
+                    gridLines: {
+                      color: "rgba(204, 204, 204,0.1)"
+                    }
+                  }]
+                },
+                legend: {
+                  display: false
+                },
+                elements: {
+                  point: {
+                    radius: 0
+                  }
+                }
+              };
+         
+              if ($("#lineChart").length) {
+                var lineChartCanvas = $("#lineChart").get(0).getContext("2d");
+                var lineChart = new Chart(lineChartCanvas, {
+                  type: 'line',
+                  data: chartData,
+                  options: options
+                });
+                  }
+            })
+            .catch((error)=> console.log(error))
+
+      }
+      
+      function getWeek(){
+        fetch('/admin/saleschart?interval=week',{
+            method:'get',
+          }).then(response=> response.json())
+            .then(data=>{
+                console.log(data.labels)
+                console.log(data.data)
+                labels = [...data.labels];
+                data = [...data.data];
+  
+                var chartData = {
+                labels: labels,
+                datasets: [{
+                  label: '# of Sales',
+                  data: data,
+                  backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                  ],
+                  borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                  ],
+                  borderWidth: 1,
+                  fill: false
+                }]
+              };
+              var options = {
+                scales: {
+                  yAxes: [{
+                    ticks: {
+                      beginAtZero: true
+                    },
+                    gridLines: {
+                      color: "rgba(204, 204, 204,0.1)"
+                    }
+                  }],
+                  xAxes: [{
+                    gridLines: {
+                      color: "rgba(204, 204, 204,0.1)"
+                    }
+                  }]
+                },
+                legend: {
+                  display: false
+                },
+                elements: {
+                  point: {
+                    radius: 0
+                  }
+                }
+              };
+         
+              if ($("#lineChart").length) {
+                var lineChartCanvas = $("#lineChart").get(0).getContext("2d");
+                var lineChart = new Chart(lineChartCanvas, {
+                  type: 'line',
+                  data: chartData,
+                  options: options
+                });
+                  }
+            })
+            .catch((error)=> console.log(error))
+
+      }
+
+
     </script>
     <script src="/assets/vendors/js/vendor.bundle.base.js"></script>
     <!-- endinject -->
@@ -84,6 +387,7 @@
     <!-- endinject -->
     <!-- Custom js for this page -->
     <script src="/assets/js/dashboard.js"></script>
+    <script src="/assets/js/chart.js"></script>
     <!-- End custom js for this page -->
   </body>
 </html>

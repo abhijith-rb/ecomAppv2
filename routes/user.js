@@ -12,7 +12,7 @@ router.use(session({
     saveUninitialized:false,
     resave:false,
     cookie:{
-        maxAge:60*60*1000,
+        maxAge:24*60*60*1000,
         httpOnly:true,
         secure:false
     }
@@ -23,11 +23,23 @@ router.get('/', usrCtrl.getHome)
 
 router.get('/blockedpage', usrCtrl.getBlockpage)
 //OTP through Email
-router.get('/otpLogin',usrCtrl.isLoggedIn,usrCtrl.getOtpPage)
+router.get('/forgotpassword',usrCtrl.isLoggedIn,usrCtrl.getOtpPage)
 
 router.post('/reqOtp',usrCtrl.sendOtp)
 
 router.post('/otpVerify',usrCtrl.verifyOtp)
+
+router.get('/changepwd/:id', usrCtrl.getChangePwd)
+
+router.post('/newpwd/:id', usrCtrl.updatePwd)
+
+//Otp through Sms
+
+router.get('/otplogin',usrCtrl.isLoggedIn, usrCtrl.getSmsOtpPage)
+
+router.post('/sendSms', usrCtrl.sendSmsOtp);
+
+router.post('/smsVerify', usrCtrl.smsVerify);
 
 //getRegisterPage
 router.get('/register',usrCtrl.isLoggedIn,usrCtrl.getRegisterPage)
@@ -41,10 +53,7 @@ router.get('/login',usrCtrl.isLoggedIn,usrCtrl.getLoginPage)
 //authenticate user
 router.post('/login', usrCtrl.userAuth)
 
-
-
-router.get('/editProfile',usrCtrl.isLoggedOut,usrCtrl.getEditProfile)
-
+// router.get('/editProfile',usrCtrl.isLoggedOut,usrCtrl.getEditProfile)
 
 router.get('/logout',usrCtrl.logoutUser )
 
@@ -70,6 +79,10 @@ router.get('/profile',usrCtrl.isLoggedOut,usrCtrl.getProfile)
 router.get('/editProfile',usrCtrl.isLoggedOut,usrCtrl.getEditProfile)
 router.post('/editProfile',usrCtrl.isLoggedOut,usrCtrl.editProfile)
 
+router.get('/manageAddress',usrCtrl.isLoggedOut,usrCtrl.getMngAddress)
+
+router.post('/addAddress',usrCtrl.isLoggedOut,usrCtrl.addAddress)
+
 router.get('/myorders',usrCtrl.isLoggedOut,usrCtrl.getMyOrders)
 
 router.get('/myOrderDetail/:id',usrCtrl.isLoggedOut,usrCtrl.myOrderDetail)
@@ -88,13 +101,8 @@ router.get('/coupons',usrCtrl.isLoggedOut,usrCtrl.listCoupons)
 
 router.post('/applyCoupon',usrCtrl.isLoggedOut,usrCtrl.applyCoupon)
 
-//Otp through Sms
+router.post('/priceFilter',usrCtrl.filterByPrice)
 
-router.get('/smsOtp',usrCtrl.getSmsOtpPage)
-
-router.post('/sendSms', usrCtrl.sendSmsOtp);
-
-router.post('/smsVerify', usrCtrl.smsVerify);
 
 module.exports = router;
 

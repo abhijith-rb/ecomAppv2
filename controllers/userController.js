@@ -84,16 +84,16 @@ usrCtrl.createUser = async(req,res)=>{
         const newUser = new User({username,email,mobile,password:hashedPassword});
     
         await newUser.save();
-        res.redirect('/login');
+        res.redirect('/otplogin');
     
     } catch (error) {
         console.log(error)
         res.status(500).send('Error creating new user')
     } 
-    }
+}
 
 
-    usrCtrl.userAuth = async (req, res) => {
+usrCtrl.userAuth = async (req, res) => {
     const { username, password } = req.body;
     try {
       let errMsg = 'Invalid username or password';
@@ -155,12 +155,15 @@ usrCtrl.getBlockpage = (req,res)=>{
 }
 
 
-usrCtrl.getLoginPage = (req,res)=>{
-    res.render('user/ulogin.ejs');
+usrCtrl.getLoginPage = async(req,res)=>{
+    const categories = await Category.find()
+    res.render('user/login.ejs',{categories,userPresent:false});
 }
 
-usrCtrl.getRegisterPage = (req,res)=>{
-    res.render('user/ureg.ejs');
+usrCtrl.getRegisterPage = async(req,res)=>{
+    // res.render('user/ureg.ejs');
+    const categories = await Category.find()
+    res.render('user/register.ejs',{categories,userPresent:false});
 }
 
 usrCtrl.getEditProfile = async(req,res)=>{
@@ -183,8 +186,10 @@ usrCtrl.logoutUser = (req,res)=>{
   })
 }
 
-usrCtrl.getOtpPage = (req,res)=>{
-  res.render('user/otpPage.ejs')
+usrCtrl.getOtpPage = async(req,res)=>{
+  // res.render('user/otpPage.ejs')
+  const categories = await Category.find()
+  res.render('user/forgotPage.ejs',{categories,userPresent:false})
 }
 
 function generateOTP() {
@@ -198,22 +203,27 @@ function generateOTP() {
 
 usrCtrl.sendOtp = async(req,res)=>{
   const email = req.body.email;
+  console.log(email)
   const user = await User.findOne({email})
   if(!user){
     return res.status(404).json({msg:"You are not registered with us please sign up"})
   }
-  
+  const otpExisting = await OtpModel.findOne({email})
+  if(otpExisting){
+    await OtpModel.findByIdAndDelete(otpExisting._id);
+  }
   try {
     const OTP = generateOTP(); 
 
     const otpDoc = new OtpModel({email,otp:OTP})
     await otpDoc.save();
+    console.log(process.env.SENDGRID_API_KEY)
 
-    sgMail.setApiKey('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')
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY)
     const msg = {
-      to: 'rbabhijith@gmail.com', 
+      to: email, 
       from: 'abhijithrb91@gmail.com', 
-      subject: 'Your OTP for login',
+      subject: 'Your OTP to change password',
       text: `Your OTP is ${OTP}`,
     }
     sgMail
@@ -225,11 +235,11 @@ usrCtrl.sendOtp = async(req,res)=>{
         console.error(error)
       })
 
-    res.send('Otp Sent successfully')
+    res.status(200).json({msg:'Otp Sent successfully'})
   
   } catch (error) {
       console.error(error);
-      res.send('Something went wrong');
+      res.status(500).json({msg:'Something went wrong'})
   }
 
 }
@@ -237,48 +247,70 @@ usrCtrl.sendOtp = async(req,res)=>{
 usrCtrl.verifyOtp = async(req,res)=>{
   const otp = req.body.otp;
   const email = req.body.email;
-  const valid = await OtpModel.findOne({email,otp})
-  if(!valid){
+  const validOtp = await OtpModel.findOne({email,otp})
+  if(!validOtp){
     res.status(403).json({msg:'Invalid Otp number'})
     return;
   }
   const user = await User.findOne({email});
   const userId = user._id;
-  req.session.userId = userId;
-  req.session.username = user.username;
-  await OtpModel.deleteOne({email});
-
-  return res.status(200).json(userId);
+  await OtpModel.findByIdAndDelete(validOtp._id)
   
+  return res.status(200).json({userId});
 }
 
-usrCtrl.getSmsOtpPage = (req,res)=>{
-  res.render('user/smsOtp.ejs')
+usrCtrl.getChangePwd = (req,res)=>{
+  const userId = req.params.id;
+  res.render('user/changepwd.ejs',{userId})
+}
+
+usrCtrl.updatePwd = async(req,res)=>{
+    const userId = req.params.id;
+    const {password} = req.body;
+    try {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password,salt);
+      await User.findByIdAndUpdate(userId,{
+        $set:{password:hashedPassword}
+      })
+      
+      res.status(200).json({msg:"Password updated"})
+    } catch (error) {
+      console.log(error)
+      res.status(500).json({msg:"Something went wrong"})
+    }
+}
+
+// sms otp...
+
+usrCtrl.getSmsOtpPage = async(req,res)=>{
+  // res.render('user/smsOtp.ejs')
+  const categories = await Category.find();
+  res.render('user/mobileOtp.ejs',{categories,userPresent:false})
 }
 
 usrCtrl.sendSmsOtp = async (req, res) => {
-  // const mobile = 8848635268
   const mobile = req.body.mobile;
   const user = await User.findOne({mobile})
   if(!user){
     return res.status(404).json({msg:"You are not registered with us please sign up"})
   }
+
   try {
 
     const OTP = generateOTP(); 
-    // const OTP = Math.floor(100000 + Math.random() * 900000);
 
     const otpDoc = new OtpModel({mobile,otp:OTP})
     await otpDoc.save();
-    const accountSid = "AC11649ceee378f98248ab070b09dd78c2";
-    const authToken = "98d857df3765f86cdf354e89d6f00906";
-
-
+    const accountSid = process.env.ACCOUNT_SID;
+    const authToken = process.env.AUTH_TOKEN;
     const client = require("twilio")(accountSid, authToken);
+    console.log("before client")
     client.messages
       .create({ body: `Your otp is ${OTP}`, from: "+16812461783", to: `+91${mobile}` })
         .then(message => console.log(message.sid));
     
+    console.log("after client")
     res.send('Otp send successfullyBE');
   } catch (error) {
     console.error('Error sending OTP:', error);
@@ -294,13 +326,13 @@ usrCtrl.smsVerify = async(req,res)=>{
     res.status(403).json({msg:'Invalid Otp number'})
     return;
   }
-  // const user = await User.findOne({mobile});
-  // const userId = user._id;
-  // req.session.userId = userId;
-  // req.session.username = user.username;
+  const user = await User.findOne({mobile});
+  const userId = user._id;
+  req.session.userId = userId;
+  req.session.username = user.username;
   await OtpModel.deleteOne({mobile});
 
-  return res.status(200).json({msg:"ok otp verified ok"});
+  res.status(200).json({userId});
   
 }
 
@@ -308,7 +340,7 @@ usrCtrl.getCatPrdts = async(req,res)=>{
   const category = await Category.findById(req.params.id)
   const userId = req.session.userId
   const categories = await Category.find()
-  const Products = await (await Product.find({category:category._id}).limit(9)).reverse()
+  const Products = await Product.find({category:category._id}).limit(9)
   if(req.session.userId){
     res.render('user/category.ejs',{Products,userPresent:true,userId,categories,category})
   }else{
@@ -416,7 +448,8 @@ usrCtrl.getCheckout = async(req,res)=>{
   const categories = await Category.find()
   const user = await User.findById(userId)
   const cart = await Cart.findOne({userId})
-  res.render('user/checkout.ejs',{user,userId,cart,categories})
+  res.render('user/checkoutPage.ejs',{user,userId,cart,categories})
+  // res.render('user/checkout.ejs',{user,userId,cart,categories})
 }
 
 usrCtrl.incQty = async(req,res)=>{
@@ -496,6 +529,40 @@ usrCtrl.editProfile = async(req,res)=>{
   res.redirect('/profile')
 }
 
+usrCtrl.getMngAddress = async(req,res)=>{
+  const userId = req.session.userId;
+  const user = await User.findById(userId)
+  const categories = await Category.find()
+  res.render('user/manageAddress.ejs',{user,userId,categories})
+}
+
+usrCtrl.addAddress = async(req,res)=>{
+  const userId = req.session.userId;
+  const address = req.body;
+  try {
+    await User.findByIdAndUpdate(userId,{
+      $push:
+      {address:
+        {
+        name:address.name,
+        mobile:address.mobile,
+        addressline1:address.addressline1,
+        addressline2:address.addressline2,
+        country:address.country,
+        city:address.city,
+        state:address.state,
+        pin:address.pin,
+        }
+      }
+    })
+    res.status(200).json({msg:"Address added Successfully"})
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({msg:"Something went wrong"})
+  }
+}
+
+
 const clearCart = async(userId)=>{
   await Cart.findOneAndUpdate({userId},{
     $set:{items:[],total:0}
@@ -505,9 +572,9 @@ const clearCart = async(userId)=>{
 
 const generateRazorpay = (orderId,total)=>{
   return new Promise((resolve,reject)=>{
-    
+      const deliveryCharge = 10;
       const options={
-          amount:(total+10)*100,
+          amount:(total+deliveryCharge)*100,
           currency:"INR",
           receipt:''+orderId
       };
@@ -530,34 +597,24 @@ usrCtrl.placeOrder = async(req,res)=>{
   const cart = await Cart.findOne({userId});
   const items = cart.items;
   console.log(req.body);
-  const {billAddress,shipAddress,paymentMethod} = req.body;
+  const {address,paymentMethod} = req.body;
+  console.log("Address:")
+  console.log(address)
+  console.log(typeof address)
   const newOrder = new Order({
     userId:userId,
     items:[...items],
-    billAddress:{
-      firstname:billAddress.firstname,
-      lastname:billAddress.lastname,
-      mobile:billAddress.mobile,
-      email:billAddress.email,
-      addressline1:billAddress.addressline1,
-      addressline2:billAddress.addressline2,
-      city:billAddress.city,
-      state:billAddress.state,
-      country:billAddress.country,
-      pin:billAddress.pin,
+    address:{
+      name:address.name,
+      mobile:address.mobile,
+      addressline1:address.addressline1,
+      addressline2:address.addressline2,
+      city:address.city,
+      state:address.state,
+      country:address.country,
+      pin:address.pin,
     },
-    shipAddress:{
-      firstname:shipAddress.firstname,
-      lastname:shipAddress.lastname,
-      mobile:shipAddress.mobile,
-      email:shipAddress.email,
-      addressline1:shipAddress.addressline1,
-      addressline2:shipAddress.addressline2,
-      city:shipAddress.city,
-      state:shipAddress.state,
-      country:shipAddress.country,
-      pin:shipAddress.pin,
-    },
+   
     total:cart.total,
     paymentMethod,
     status:'Processing', 
@@ -585,6 +642,7 @@ usrCtrl.placeOrder = async(req,res)=>{
   }
 
 }
+
 
 usrCtrl.getMyOrders= async(req,res)=>{
   const userId = req.session.userId;
@@ -756,6 +814,87 @@ usrCtrl.applyCoupon = async(req,res)=>{
     } catch (error) {
       res.status(500).json({msg:"Something went wrong"})
     }
+}
+
+usrCtrl.filterByPrice = async(req,res)=>{
+      const {checkedInputs,category} = req.body;
+      const updatedProducts = []
+      if (checkedInputs.includes('price-all')) {
+        let prds = await Product.find({category:category})
+        updatedProducts.push(...prds)
+      } else {
+
+        if (checkedInputs.includes('price-1')) {
+          let prds = await Product.find({
+            category: category,
+            $expr: {
+              $and: [
+                { $gte: ['$price', 0] },
+                { $lte: ['$price', 1000] }
+              ]
+            }
+          });
+          updatedProducts.push(...prds)
+        }
+
+        if (checkedInputs.includes('price-2')) {
+          let prds = await Product.find({
+            category: category,
+            $expr: {
+              $and: [
+                { $gte: ['$price', 1000] },
+                { $lte: ['$price', 2000] }
+              ]
+            }
+          });
+          updatedProducts.push(...prds)
+        }
+        if (checkedInputs.includes('price-3')) {
+          let prds = await Product.find({
+            category: category,
+            $expr: {
+              $and: [
+                { $gte: ['$price', 2000] },
+                { $lte: ['$price', 3000] }
+              ]
+            }
+          });
+          updatedProducts.push(...prds)
+        }
+        if (checkedInputs.includes('price-4')) {
+          let prds = await Product.find({
+            category: category,
+            $expr: {
+              $and: [
+                { $gte: ['$price', 3000] },
+                { $lte: ['$price', 4000] }
+              ]
+            }
+          });
+          updatedProducts.push(...prds)
+        }
+        if (checkedInputs.includes('price-5')) {
+          let prds = await Product.find({
+            category: category,
+            $expr: {
+              $and: [
+                { $gte: ['$price', 4000] },
+                { $lte: ['$price', 100000] }
+              ]
+            }
+          });
+          updatedProducts.push(...prds)
+        }
+      }
+      console.log('filterConditions:')
+      try {
+        console.log('updatedProducts:')
+        console.log(updatedProducts)
+        res.status(200).json(updatedProducts);
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({msg:'Error retrieving products'});
+      }
 }
 
 module.exports = usrCtrl;

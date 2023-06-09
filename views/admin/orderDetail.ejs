@@ -57,45 +57,29 @@
                                       <a class="dropdown-item orderStatus" id="cancel" data-orderid="<%=order._id%>">Cancelled</a>
                                       <a class="dropdown-item orderStatus" id="return" data-orderid="<%=order._id%>">Returned</a>
                                     </div>
-                                    
                                 </div>
     
                                 <div class="dropdown">
                                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> More </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                                       <a class="dropdown-item orderStatus" id="billAdd" onclick="showBillAddress()">Billing Address</a>
-                                      <a class="dropdown-item orderStatus" id="shipAdd" onclick="showShipAddress()">Shipping Address</a>
                                     </div>
                                 </div>
+                                
                             </div>
                             
                             <div id="displayBill" style="display: none;margin-top: 1rem;">
-                                <h4>Billing Address</h4>
-                                <h5>First name: <%=order.billAddress.firstname%></h5>
-                                <h5>Last name: <%=order.billAddress.lastname%></h5>
-                                <h5>Email: <%=order.billAddress.email%></h5>
-                                <h5>Mobile: <%=order.billAddress.mobile%></h5>
-                                <span>Addressline 1: <%=order.billAddress.addressline1%></span> &nbsp;
-                                <span>Addressline 2: <%=order.billAddress.addressline2%></span> &nbsp;
-                                <span>City: <%=order.billAddress.city%></span> &nbsp;
-                                <span>State: <%=order.billAddress.state%></span> &nbsp;
-                                <span>Country: <%=order.billAddress.country%></span> &nbsp;
-                                <span>Pin: <%=order.billAddress.pin%></span>
+                                <h4>Delivery Address</h4>
+                                <h5>Name: <%=order.address.name%></h5>
+                                <h5>Mobile: <%=order.address.mobile%></h5>
+                                <span>Addressline 1: <%=order.address.addressline1%></span> &nbsp;
+                                <span>Addressline 2: <%=order.address.addressline2%></span> &nbsp;
+                                <span>City: <%=order.address.city%></span> &nbsp;
+                                <span>State: <%=order.address.state%></span> &nbsp;
+                                <span>Country: <%=order.address.country%></span> &nbsp;
+                                <span>Pin: <%=order.address.pin%></span>
                             </div>
                             
-                            <div id="displayShip" style="display: none;margin-top: 1rem;">
-                                <h4>Shipping Address</h4>
-                                <h5>First name: <%=order.shipAddress.firstname%></h5>
-                                <h5>Last name: <%=order.shipAddress.lastname%></h5>
-                                <h5>Email: <%=order.shipAddress.email%></h5>
-                                <h5>Mobile: <%=order.shipAddress.mobile%></h5>
-                                <span>Addressline 1: <%=order.shipAddress.addressline1%></span> &nbsp;
-                                <span>Addressline 2: <%=order.shipAddress.addressline2%></span> &nbsp;
-                                <span>City: <%=order.shipAddress.city%></span> &nbsp;
-                                <span>State: <%=order.shipAddress.state%></span> &nbsp;
-                                <span>Country: <%=order.shipAddress.country%></span> &nbsp;
-                                <span>Pin: <%=order.shipAddress.pin%></span> &nbsp;
-                            </div>
 
                             <div class="table-responsive">
                               <table class="table">
@@ -262,10 +246,7 @@
         const billAddress = document.getElementById('displayBill')
         billAddress.style.display = 'block';
       }
-      function showShipAddress(){
-        const shipAddress = document.getElementById('displayShip')
-        shipAddress.style.display = 'block';
-      }
+      
       </script>
     <script src="/assets/vendors/js/vendor.bundle.base.js"></script>
     <!-- endinject -->

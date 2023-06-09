@@ -56,48 +56,49 @@
     <div class="container-fluid">
         <div class="row px-xl-5">
             <!-- Shop Sidebar Start -->
-            <div class="col-lg-3 col-md-4">
+            <div class="col-lg-3 mb-30">
                 <!-- Price Start -->
                 <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Filter by price</span></h5>
                 <div class="bg-light p-4 mb-30">
-                    <form>
+                    <form id="priceForm" data-category="<%=category._id%>">
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" checked id="price-all">
+                            <input type="checkbox" class="custom-control-input priceInputs" id="price-all" name="price-all">
                             <label class="custom-control-label" for="price-all">All Price</label>
                             <span class="badge border font-weight-normal">1000</span>
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="price-1">
+                            <input type="checkbox" class="custom-control-input priceInputs" id="price-1" name="price-1">
                             <label class="custom-control-label" for="price-1">₹0 - ₹1000</label>
                             <span class="badge border font-weight-normal">150</span>
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="price-2">
+                            <input type="checkbox" class="custom-control-input priceInputs" id="price-2" name="price-2">
                             <label class="custom-control-label" for="price-2">₹1000 - ₹2000</label>
                             <span class="badge border font-weight-normal">295</span>
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="price-3">
+                            <input type="checkbox" class="custom-control-input priceInputs" id="price-3" name="price-3">
                             <label class="custom-control-label" for="price-3">₹2000 - ₹3000</label>
                             <span class="badge border font-weight-normal">246</span>
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-                            <input type="checkbox" class="custom-control-input" id="price-4">
+                            <input type="checkbox" class="custom-control-input priceInputs" id="price-4"  name="price-4">
                             <label class="custom-control-label" for="price-4">₹3000 - ₹4000</label>
                             <span class="badge border font-weight-normal">145</span>
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between">
-                            <input type="checkbox" class="custom-control-input" id="price-5">
-                            <label class="custom-control-label" for="price-5">₹4000 - ₹5000</label>
+                            <input type="checkbox" class="custom-control-input priceInputs" id="price-5"  name="price-5">
+                            <label class="custom-control-label" for="price-5">₹4000 & above</label>
                             <span class="badge border font-weight-normal">168</span>
                         </div>
+                        <button type="submit">Filter By Price</button>
                     </form>
                 </div>
                 <!-- Price End -->
                 
                 <!-- Color Start -->
-                <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Filter by color</span></h5>
-                <div class="bg-light p-4 mb-30">
+                <!-- <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Filter by color</span></h5> -->
+                <!-- <div class="bg-light p-4 mb-30">
                     <form>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
                             <input type="checkbox" class="custom-control-input" checked id="color-all">
@@ -130,7 +131,7 @@
                             <span class="badge border font-weight-normal">168</span>
                         </div>
                     </form>
-                </div>
+                </div> -->
                 <!-- Color End -->
 
                 <!-- Size Start -->
@@ -175,67 +176,51 @@
 
 
             <!-- Shop Product Start -->
-            <div class="col-lg-9 col-md-8">
-                <div class="row pb-3">
-                    <div class="col-12 pb-1">
+            <div class="col-lg-9 h-auto mb-30" style="display: flex;">
+                <div class="row pb-1">
+                    <div class="col-12 pb-1" style="display: flex; justify-content: end;">
 
-                        <!-- <div class="d-flex align-items-center justify-content-between mb-4">
-                            <div>
-                                <button class="btn btn-sm btn-light"><i class="fa fa-th-large"></i></button>
-                                <button class="btn btn-sm btn-light ml-2"><i class="fa fa-bars"></i></button>
-                            </div>
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            
                             <div class="ml-2">
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Sorting</button>
-                                    <div class="dropdown-menu dropdown-menu-right">
-                                        <a class="dropdown-item" href="#">Latest</a>
-                                        <a class="dropdown-item" href="#">Popularity</a>
-                                        <a class="dropdown-item" href="#">Best Rating</a>
+                                    <div class="dropdown-menu dropdown-menu-right" style="cursor: pointer;">
+                                        <a class="dropdown-item" id="sortLatest">Latest</a>
+                                        <a class="dropdown-item" id="sortLoHi">Price: Low to High</a>
+                                        <a class="dropdown-item" id="sortHiLo">Price: High to Low</a>
                                     </div>
                                 </div>
-                                <div class="btn-group ml-2">
-                                    <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Showing</button>
-                                    <div class="dropdown-menu dropdown-menu-right">
-                                        <a class="dropdown-item" href="#">10</a>
-                                        <a class="dropdown-item" href="#">20</a>
-                                        <a class="dropdown-item" href="#">30</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> -->
-
-                    </div>
-
-                <%Products.forEach((product,i)=>{%>
-                    <div class="col-lg-4 col-md-6 col-sm-6 pb-1">
-                        <div class="product-item bg-light mb-4">
-                            <div class="product-img position-relative overflow-hidden" style="height: 20rem;">
-                                <img class="img-fluid w-100" src="/images/<%=product.image[0].filename%>" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
-                                <div class="product-action">
-                                    <!-- <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a> -->
-                                    <!-- <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a> -->
-                                    <a class="btn btn-outline-dark btn-square" href="/detail/<%=product._id%>"><i class="fa fa-search"></i></a>
-                                </div>
-                            </div>
-                            <div class="text-center py-4">
-                                <a class="h6 text-decoration-none text-truncate" href=""><%=product.name%></a>
-                                <div class="d-flex align-items-center justify-content-center mt-2">
-                                    <h5>₹<%=product.price%></h5>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-center mb-1">
-                                    <small class="fa fa-star text-primary mr-1"></small>
-                                    <small class="fa fa-star text-primary mr-1"></small>
-                                    <small class="fa fa-star text-primary mr-1"></small>
-                                    <small class="fa fa-star text-primary mr-1"></small>
-                                    <small class="fa fa-star text-primary mr-1"></small>
-                                    <small>(99)</small>
-                                </div>
+                                
                             </div>
                         </div>
+
                     </div>
-                <%})%>
+
+                    <div class="col-12 pb-1" style="display: flex;flex-wrap: wrap;" id="productList" data-fullproducts="<%=JSON.stringify(Products)%>">
+                        <%Products.forEach((product,i)=>{%>
+                            <div class="col-4 pb-1" >
+                                        <div class="product-item bg-light mb-4">
+                                            <div class="product-img position-relative overflow-hidden" style="height: 20rem;">
+                                                <img class="img-fluid w-100" src="/images/<%=product.image[0].filename%>" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
+                                                <div class="product-action">
+                                                    <a class="btn btn-outline-dark btn-square" href="/detail/<%=product._id%>"><i class="fa fa-search"></i></a>
+                                                </div>
+                                            </div>
+                                            <div class="text-center py-4">
+                                                <a class="h6 text-decoration-none text-truncate" href=""><%=product.name%></a>
+                                                <div class="d-flex align-items-center justify-content-center mt-2">
+                                                    <h5>₹<%=product.price%></h5>
+                                                </div>
+                                                
+                                            </div>
+                                        </div>
+                            </div>
+                                        <%})%>
+                                        
+                        </div>
            
-                    <div class="col-12">
+                    <!-- <div class="col-12">
                         <nav>
                           <ul class="pagination justify-content-center">
                             <li class="page-item disabled"><a class="page-link" href="#">Previous</span></a></li>
@@ -245,7 +230,7 @@
                             <li class="page-item"><a class="page-link" href="#">Next</a></li>
                           </ul>
                         </nav>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <!-- Shop Product End -->
@@ -263,6 +248,240 @@
     <!-- Back to Top -->
     <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
 
+    <script>
+        const productList = document.getElementById('productList');
+        const products = JSON.parse(productList.dataset.fullproducts);
+        const priceForm = document.getElementById('priceForm');
+        let checkedInputs = []
+
+        priceForm.addEventListener('submit',(e)=>{
+            e.preventDefault();
+            const category = e.target.dataset.category;
+            const priceInputs = document.querySelectorAll('.priceInputs');
+            priceInputs.forEach(input=>{
+                if(input.checked){
+                    checkedInputs.push(input.name)
+                }
+            })
+            console.log(checkedInputs);
+            fetch('/priceFilter',{
+                method:'post',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body:JSON.stringify({checkedInputs,category})
+            })
+            .then(response=> response.json())
+            .then(updatedProducts=>{
+                let updatedHTML = '';
+                if(updatedProducts.length > 0){
+
+                    updatedProducts.forEach(product => {
+                    updatedHTML += `
+                            <div class="col-lg-4 col-md-6 col-sm-6 pb-1">
+                                <div class="product-item bg-light mb-4">
+                                    <div class="product-img position-relative overflow-hidden" style="height: 20rem;">
+                                        <img class="img-fluid w-100" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
+                                        <div class="product-action">
+                                            <a class="btn btn-outline-dark btn-square" href="/detail/${product._id}"><i class="fa fa-search"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="text-center py-4">
+                                        <a class="h6 text-decoration-none text-truncate" href="">${product.name}</a>
+                                        <div class="d-flex align-items-center justify-content-center mt-2">
+                                            <h5>₹${product.price}</h5>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }else{
+                    updatedHTML += '<h2>No Matching Results</h2>'
+                }
+
+                productList.innerHTML = updatedHTML;
+            })
+            .catch(error => {
+                console.error(error);
+            })
+        })
+
+        const sortLatestElement = document.getElementById('sortLatest');
+
+        sortLatestElement.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            const currentSort = sortLatestElement.dataset.sort;
+
+            let filteredProducts = products.filter((product) => {
+                if (checkedInputs.includes('price-all')) {
+                return true;
+                } else if (checkedInputs.includes('price-1')) {
+                return product.price >= 0 && product.price <= 1000;
+                } else if (checkedInputs.includes('price-2')) {
+                return product.price >= 1000 && product.price <= 2000;
+                } else if (checkedInputs.includes('price-3')) {
+                return product.price >= 2000 && product.price <= 3000;
+                } else if (checkedInputs.includes('price-4')) {
+                return product.price >= 3000 && product.price <= 4000;
+                } else if (checkedInputs.includes('price-5')) {
+                return product.price >= 4000 && product.price <= 100000;
+                }else{
+                return true;
+                }
+            });
+
+            filteredProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            let updatedHTML = '';
+            if (filteredProducts.length > 0) {
+                filteredProducts.forEach((product) => {
+                    updatedHTML += `
+                            <div class="col-lg-4 col-md-6 col-sm-6 pb-1">
+                                <div class="product-item bg-light mb-4">
+                                    <div class="product-img position-relative overflow-hidden" style="height: 20rem;">
+                                        <img class="img-fluid w-100" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
+                                        <div class="product-action">
+                                            <a class="btn btn-outline-dark btn-square" href="/detail/${product._id}"><i class="fa fa-search"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="text-center py-4">
+                                        <a class="h6 text-decoration-none text-truncate" href="">${product.name}</a>
+                                        <div class="d-flex align-items-center justify-content-center mt-2">
+                                            <h5>₹${product.price}</h5>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+            } else {
+                updatedHTML += '<h2>No Matching Results</h2>';
+            }
+
+            productList.innerHTML = updatedHTML;
+            });
+
+        //sort Low to High
+        const sortLowToHigh = document.getElementById('sortLoHi');
+
+        sortLowToHigh.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            const currentSort = sortLowToHigh.dataset.sort;
+
+            let filteredProducts = products.filter((product) => {
+                if (checkedInputs.includes('price-all')) {
+                return true;
+                } else if (checkedInputs.includes('price-1')) {
+                return product.price >= 0 && product.price <= 1000;
+                } else if (checkedInputs.includes('price-2')) {
+                return product.price >= 1000 && product.price <= 2000;
+                } else if (checkedInputs.includes('price-3')) {
+                return product.price >= 2000 && product.price <= 3000;
+                } else if (checkedInputs.includes('price-4')) {
+                return product.price >= 3000 && product.price <= 4000;
+                } else if (checkedInputs.includes('price-5')) {
+                return product.price >= 4000 && product.price <= 100000;
+                }else{
+                return true;
+                }
+            });
+
+            filteredProducts.sort((a, b) => a.price - b.price);
+
+            let updatedHTML = '';
+            if (filteredProducts.length > 0) {
+                filteredProducts.forEach((product) => {
+                    updatedHTML += `
+                            <div class="col-lg-4 col-md-6 col-sm-6 pb-1">
+                                <div class="product-item bg-light mb-4">
+                                    <div class="product-img position-relative overflow-hidden" style="height: 20rem;">
+                                        <img class="img-fluid w-100" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
+                                        <div class="product-action">
+                                            <a class="btn btn-outline-dark btn-square" href="/detail/${product._id}"><i class="fa fa-search"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="text-center py-4">
+                                        <a class="h6 text-decoration-none text-truncate" href="">${product.name}</a>
+                                        <div class="d-flex align-items-center justify-content-center mt-2">
+                                            <h5>₹${product.price}</h5>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+            } else {
+                updatedHTML += '<h2>No Matching Results</h2>';
+            }
+
+            productList.innerHTML = updatedHTML;
+            });
+
+        // sort High to Low    
+        const sortHighToLow = document.getElementById('sortHiLo');
+
+        sortHighToLow.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            const currentSort = sortHighToLow.dataset.sort;
+
+            let filteredProducts = products.filter((product) => {
+                if (checkedInputs.includes('price-all')) {
+                return true;
+                } else if (checkedInputs.includes('price-1')) {
+                return product.price >= 0 && product.price <= 1000;
+                } else if (checkedInputs.includes('price-2')) {
+                return product.price >= 1000 && product.price <= 2000;
+                } else if (checkedInputs.includes('price-3')) {
+                return product.price >= 2000 && product.price <= 3000;
+                } else if (checkedInputs.includes('price-4')) {
+                return product.price >= 3000 && product.price <= 4000;
+                } else if (checkedInputs.includes('price-5')) {
+                return product.price >= 4000 && product.price <= 100000;
+                }else{
+                return true;
+                }
+            });
+
+            filteredProducts.sort((a, b) => b.price - a.price);
+
+            let updatedHTML = '';
+            if (filteredProducts.length > 0) {
+                filteredProducts.forEach((product) => {
+                    updatedHTML += `
+                            <div class="col-lg-4 col-md-6 col-sm-6 pb-1">
+                                <div class="product-item bg-light mb-4">
+                                    <div class="product-img position-relative overflow-hidden" style="height: 20rem;">
+                                        <img class="img-fluid w-100" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
+                                        <div class="product-action">
+                                            <a class="btn btn-outline-dark btn-square" href="/detail/${product._id}"><i class="fa fa-search"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="text-center py-4">
+                                        <a class="h6 text-decoration-none text-truncate" href="">${product.name}</a>
+                                        <div class="d-flex align-items-center justify-content-center mt-2">
+                                            <h5>₹${product.price}</h5>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+            } else {
+                updatedHTML += '<h2>No Matching Results</h2>';
+            }
+
+            productList.innerHTML = updatedHTML;
+            });
+
+    </script>
 
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>

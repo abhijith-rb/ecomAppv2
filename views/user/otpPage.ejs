@@ -189,7 +189,7 @@
     <div class="container">
       
     <div class="form-1">
-        <h1>OTP Login</h1>
+        <h1>Forgot password</h1>
         <form class="login-form" action="/reqOtp" method="post" id="otpForm">
             <input type="text" name="email" class="form-control" placeholder="Enter Email"/>
             <button type="submit" class="btn btn-primary btn-block mb-4">Request OTP</button>
@@ -199,14 +199,13 @@
             <input type="text" name="otp" class="form-control" placeholder="Enter OTP"/>
             <button type="submit" class="btn btn-primary btn-block mb-4">Verify OTP</button>
         </form>
-            <p style="color:red" id="error-message"></p>
+            <p id="notification"></p>
     
             <a class="lbt" href="/login" style="text-decoration: none;color: #6c757d;">Login Page</a>
     </div>
       
     </div>
 
-    <%- include('../partials/footer.ejs') %>
 
     <script>
         const form = document.getElementById('otpForm');
@@ -232,9 +231,16 @@
 
            const data = await response.json();
 
-           if(!response.ok){
-                const errorElement = document.getElementById('error-message');
-                errorElement.textContent = data.msg;
+          if(response.ok){
+            const notifyElement = document.getElementById('notification');
+            notifyElement.style.color = 'green'
+            notifyElement.textContent = data.msg;
+
+          }else{
+            const notifyElement = document.getElementById('notification');
+            notifyElement.style.color = 'red'
+            notifyElement.textContent = data.msg;
+            
            }
         })
 
@@ -253,11 +259,12 @@
 
             const data = await response.json();
             if(response.ok){
-                window.location.href = `/uhome/${data}`
+                window.location.href = `/changepwd/${data.userId}`
             }
             else{
-                const errorElement = document.getElementById('error-message');
-                errorElement.textContent = data.msg;
+                const notifyElement = document.getElementById('notification');
+                notifyElement.style.color = 'red'
+                notifyElement.textContent = data.msg;
            }
         })
     </script>

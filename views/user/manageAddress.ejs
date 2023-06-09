@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>MultiShop - Online Shop Website Template</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Free HTML Templates" name="keywords">
+    <meta content="Free HTML Templates" name="description">
+
+    <!-- Favicon -->
+    <link href="img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">  
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/animate/animate.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+
+    <style>
+       #cancelBtn{
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 41%;
+        margin-right: 41%;
+        color: white;
+       }
+       
+       #updateBtn{
+        width: 20%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 40%;
+        margin-right: 20%;
+        color: white;
+       }
+    </style>
+</head>
+
+<body>
+    <%- include('../partials/user-header') %>
+
+
+    <div class="container-fluid pb-5">
+        <div class="row px-xl-5">
+            <div class="col-lg-3 mb-30">
+                <div class="bg-light p-3" >
+                    <h6>Hello,</h6>
+                    <span><%=user.username%></span><br>
+                    <h5 style="text-align: center;"><a href="/myorders" style="text-decoration: none;color: #777;">MY ORDERS</a></h5><br>
+                    <h5 style="text-align: center;"><a href="/editProfile" style="text-decoration: none;color: #777;">EDIT PROFILE</a></h5>
+                    <h5 style="text-align: center;"><a href="/manageAddress" style="text-decoration: none;color: #777;">Manage Address</a></h5>
+                </div>
+
+            </div>
+
+            <div class="col-lg-9 h-auto mb-30 ">
+                <div class="h-100 bg-light p-30 ">
+                    <h2>Manage Address</h2>
+                    <button onclick="getAddBox()" id="dropBtn">Add new Address</button>
+
+                    <div class="container mb-5" id="adrsBox" style="display: none;">
+                        <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Add Address</span></h5>
+                        <div class="bg-light p-30">
+                            <form action="/addAddress" method="POST" id="addAdrs">
+                                <div class="row">
+                                    <div class="col-md-6 form-group">
+                                        <label>Name</label>
+                                        <input class="form-control" name="name" id="nameAdd" type="text" >
+                                    </div>
+                                   
+                                    <div class="col-md-6 form-group">
+                                        <label>Mobile </label>
+                                        <input class="form-control" name="mobile" id="mobileAdd" type="text" >
+                                    </div>
+                                    <div class="col-md-6 form-group">
+                                        <label>Address Line 1</label>
+                                        <input class="form-control" name="addressline1" id="al1Add" type="text" >
+                                    </div>
+                                    <div class="col-md-6 form-group">
+                                        <label>Address Line 2</label>
+                                        <input class="form-control" name="addressline2" id="al2Add" type="text" >
+                                    </div>
+                                    <div class="col-md-6 form-group">
+                                        <label>Country</label>
+                                        <select class="custom-select" name="country" id="ctryAdd">
+                                            <option selected>India</option>
+                                            <option>Afghanistan</option>
+                                            <option>Albania</option>
+                                            <option>Algeria</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 form-group">
+                                        <label>City</label>
+                                        <input class="form-control" name="city" id="cityAdd" type="text" >
+                                    </div>
+                                    <div class="col-md-6 form-group">
+                                        <label>State</label>
+                                        <input class="form-control" name="state" id="stateAdd" type="text" >
+                                    </div>
+                                    <div class="col-md-6 form-group">
+                                        <label>PIN Code</label>
+                                        <input class="form-control" name="pin" id="pinAdd" type="text" >
+                                    </div>
+                                    <button type="submit">Save Address</button>
+                                </div>
+                            </form>
+                            <button onclick="cancelBox()">Cancel</button>
+
+                        </div>
+                    </div>
+                    <% if(user.address.length > 0){%>
+                        <%user.address.forEach((addrs,i)=>{%>
+                            <h4>Address <%=i+1%>: </h4>
+                            <h5>Name: <%=addrs.name%></h5>
+                            <h5>Mobile: <%=addrs.mobile%></h5>
+                            <h5>Address line 1: <%=addrs.addressline1%></h5>
+                            <h5>Address line 2: <%=addrs.addressline2%></h5>
+                            <h5>City: <%=addrs.city%></h5>
+                            <h5>State: <%=addrs.state%></h5>
+                            <h5>Pin: <%=addrs.pin%></h5>
+                            <h5>Country: <%=addrs.country%></h5>
+                        <%})%>
+                    <%}%>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+
+    <!-- Footer Start -->
+    <%- include('../partials/footer.ejs') %>
+
+    <!-- Footer End -->
+
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
+
+    <script>
+       const adrsBox = document.getElementById('adrsBox')
+       const dropBtn = document.getElementById('dropBtn')
+       
+       function getAddBox(){
+            dropBtn.style.display = 'none'
+            adrsBox.style.display = 'block'
+       }
+
+       function cancelBox(){
+           adrsBox.style.display = 'none'
+           dropBtn.style.display = 'block'
+       }
+
+       const form = document.getElementById('addAdrs')
+       
+       form.addEventListener('submit',(e)=>{
+           e.preventDefault();
+        const name = document.getElementById('nameAdd').value
+        const mobile = document.getElementById('mobileAdd').value
+        const al1Add = document.getElementById('al1Add').value
+        const al2Add = document.getElementById('al2Add').value
+        const ctryAdd = document.getElementById('ctryAdd').value
+        const cityAdd = document.getElementById('cityAdd').value
+        const stateAdd = document.getElementById('stateAdd').value
+        const pinAdd = document.getElementById('pinAdd').value
+        const data = {
+            name:name,
+            mobile:mobile,
+            addressline1:al1Add,
+            addressline2:al2Add,
+            country:ctryAdd,
+            city:cityAdd,
+            state:stateAdd,
+            pin:pinAdd
+        }
+        fetch('/addAddress',{
+            method:'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response =>{
+            const data = response.json();
+            if(response.ok){
+                cancelBox()
+            }
+        } )
+        .catch((err)=>console.log(err))
+       })
+       
+    </script>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- Contact Javascript File -->
+    <script src="mail/jqBootstrapValidation.min.js"></script>
+    <script src="mail/contact.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="js/main.js"></script>
+</body>
+
+</html>

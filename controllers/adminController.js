@@ -342,12 +342,12 @@ admnCtrl.getOrders = async (req, res) => {
             orders.reverse().forEach((order, i) => {
                 const date = order.date.toString().slice(0,15);
                 const orderId = order._id.toString()
-                orderList.push({ item:order.items[0], email: order.billAddress.email, status: order.status,date, orderId});
+                orderList.push({ item:order.items[0], name: order.address.name, status: order.status,date, orderId});
             })
             if(squery){
                 const regex = new RegExp(squery, 'i');
                 const result =  orderList.filter((order,i)=>{
-                    if(regex.test(order.email)){
+                    if(regex.test(order.name)){
                         return order;
                     }
                 })
@@ -471,5 +471,81 @@ admnCtrl.deleteCoupon = async(req,res)=>{
         console.log(error)
     }
 }
+
+admnCtrl.getSalesChart = async(req,res)=>{
+    let labels=[];
+    let data=[];
+    const currentTime = Date.now();
+    const date = new Date(currentTime);
+    const currentDate = date.toDateString();
+    const currentYear = parseInt(date.toDateString().split(' ')[3]);
+    const currentMonth = date.toDateString().split(' ')[1];
+    const currentDay = date.toDateString().split(' ')[0];
+    // Fri Jun 09 2023
+    const interval = req.query.interval;
+    if(interval === "year"){
+        data = [0, 0, 0, 0, 0, 0];
+        let startYear = currentYear - 6;
+        for(let i=1; i<= 6; i++){
+            labels.push((startYear+i).toString());
+        }
+    }
+    else if(interval === "month"){
+        const monthsArray = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+            'Jul','Aug','Sep','Oct','Nov','Dec'];
+        const indexOfMonth = monthsArray.indexOf(currentMonth);  
+        for(let i=0; i<= indexOfMonth; i++){
+            labels.push(monthsArray[i]);
+            data.push(0);
+        }  
+    }
+    else if(interval === "week"){
+        data = [0, 0, 0, 0, 0, 0, 0];
+        const weekArray = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+        const indexOfDay = weekArray.indexOf(currentDay);
+        for(let j=indexOfDay+1; j<weekArray.length; j++){
+            labels.push(weekArray[j])
+        }
+
+        for(let k=0; k<=indexOfDay; k++){
+            labels.push(weekArray[k])
+        }
+    }
+    const orders = await Order.find();
+    try {
+        orders.forEach(order=>{
+            const year = order.date.toDateString().split('-')[0].split(' ')[3];
+            const month = order.date.toDateString().split('-')[0].split(' ')[1];
+            const week = order.date.toDateString().split('-')[0].split(' ')[0];
+
+            if(interval === "year"){
+                for(let i=0; i<labels.length; i++){
+                    if(year === labels[i]){
+                        data[i] += 1;
+                    }
+                }
+            }else if(interval === "month"){
+                for(let i=0; i<labels.length; i++){
+                    if(month === labels[i]){
+                        data[i] += 1;
+                    }
+                }
+            }else if(interval === "week"){
+                for(let i=0; i<labels.length; i++){
+                    if(week === labels[i]){
+                        data[i] += 1;
+                    }
+                }
+            }
+        })
+        console.log({labels,data})
+        res.status(200).json({labels,data})
+    } catch (error) {
+        console.log(error)
+        res.status(200).json({})
+    }
+    
+}
+
 
 module.exports = admnCtrl;
