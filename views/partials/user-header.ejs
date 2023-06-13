@@ -9,12 +9,12 @@
             </a>
         </div>
         <div class="col-lg-4 col-6 text-left">
-            <form action="">
+            <form action="/searchproducts" method="get" id="searchForm">
                 <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search for products">
+                    <input type="text" class="form-control" name="search" placeholder="Search for products">
                     <div class="input-group-append">
                         <span class="input-group-text bg-transparent text-primary">
-                            <i class="fa fa-search"></i>
+                            <button type="submit"><i class="fa fa-search"></i></button>
                         </span>
                     </div>
                 </div>
@@ -60,24 +60,31 @@
                         <%categories.forEach((category,i)=>{%>
                             <a href="/category/<%=category._id%>" class="nav-item nav-link"><%=category.name%></a>
                         <%})%>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">My Account<i class="fa fa-angle-down mt-1"></i></a>
-                            <div class="dropdown-menu bg-primary rounded-0 border-0 m-0">
-                                <a href="/profile" class="dropdown-item">My Profile</a>
-                                <a href="/coupons" class="dropdown-item">Coupons</a>
-                                <a href="/logout" class="dropdown-item">Logout</a>
+
+                        <%if(userPresent){%>
+                            <div class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">My Account<i class="fa fa-angle-down mt-1"></i></a>
+                                <div class="dropdown-menu bg-primary rounded-0 border-0 m-0">
+                                    <a href="/profile" class="dropdown-item">My Profile</a>
+                                    <a href="/coupons" class="dropdown-item">Coupons</a>
+                                    <a href="/logout" class="dropdown-item">Logout</a>
+                                </div>
                             </div>
-                        </div>
+
+                        <%}else{%>
+                            <a href="/login" class="nav-item nav-link">Login</a>
+                        <%}%>
                     </div>
                     <div class="navbar-nav ml-auto py-0 d-none d-lg-block">
-                        <!-- <a href="" class="btn px-0">
-                            <i class="fas fa-heart text-primary"></i>
-                            <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">0</span>
-                        </a> -->
-                        <a href="/cart" class="btn px-0 ml-3">
-                            <i class="fas fa-shopping-cart text-primary"></i>
-                            <!-- <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">0</span> -->
-                        </a>
+                        <%if(userPresent){%>
+                            <a href="/cart" class="btn px-0 ml-3">
+                                <i class="fas fa-shopping-cart text-primary"></i>
+                            </a>
+                        <%}else{%>
+                            <a href="/login" class="btn px-0 ml-3">
+                                <i class="fas fa-shopping-cart text-primary"></i>
+                            </a>
+                        <%}%>
                     </div>
                 </div>
             </nav>
@@ -85,3 +92,20 @@
     </div>
 </div>
 <!-- Navbar End -->
+
+<script>
+    const searchFormTopbar = document.getElementById('searchForm');
+     
+    searchFormTopbar.addEventListener('submit',(e)=>{
+         e.preventDefault();
+
+         const squery = document.getElementsByName('search')[0].value;
+
+         if(squery === ''){
+             return;
+         }
+
+         
+         searchFormTopbar.submit();
+     })
+</script>

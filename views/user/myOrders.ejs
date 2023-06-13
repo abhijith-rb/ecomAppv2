@@ -60,7 +60,12 @@
                                 <tbody class="align-middle">
                                     <%orders.forEach((order,i)=>{%>
                                         <tr class="trow" data-orderid="<%=order._id%>">
-                                        <td class="align-middle"><img src="/images/<%=order.items[0].image%>" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="" style="width: 50px;"><%=order.items[0].name%> +more</td>
+                                        <td class="align-middle"><img src="/images/<%=order.items[0].image%>" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="" style="width: 50px;">
+                                            <%=order.items[0].name%> 
+                                            <%if(order.items.length > 1){%>
+                                                +more
+                                            <%}%>
+                                        </td>
                                         <td class="align-middle"><%=order.status%></td>
                                         <td class="align-middle"><%=order.date.toString().slice(0,15)%></td>
                                         </tr>

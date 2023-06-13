@@ -38,22 +38,129 @@
         <!-- partial -->
         <div class="main-panel">
           <div class="content-wrapper">
-            <div class="col-lg-6 grid-margin stretch-card">
-              <div class="card">
-                <div class="card-body">
-                  <h4 class="card-title">Sales chart</h4>
-                  <div class="dropdown card-title">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Interval </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                      <a class="dropdown-item orderStatus" onclick="getWeek()">Weekly</a>
-                      <a class="dropdown-item orderStatus" onclick="getMonth()">Monthly</a>
-                      <a class="dropdown-item orderStatus" onclick="getYear()">Yearly</a>
+
+            <!-- <div class="row">
+
+              <div class="col-sm-4 grid-margin">
+                <div class="card">
+                  <div class="card-body">
+                    <h5>Sales</h5>
+                    <div class="row">
+                      <div class="col-8 col-sm-12 col-xl-8 my-auto">
+                        <div class="d-flex d-sm-block d-md-flex align-items-center">
+                          <h2 class="mb-0">458</h2>
+                          <p class="text-success ml-2 mb-0 font-weight-medium">+8.3%</p>
+                        </div>
+                      </div>
+                      <div class="col-4 col-sm-12 col-xl-4 text-center text-xl-right">
+                        <i class="icon-lg mdi mdi-wallet-travel text-danger ml-auto"></i>
+                      </div>
                     </div>
                   </div>
-                  <canvas id="lineChart" style="height:250px"></canvas>
                 </div>
               </div>
+
+              <div class="col-sm-4 grid-margin">
+                <div class="card">
+                  <div class="card-body">
+                    <h5>Stock</h5>
+                    <div class="row">
+                      <div class="col-8 col-sm-12 col-xl-8 my-auto">
+                        <div class="d-flex d-sm-block d-md-flex align-items-center">
+                          <h2 class="mb-0">203</h2>
+                          <p class="text-danger ml-2 mb-0 font-weight-medium">-2.1% </p>
+                        </div>
+                      </div>
+                      <div class="col-4 col-sm-12 col-xl-4 text-center text-xl-right">
+                        <i class="icon-lg mdi mdi-monitor text-success ml-auto"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-sm-4 grid-margin">
+                <div class="card">
+                  <div class="card-body">
+                    <h5>Cancelled</h5>
+                    <div class="row">
+                      <div class="col-8 col-sm-12 col-xl-8 my-auto">
+                        <div class="d-flex d-sm-block d-md-flex align-items-center">
+                          <h2 class="mb-0">321</h2>
+                          <p class="text-success ml-2 mb-0 font-weight-medium">+3.5%</p>
+                        </div>
+                      </div>
+                      <div class="col-4 col-sm-12 col-xl-4 text-center text-xl-right">
+                        <i class="icon-lg mdi mdi-codepen text-primary ml-auto"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div> -->
+
+            <div class="row">
+
+              <div class="col-md-6 grid-margin stretch-card">
+                <div class="card" style="height: fit-content;">
+                  <div class="card-body">
+                    <!-- <label class="col-sm-3 col-form-label">Choose view</label>
+                    <div class="col-sm-4" >
+                      <select class="form-control" name="" style="color: aliceblue;">
+                        <option value="year">Year</option>
+                        <option value="month">Month</option>
+                        <option value="week">Week</option>
+                      </select>
+                    </div> -->
+
+                    <label class="col-sm-6 col-form-label">Generate Report</label>
+                    <div class="row">
+                      <div class="col-sm-4">
+                        <select class="form-control" id="reportSelect" style="color: aliceblue;">
+                          <option value="sales">Sales</option>
+                          <option value="stock">Stock</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                      </div>
+                      <div class="col-sm-4">
+                        <select class="form-control" id="docTypeSelect" style="color: aliceblue;">
+                          <option value="pdf">Pdf</option>
+                          <option value="excel">Excel</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <button type="button" id="genBtn" class="btn btn-primary btn-fw mt-3">
+                      Generate Report
+                    </button>
+
+
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="col-lg-6 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title">Sales chart</h4>
+                    <div class="dropdown card-title">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Interval </button>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                        <a class="dropdown-item orderStatus" onclick="getWeek()">Weekly</a>
+                        <a class="dropdown-item orderStatus" onclick="getMonth()">Monthly</a>
+                        <a class="dropdown-item orderStatus" onclick="getYear()">Yearly</a>
+                      </div>
+                    </div>
+                    <canvas id="lineChart" style="height:250px"></canvas>
+                  </div>
+                </div>
+              </div>
+
             </div>
+
+            
           </div>
           <!-- content-wrapper ends -->
           <!-- partial:partials/_footer.html -->
@@ -367,6 +474,43 @@
 
       }
 
+      const genBtn = document.getElementById('genBtn');
+      genBtn.addEventListener('click',(e)=>{
+        e.preventDefault();
+        const report = document.getElementById('reportSelect').value
+        const doctype = document.getElementById('docTypeSelect').value
+        console.log('genBtn clicked');
+        $.ajax({
+        url: `/admin/getreport?report=${report}&doctype=${doctype}`,
+        method: "GET",
+        xhrFields: {
+          responseType: 'blob' 
+        },
+        success: function(response) {
+          if(doctype === 'pdf'){
+            let url = URL.createObjectURL(response);
+      
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = 'report.pdf';
+            a.click();
+            
+            URL.revokeObjectURL(url);
+            
+          }
+          else if(doctype === 'excel'){
+            let url = URL.createObjectURL(response);
+            window.open(url, '_blank')
+            URL.revokeObjectURL(url);
+          }
+        },
+        error: function(xhr, status, error) {
+          console.log("Error:", error);
+        }
+      });
+
+      })
+      
 
     </script>
     <script src="/assets/vendors/js/vendor.bundle.base.js"></script>

@@ -65,7 +65,7 @@
                                 <span>Pin: <%=addrs.pin%></span> &nbsp;
                                 <span>Country: <%=addrs.country%></span> 
                             </div>
-                            <button class="deliverBtns" data-address="<%=JSON.stringify(addrs)%>">Deliver here</button>
+                            <button class="deliverBtns btn-primary" data-address="<%=JSON.stringify(addrs)%>">Deliver here</button>
                         <%})%>
                     <%}%>
 
@@ -121,7 +121,7 @@
                                     <label>PIN Code</label>
                                     <input class="form-control" name="pin" id="pinAdd" type="text" >
                                 </div>
-                                <button type="submit">Save & Deliver here</button>
+                                <button type="submit" class="btn btn-primary">Save & Deliver here</button>
                             </div>
                         </form>
                     </div>
@@ -220,9 +220,9 @@
             })
         }
 
-        const form = document.getElementById('addAdrs')
+        const newAdrsform = document.getElementById('addAdrs')
 
-        form.addEventListener('submit',(e)=>{
+        newAdrsform.addEventListener('submit',(e)=>{
            e.preventDefault();
         const name = document.getElementById('nameAdd').value
         const mobile = document.getElementById('mobileAdd').value
@@ -258,11 +258,11 @@
         .catch((err)=>console.log(err))
        })
 
-        const button = document.getElementById('placeOrder');
+        const orderPlacer = document.getElementById('placeOrder');
 
-        button.addEventListener('click',async(e)=>{
+        orderPlacer.addEventListener('click',async(e)=>{
             e.preventDefault();
-            console.log('button clicked')
+            console.log('orderPlacer clicked')
            
             let upi = document.getElementById('upi')
             let cod = document.getElementById('cod')
@@ -281,7 +281,7 @@
             }
 
         
-            const response = await fetch('/placeOrder',{
+            const response = await fetch('/placeorder',{
                 method:'POST',
                 headers:{
                     'Content-Type':'application/json'

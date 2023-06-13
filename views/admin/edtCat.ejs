@@ -117,7 +117,7 @@
     const data = await response.json();
 
     if(response.ok){
-      window.location.href = `/admin/${data.adminId}/categoryManage`
+      window.location.href = `/admin/categoryManage`
     }else{
       const errMsg = document.getElementById('errMsg')
       errMsg.textContent = data.msg;

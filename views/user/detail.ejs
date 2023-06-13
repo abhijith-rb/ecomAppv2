@@ -73,11 +73,8 @@
         }
     </style>
 
-<%if(userPresent){%>
-    <%- include('../partials/user-header') %>
-<%}else{%>
-    <%- include('../partials/noUser-header') %>
-<%}%>
+<%- include('../partials/user-header') %>
+
     <!-- Breadcrumb Start -->
     <div class="container-fluid">
         <div class="row px-xl-5">
@@ -185,24 +182,16 @@
                                     <%if(added){%>
                                         <a class="btn btn-primary px-3" href="/cart"><i class="fa fa-shopping-cart mr-1"></i> Go To Cart</a>
                                     <%}else{%>
-                                        <!-- <div class="input-group quantity mr-3" style="width: 130px;">
-                                            <div class="input-group-btn">
-                                                <button class="btn btn-primary btn-minus">
-                                                    <i class="fa fa-minus"></i>
-                                                </button>
-                                            </div>
-                                            <input type="text" class="form-control bg-secondary border-0 text-center" value="1">
-                                            <div class="input-group-btn">
-                                                <button class="btn btn-primary btn-plus">
-                                                    <i class="fa fa-plus"></i>
-                                                </button>
-                                            </div>
-                                        </div> -->
+                                       
                                         <a class="btn btn-primary px-3" href="/addToCart/<%=product._id%>"><i class="fa fa-shopping-cart mr-1"></i> Add To Cart</a>
                                     <%}%>
                             </div>
+                        <%}else{%>
+                                <div class="d-flex align-items-center mb-4 pt-2">
+                                    <a class="btn btn-primary px-3" href="/login"><i class="fa fa-shopping-cart mr-1"></i> Add To Cart</a>
+                                </div>
+                            
                         <%}%>
-
                 </div>
             </div>
         </div>
@@ -390,12 +379,9 @@
         for (let i = 0; i < thumbnailImages.length; i++) {
             const thumbnail = thumbnailImages[i];
             
-            // Add a click event listener to each thumbnail
             thumbnail.addEventListener("click", function() {
-            // Get the source of the clicked thumbnail
             const newImageSrc = this.src;
 
-            // Update the main image source
             mainImage.src = newImageSrc;
             imageZoom("myImage", "myresult");
         });

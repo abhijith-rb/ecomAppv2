@@ -175,11 +175,7 @@
       }
     </style>
 
-    <%if(userPresent){%>
-        <%- include('../partials/user-header') %>
-    <%}else{%>
-        <%- include('../partials/noUser-header') %>
-    <%}%>
+    <%- include('../partials/user-header') %>
 
 
     <div class="container">
@@ -212,9 +208,9 @@
 
     <script>
 
-        const form = document.getElementById("loginForm");
+        const loginForm = document.getElementById("loginForm");
 
-        form.addEventListener('submit', async (event) => {
+        loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
 
             const username = document.getElementsByName("username")[0].value;
@@ -246,7 +242,7 @@
             if (response.ok) {
                 window.location.href = '/';
             } else {
-                errorElement.textContent = data;
+                errorElement.textContent = data.msg;
             }
     });
 

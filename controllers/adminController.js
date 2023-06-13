@@ -6,7 +6,8 @@ const bcrypt = require('bcrypt');
 const Cart = require('../models/CartModel');
 const Order = require('../models/OrderModel');
 const Coupon = require('../models/CouponModel');
-
+const PDFDocument = require('pdfkit');
+const ExcelJS = require('exceljs');
 
 const admnCtrl = {}
 
@@ -190,19 +191,21 @@ admnCtrl.getEditProduct = async (req, res) => {
     const admin = await Admin.findById(adminId)
     const product = await Product.findOne({ _id: prodId })
     const categories = await Category.find();
+    const prodCat = await Category.findById(product.category);
 
-    res.render('admin/edtPdt.ejs', { product, adminId, admin, categories })
+    res.render('admin/edtPdt.ejs', { product, adminId, admin, categories,prodCat })
 }
 
 admnCtrl.editProduct = async (req, res) => {
     const { name, price, color, category, description, quantity } = req.body;
     const prodId = req.params.id;
     try {
-        if (req.file) {
-            const image = req.file.originalname;
-
+        if (req.files) {
+            const images = req.files;
+            console.log(images)
             await Product.findByIdAndUpdate({ _id: prodId }, {
-                $set: { name, price, color, category, image, description, quantity }
+                $set: { name, price, color, category, description, quantity },
+                $push:{image:{$each:images}}
             })
         }
         else {
@@ -338,11 +341,13 @@ admnCtrl.getOrders = async (req, res) => {
         const squery = req.query.search;
 
         const orderList = [];
+        let multi;
         if (orders.length > 0) {
             orders.reverse().forEach((order, i) => {
                 const date = order.date.toString().slice(0,15);
-                const orderId = order._id.toString()
-                orderList.push({ item:order.items[0], name: order.address.name, status: order.status,date, orderId});
+                const orderId = order._id.toString();
+                multi = order.items.length > 1 ;
+                orderList.push({ item:order.items[0], name: order.address.name, status: order.status,date, orderId, multi});
             })
             if(squery){
                 const regex = new RegExp(squery, 'i');
@@ -547,5 +552,176 @@ admnCtrl.getSalesChart = async(req,res)=>{
     
 }
 
+
+admnCtrl.getReport = async(req,res)=>{
+    const report = req.query.report;
+    const doctype = req.query.doctype;
+    const orders = await Order.find();
+    const products = await Product.find();
+    const cancels = await Order.find({status:'Cancelled'})
+
+    if(doctype === 'pdf'){
+        try {
+            const doc = new PDFDocument();
+            res.setHeader('Content-Type' , 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename="report.pdf"')
+            let table;
+
+            if(report === 'sales'){
+                doc.text('Sales Report', { align: 'center', fontSize: 20 });
+                doc.moveDown();
+                let rowsArray = [];
+                orders.forEach((order,i)=>{
+                    const date = order.createdAt.toString().slice(0,15);
+                    rowsArray.push([order._id,date,order.status,order.total,order.paymentMethod])
+                })
+                table = {
+                    headers: ['Order ID','Date','Status', 'Total','Payment'],
+                    rows: rowsArray,
+                };
+            }
+            else if(report === 'stock'){
+                doc.text('Stock Report', { align: 'center', fontSize: 20 });
+                doc.moveDown();
+                let rowsArray = [];
+                products.forEach((product,i)=>{
+                    const date = product.createdAt.toString().slice(0,15);
+                    rowsArray.push([product._id,date,product.name,product.price,product.quantity])
+                })
+                table = {
+                    headers: ['Product ID','Date Received','Name', 'Price','Quantity'],
+                    rows: rowsArray,
+                };
+            }
+            else if(report === 'cancelled'){
+                doc.text('Cancel Report', { align: 'center', fontSize: 20 });
+                doc.moveDown();
+                let rowsArray = [];
+                cancels.forEach((order,i)=>{
+                    const createdDate = order.createdAt.toString().slice(0,15);
+                    const cancelledDate = order.date.toString().slice(0,15);
+                    rowsArray.push([order._id,createdDate,cancelledDate,order.total,order.paymentMethod])
+                })
+                table = {
+                    headers: ['Order ID','Ordered Date','Cancelled Date', 'Total','Payment'],
+                    rows: rowsArray,
+                };
+            }
+            
+            doc.strokeColor('black').lineWidth(1).moveTo(50, 95).lineTo(550, 95).stroke();
+            const tableTop = 100; 
+            const tableLeft = 10; 
+          
+            const columnWidths = [50, 190, 300, 400, 470]; 
+          
+            doc.font('Helvetica-Bold').fontSize(12);
+            
+            let currentY = tableTop;
+            table.headers.forEach((header, columnIndex) => {
+                doc.text(header, tableLeft + columnWidths[columnIndex], currentY);
+                doc.strokeColor('black').lineWidth(1).moveTo(50, currentY+13).lineTo(550, currentY+13).stroke();
+            });
+            
+            doc.font('Helvetica').fontSize(10);
+          
+            table.rows.forEach((row, rowIndex) => {
+                currentY += 23;
+            
+                row.forEach((cell, columnIndex) => {
+                    doc.text(cell, tableLeft + columnWidths[columnIndex], currentY, {
+                    width: 100,
+                    align: 'left',
+                    });
+                    });
+            
+                doc.strokeColor('black').lineWidth(1).moveTo(50, currentY+21).lineTo(550, currentY+21).stroke();
+          
+            });
+            doc.strokeColor('black').lineWidth(1).moveTo(50, 95).lineTo(50, currentY+21).stroke();
+            doc.strokeColor('black').lineWidth(1).moveTo(550, 95).lineTo(550, currentY+21).stroke();
+            doc.pipe(res)
+            doc.end();
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    else if (doctype === 'excel'){
+
+        try {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Report');
+            let headers;
+            let data;
+    
+            if(report === 'sales'){
+                let rowsArray = [];
+                orders.forEach((order,i)=>{
+                    const date = order.createdAt.toString().slice(0,15);
+                    rowsArray.push([order._id,date,order.status,order.total,order.paymentMethod])
+                })
+                headers = ['Order ID','Date','Status', 'Total','Payment'];
+                data = rowsArray;
+            }
+            else if(report === 'stock'){
+                let rowsArray = [];
+                products.forEach((product,i)=>{
+                    const date = product.createdAt.toString().slice(0,15);
+                    rowsArray.push([product._id,date,product.name,product.price,product.quantity])
+                })
+                headers = ['Product ID','Date Received','Name', 'Price','Quantity'];
+                data = rowsArray;
+            }
+            else if(report === 'cancelled'){
+                let rowsArray = [];
+                cancels.forEach((order,i)=>{
+                    const createdDate = order.createdAt.toString().slice(0,15);
+                    const cancelledDate = order.date.toString().slice(0,15);
+                    rowsArray.push([order._id,createdDate,cancelledDate,order.total,order.paymentMethod])
+                })
+                headers = ['Order ID','Ordered Date','Cancelled Date', 'Total','Payment'];
+                data = rowsArray;
+            }
+    
+            worksheet.addRow(headers);
+            
+            console.log(data)
+
+            data.forEach(row => {
+            worksheet.addRow(row);
+            });
+    
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', 'attachment; filename="report.xlsx"');
+    
+            workbook.xlsx.write(res)
+            .then(() => {
+                console.log('Report generated successfully');
+                res.end();
+            })
+            .catch(error => {
+                console.log('Error:', error);
+            });
+            
+        } catch (error) {
+            console.log(error)
+        }
+
+      }
+
+    }
+
+    admnCtrl.removeImg = async(req,res)=>{
+        const prodId = req.query.prodId;
+        const filename = req.query.filename;
+        try {
+            await Product.findByIdAndUpdate(prodId,{
+                $pull:{image:{filename:filename}}
+            })
+            res.status(200).json({})
+        } catch (error) {
+            res.status(500).json({})
+        }
+        
+    }
 
 module.exports = admnCtrl;

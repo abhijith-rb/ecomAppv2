@@ -61,7 +61,7 @@ router.post('/addProduct',admnCtrl.isAdmin, upload.array("images"), admnCtrl.add
 //get Product edit page
 router.get('/editProduct/:id',admnCtrl.isAdmin, admnCtrl.getEditProduct)
 
-router.post("/editProduct/:id",admnCtrl.isAdmin,upload.single("image"), admnCtrl.editProduct)
+router.post("/editProduct/:id",admnCtrl.isAdmin,upload.array("images"), admnCtrl.editProduct)
 
 //Soft delete product
 router.get('/deleteProduct/:id',admnCtrl.isAdmin, admnCtrl.deleteProduct)
@@ -106,5 +106,9 @@ router.post('/editCoupon/:id',admnCtrl.isAdmin, admnCtrl.postEditCoupon )
 router.get('/deleteCoupon/:id',admnCtrl.isAdmin, admnCtrl.deleteCoupon)
 
 router.get('/saleschart',admnCtrl.getSalesChart)
+
+router.get('/getreport', admnCtrl.getReport)
+
+router.get('/removeimg', admnCtrl.removeImg)
 
 module.exports = router;

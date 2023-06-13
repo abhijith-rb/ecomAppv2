@@ -13,7 +13,8 @@ const cartSchema = new mongoose.Schema({
             subTotal:{type:Number,required:true},
         }
         ],default:[]},
-    total:{type:Number,required:true}
+    total:{type:Number,required:true},
+    discount:{type:Number,default:0}
 })
 
 const Cart = mongoose.model('Cart',cartSchema);

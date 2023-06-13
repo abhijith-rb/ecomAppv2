@@ -206,7 +206,7 @@
                     success:(data)=>{
                         console.log("quantityd"+ data.quantity)
                         let quantity = data.quantity;
-                        if(input.value < quantity){
+                        if(quantity > 0){
                             console.log('enterif')
                             let newVal = parseInt(input.value) + 1;
                             document.getElementsByClassName('qty')[index].value = newVal.toString();
@@ -228,11 +228,8 @@
                                 }
                             })
         
-                        }else{
-                            console.log('enterelse')
-                            let newVal = quantity;
-                            document.getElementsByClassName('qty')[index].value = newVal.toString();
                         }
+                        
                     },
                     error:(err)=>{
                         console.log(err)
@@ -302,8 +299,10 @@
                 },
                 body:JSON.stringify({couponCode:couponCode,cartId:cartid,userId:userid})
             }).then((response)=>{
-                return response.json();})
+                return response.json()})
                 .then((data)=>{
+                    
+                    console.log(data.newTotal)
                         intDscnt.style.display = 'none'
                         updtDscnt.style.display = 'block'
                         updtDscnt.textContent = '₹'+(data.discount);

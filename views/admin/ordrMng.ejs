@@ -8,7 +8,7 @@
     <!-- plugins:css -->
     <link rel="stylesheet" href="/assets/vendors/mdi/css/materialdesignicons.min.css">
     <link rel="stylesheet" href="/assets/vendors/css/vendor.bundle.base.css">
-    <!-- endinject -->
+views/admin/ordrMng.ejs    <!-- endinject -->
     <!-- Plugin css for this page -->
     <link rel="stylesheet" href="/assets/vendors/jvectormap/jquery-jvectormap.css">
     <link rel="stylesheet" href="/assets/vendors/flag-icon-css/css/flag-icon.min.css">
@@ -48,7 +48,7 @@
                         <tr>
                           <th> Index</th>
                           <th> Product</th>
-                          <th> Email </th>
+                          <th> Name </th>
                           <th> Status </th>
                         </tr>
                       </thead>
@@ -58,8 +58,12 @@
                             <tr data-orderid="<%=order.orderId%>" class="trow" >
                             <th scope="row"><%= i+1 %></th>
                             <td><img src="/images/<%=order.item.image%>" onerror="this.onerror=null;this.src='/images/noImg.png';"  id="prodImg"/>
-                                <%=order.item.name%> +more</td>
-                            <td><%=order.email%></td>
+                                <%=order.item.name%> 
+                                <%if(order.multi){%>
+                                    +more
+                                <%}%>
+                            </td>
+                            <td><%=order.name%></td>
                             <td><%=order.status%><br><br>
                                 <%=order.date%>
                             </td>
@@ -72,8 +76,12 @@
                             <tr data-orderid="<%=order.orderId%>" class="trow">
                             <th scope="row"><%= i+1 %></th>
                             <td><img src="/images/<%=order.item.image%>" onerror="this.onerror=null;this.src='/images/noImg.png';"  id="prodImg"/>
-                                <%=order.item.name%></td>
-                            <td><%=order.email%></td>
+                                <%=order.item.name%>
+                                <%if(order.multi){%>
+                                  +more
+                                <%}%>
+                            </td>
+                            <td><%=order.name%></td>
                             <td><%=order.status%><br><br>
                                 <%=order.date%>
                             </td>

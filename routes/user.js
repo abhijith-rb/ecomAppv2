@@ -73,7 +73,7 @@ router.get('/decQty/:id', usrCtrl.isLoggedOut,usrCtrl.decQty)
 
 //Checkout
 router.get('/checkout',usrCtrl.isLoggedOut,usrCtrl.getCheckout);
-router.post('/placeOrder',usrCtrl.isLoggedOut,usrCtrl.placeOrder)
+router.post('/placeorder',usrCtrl.isLoggedOut,usrCtrl.placeOrder)
 
 router.get('/profile',usrCtrl.isLoggedOut,usrCtrl.getProfile)
 router.get('/editProfile',usrCtrl.isLoggedOut,usrCtrl.getEditProfile)
@@ -103,6 +103,9 @@ router.post('/applyCoupon',usrCtrl.isLoggedOut,usrCtrl.applyCoupon)
 
 router.post('/priceFilter',usrCtrl.filterByPrice)
 
+router.get('/invoice/:id', usrCtrl.downloadInvoice)
+
+router.get('/searchproducts',usrCtrl.searchProducts)
 
 module.exports = router;
 

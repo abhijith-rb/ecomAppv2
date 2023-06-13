@@ -33,67 +33,91 @@
         <!-- partial -->
         <div class="main-panel">
           <div class="content-wrapper">
-            <div class="col-md-6 grid-margin stretch-card">
-              <div class="card">
-                <div class="card-body">
-                  <h4 class="card-title">Edit Product</h4>
-                  <form class="forms-sample" action="/admin/editProduct/<%= product._id %>" method="post" id="addForm" enctype="multipart/form-data">
-                    <div class="form-group row">
-                      <label for="exampleInputUsername2" class="col-sm-3 col-form-label">Product name</label>
-                      <div class="col-sm-9">
-                        <input type="text" name="name" class="form-control"  value="<%=product.name%>">
+            <div class="row">
+              <div class="col-md-6 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title">Edit Product</h4>
+                    <form class="forms-sample" action="/admin/editProduct/<%= product._id %>" method="post" id="addForm" enctype="multipart/form-data">
+                      <div class="form-group row">
+                        <label for="exampleInputUsername2" class="col-sm-3 col-form-label">Product name</label>
+                        <div class="col-sm-9">
+                          <input type="text" name="name" class="form-control"  value="<%=product.name%>">
+                        </div>
                       </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="exampleInputEmail2" class="col-sm-3 col-form-label">Price</label>
-                      <div class="col-sm-9">
-                        <input type="number" name="price" class="form-control"  value="<%=product.price%>">
+                      <div class="form-group row">
+                        <label for="exampleInputEmail2" class="col-sm-3 col-form-label">Price</label>
+                        <div class="col-sm-9">
+                          <input type="number" name="price" class="form-control"  value="<%=product.price%>">
+                        </div>
                       </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="exampleInputMobile" class="col-sm-3 col-form-label">Color</label>
-                      <div class="col-sm-9">
-                        <input type="text" name="color" class="form-control"  value="<%=product.color%>">
+                      <div class="form-group row">
+                        <label for="exampleInputMobile" class="col-sm-3 col-form-label">Color</label>
+                        <div class="col-sm-9">
+                          <input type="text" name="color" class="form-control"  value="<%=product.color%>">
+                        </div>
                       </div>
-                    </div>
-                   
-                    <div class="form-group row">
-                      <label class="col-sm-3 col-form-label">Category</label>
-                      <div class="col-sm-9">
-                        <select class="form-control" name="category">
-                          <option><%=product.category%></option>
-                          <%categories.forEach((category,i)=>{%>
-                              <option><%=category.name%></option>
-                            <%})%>
-                        </select>
+                     
+                      <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Category</label>
+                        <div class="col-sm-9">
+                          <select class="form-control" name="category">
+                            <option value="<%=prodCat._id%>"><%=prodCat.name%></option>
+                            <%categories.forEach((category,i)=>{%>
+                                <option value="<%=category._id%>"><%=category.name%></option>
+                              <%})%>
+                          </select>
+                        </div>
                       </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="exampleInputConfirmPassword2" class="col-sm-3 col-form-label">Image</label>
-                      <div class="col-sm-9">
-                        <input type="file" name="image" class="form-control"  value="<%=product.image%>">
+                      <div class="form-group row">
+                        <label for="exampleInputConfirmPassword2" class="col-sm-3 col-form-label">Image</label>
+                        <div class="col-sm-9">
+                          <input type="file" name="images" class="form-control" multiple >
+                        </div>
                       </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="exampleInputConfirmPassword2" class="col-sm-3 col-form-label">Description</label>
-                      <div class="col-sm-9">
-                        <input type="text" name="description" class="form-control"  value="<%=product.description%>">
+                      <div class="form-group row">
+                        <label for="exampleInputConfirmPassword2" class="col-sm-3 col-form-label">Description</label>
+                        <div class="col-sm-9">
+                          <input type="text" name="description" class="form-control"  value="<%=product.description%>">
+                        </div>
                       </div>
-                    </div>
-                    <div class="form-group row">
-                      <label for="exampleInputConfirmPassword2" class="col-sm-3 col-form-label">Quantity</label>
-                      <div class="col-sm-9">
-                        <input type="number" name="quantity" class="form-control" value="<%=product.quantity%>">
+                      <div class="form-group row">
+                        <label for="exampleInputConfirmPassword2" class="col-sm-3 col-form-label">Quantity</label>
+                        <div class="col-sm-9">
+                          <input type="number" name="quantity" class="form-control" value="<%=product.quantity%>">
+                        </div>
                       </div>
-                    </div>
-                   
-                    <button type="submit" class="btn btn-primary mr-2">Update</button>
-                    <a class="btn btn-secondary" href="/admin/productManage" style="text-decoration: none;color:black;align-self:center;">
-                      Cancel
-                    </a>
-                  </form>
+                     
+                      <button type="submit" class="btn btn-primary mr-2">Update</button>
+                      <a class="btn btn-secondary" href="/admin/productManage" style="text-decoration: none;color:black;align-self:center;">
+                        Cancel
+                      </a>
+                    </form>
+                  </div>
                 </div>
               </div>
+
+              <div class="col-md-6 grid-margin stretch-card">
+                <div class="card" >
+                  <div class="card-body">
+                    <div style="display: flex;justify-content: space-around;">
+                      <%product.image.forEach((img,i)=>{%>
+                          <div style="display: flex;flex-direction: column;" class="imgDiv">
+                            <img src="/images/<%=img.filename%>" onerror="this.onerror=null;this.src='/images/noImg.png';"
+                            style="width: 7rem; height:7rem;" class="thumbImgs">
+                            <button class="btn btn-danger remover" data-productid="<%=product._id%>" data-filename="<%=img.filename%>" data-index="<%=i%>">
+                              Remove</button>
+                          </div>
+                      <%})%>
+                    </div>
+
+                    <div style="display: flex;justify-content: space-around;margin-top: 5rem;">
+                          <img src="" id="myImage">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
           <!-- content-wrapper ends -->
@@ -111,7 +135,7 @@
     <script>
       const form = document.getElementById('addForm');
       
-      form.addEventListener('submit',(e)=>{
+      form.addEventListener('submit',async(e)=>{
           e.preventDefault();
           console.log("button working")
 
@@ -119,7 +143,7 @@
           const price = document.getElementsByName('price')[0].value;
           const color = document.getElementsByName('color')[0].value;
           const category = document.getElementsByName('category')[0].value;
-          const image = document.getElementsByName('image')[0].value;
+          const image = document.getElementsByName('images')[0].value;
           const description = document.getElementsByName('description')[0].value;
           const quantity = document.getElementsByName('quantity')[0].value;
           
@@ -157,7 +181,39 @@
           }
 
           form.submit();
+         
       })
+
+      const mainImage = document.getElementById('myImage')
+      const thumbnailImages  = document.getElementsByClassName('thumbImgs');
+
+      for (let i = 0; i < thumbnailImages.length; i++) {
+            const thumbnail = thumbnailImages[i];
+            
+            thumbnail.addEventListener("click", function() {
+            const newImageSrc = this.src;
+
+            mainImage.src = newImageSrc;
+        });
+      }
+
+      const removeBtns = document.getElementsByClassName('remover');
+
+      for(let i=0; i<removeBtns.length; i++){
+        removeBtns[i].addEventListener('click',(e)=>{
+          e.preventDefault();
+          const prodId = e.target.dataset.productid;
+          const filename = e.target.dataset.filename;
+          const index = e.target.dataset.index;
+          fetch(`/admin/removeimg?prodId=${prodId}&filename=${filename}`)
+          .then(response=>{
+            if(response.ok){
+                const imgDiv = document.getElementsByClassName('imgDiv')[index];
+                imgDiv.style.display = 'none';
+            }
+          })
+        })
+      }
   </script>
     <!-- plugins:js -->
     <script src="/assets/vendors/js/vendor.bundle.base.js"></script>

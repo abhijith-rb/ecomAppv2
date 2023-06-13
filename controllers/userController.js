@@ -13,6 +13,9 @@ const instance = new Razorpay({
     key_id: 'rzp_test_6JFoZx1fYTkS3n', 
     key_secret: 'Q15DfBbJFIrDy1K1FTsDE7CA', });
 
+const PDFDocument = require('pdfkit');
+
+
 const usrCtrl = {};
 
 const objectId = mongoose.Types.ObjectId;
@@ -96,28 +99,28 @@ usrCtrl.createUser = async(req,res)=>{
 usrCtrl.userAuth = async (req, res) => {
     const { username, password } = req.body;
     try {
-      let errMsg = 'Invalid username or password';
-      let blockMsg = 'You are Blocked'
       const user = await User.findOne({ username });
       if (!user) {
         return res.status(400).json(errMsg);
       }
 
       if(user.blocked){
-        return res.status(400).json(blockMsg)
+         res.status(400).json({msg:"You are blocked"})
+         return;
       }
 
       const validPassword = await bcrypt.compare(password, user.password)
       if(!validPassword){
-        return res.status(400).json(errMsg) 
+        return res.status(400).json({msg:'Invalid username or password'}) 
       }
         const userId = user._id;
         req.session.userId = userId;
         req.session.username = username;
-        return res.status(200).json(userId);
+        
+        res.status(200).json({msg:"logged in successfully"})
     } catch (err) {
       console.error(err);
-      return res.status(500).json('Server Error');
+      return res.status(500).json({msg:'Server Error'});
     }
   };
   
@@ -156,21 +159,38 @@ usrCtrl.getBlockpage = (req,res)=>{
 
 
 usrCtrl.getLoginPage = async(req,res)=>{
+    let userPresent;
+    if(req.session.userId){
+      userPresent = true;
+    }else{
+      userPresent = false;
+    }
     const categories = await Category.find()
-    res.render('user/login.ejs',{categories,userPresent:false});
+    res.render('user/login.ejs',{categories,userPresent});
 }
 
 usrCtrl.getRegisterPage = async(req,res)=>{
-    // res.render('user/ureg.ejs');
+    let userPresent;
+    if(req.session.userId){
+      userPresent = true;
+    }else{
+      userPresent = false;
+    }
     const categories = await Category.find()
-    res.render('user/register.ejs',{categories,userPresent:false});
+    res.render('user/register.ejs',{categories,userPresent});
 }
 
 usrCtrl.getEditProfile = async(req,res)=>{
   const userId = req.session.userId
   const categories = await Category.find()
   const user = await User.findOne({_id:userId})
-  res.render('user/editProfile.ejs',{user,userId,categories})
+  let userPresent;
+  if(req.session.userId){
+    userPresent = true;
+  }else{
+    userPresent = false;
+  }
+  res.render('user/editProfile.ejs',{user,userId,categories,userPresent})
 }
 
 usrCtrl.logoutUser = (req,res)=>{
@@ -187,9 +207,14 @@ usrCtrl.logoutUser = (req,res)=>{
 }
 
 usrCtrl.getOtpPage = async(req,res)=>{
-  // res.render('user/otpPage.ejs')
+  let userPresent;
+  if(req.session.userId){
+    userPresent = true;
+  }else{
+    userPresent = false;
+  }
   const categories = await Category.find()
-  res.render('user/forgotPage.ejs',{categories,userPresent:false})
+  res.render('user/forgotPage.ejs',{categories,userPresent})
 }
 
 function generateOTP() {
@@ -261,7 +286,13 @@ usrCtrl.verifyOtp = async(req,res)=>{
 
 usrCtrl.getChangePwd = (req,res)=>{
   const userId = req.params.id;
-  res.render('user/changepwd.ejs',{userId})
+  let userPresent;
+  if(req.session.userId){
+    userPresent = true;
+  }else{
+    userPresent = false;
+  }
+  res.render('user/changepwd.ejs',{userId,userPresent})
 }
 
 usrCtrl.updatePwd = async(req,res)=>{
@@ -284,9 +315,14 @@ usrCtrl.updatePwd = async(req,res)=>{
 // sms otp...
 
 usrCtrl.getSmsOtpPage = async(req,res)=>{
-  // res.render('user/smsOtp.ejs')
+  let userPresent;
+  if(req.session.userId){
+    userPresent = true;
+  }else{
+    userPresent = false;
+  }
   const categories = await Category.find();
-  res.render('user/mobileOtp.ejs',{categories,userPresent:false})
+  res.render('user/mobileOtp.ejs',{categories,userPresent})
 }
 
 usrCtrl.sendSmsOtp = async (req, res) => {
@@ -311,7 +347,7 @@ usrCtrl.sendSmsOtp = async (req, res) => {
         .then(message => console.log(message.sid));
     
     console.log("after client")
-    res.send('Otp send successfullyBE');
+    res.send('Otp send successfully');
   } catch (error) {
     console.error('Error sending OTP:', error);
     res.status(500).send('Error sending OTP');
@@ -356,17 +392,23 @@ usrCtrl.getDetail = async(req,res)=>{
   const product = await Product.findById(prodId);
   const pcString = product.category.toString()
   const similar = await Product.find({category:pcString}).limit(4);
+  let userPresent;
+  if(req.session.userId){
+    userPresent = true;
+  }else{
+    userPresent = false;
+  }
   if(req.session.userId){ 
     const userId=req.session.userId
     const cart = await Cart.findOne({userId},{items:{$elemMatch:{productId:prodId}}})
     console.log("pp" + cart);
     if(cart.items.length>0){
-      res.render('user/detail.ejs',{userPresent:true,product,added:true,userId,categories,similar})
+      res.render('user/detail.ejs',{userPresent,product,added:true,userId,categories,similar})
     }else{
-      res.render('user/detail.ejs',{userPresent:true,product,added:false,userId,categories,similar})
+      res.render('user/detail.ejs',{userPresent,product,added:false,userId,categories,similar})
     }
   }else{
-    res.render('user/detail.ejs',{userPresent:false,product,added:false,categories,similar})
+    res.render('user/detail.ejs',{userPresent,product,added:false,categories,similar})
   }
 }
 
@@ -410,16 +452,22 @@ usrCtrl.getCart = async(req,res)=>{
   const userId = req.session.userId;
   const categories = await Category.find()
   const cart = await Cart.findOne({userId})
+  let userPresent;
+  if(req.session.userId){
+    userPresent = true;
+  }else{
+    userPresent = false;
+  }
   if(cart){
     if(cart.items.length>0){
         
-      res.render('user/cart.ejs',{cart,isEmpty:false,categories,userId});
+      res.render('user/cart.ejs',{cart,isEmpty:false,categories,userId,userPresent});
     }else{
-      res.render('user/cart.ejs',{cart,isEmpty:true,categories,userId});
+      res.render('user/cart.ejs',{cart,isEmpty:true,categories,userId,userPresent});
     }
   }else{
     usrCtrl.createCart(userId);    
-    res.render('user/cart.ejs',{isEmpty:true,categories,userId});
+    res.render('user/cart.ejs',{isEmpty:true,categories,userId,userPresent});
   }
 }
 
@@ -448,8 +496,14 @@ usrCtrl.getCheckout = async(req,res)=>{
   const categories = await Category.find()
   const user = await User.findById(userId)
   const cart = await Cart.findOne({userId})
-  res.render('user/checkoutPage.ejs',{user,userId,cart,categories})
-  // res.render('user/checkout.ejs',{user,userId,cart,categories})
+  let userPresent;
+  if(req.session.userId){
+    userPresent = true;
+  }else{
+    userPresent = false;
+  }
+  res.render('user/checkoutPage.ejs',{user,userId,cart,categories,userPresent})
+  
 }
 
 usrCtrl.incQty = async(req,res)=>{
@@ -512,14 +566,26 @@ usrCtrl.getProfile = async(req,res)=>{
   const userId = req.session.userId;
   const categories = await Category.find()
   const user = await User.findById(userId)
-  res.render('user/profile.ejs',{user,userId,categories})
+  let userPresent;
+  if(req.session.userId){
+    userPresent = true;
+  }else{
+    userPresent = false;
+  }
+  res.render('user/profile.ejs',{user,userId,categories,userPresent})
 }
 
 usrCtrl.getEditProfile = async(req,res)=>{
   const userId = req.session.userId;
   const user = await User.findById(userId)
   const categories = await Category.find()
-  res.render('user/editProfile.ejs',{user,userId,categories})
+  let userPresent;
+  if(req.session.userId){
+    userPresent = true;
+  }else{
+    userPresent = false;
+  }
+  res.render('user/editProfile.ejs',{user,userId,categories,userPresent})
 }
 
 usrCtrl.editProfile = async(req,res)=>{
@@ -533,7 +599,13 @@ usrCtrl.getMngAddress = async(req,res)=>{
   const userId = req.session.userId;
   const user = await User.findById(userId)
   const categories = await Category.find()
-  res.render('user/manageAddress.ejs',{user,userId,categories})
+  let userPresent;
+  if(req.session.userId){
+    userPresent = true;
+  }else{
+    userPresent = false;
+  }
+  res.render('user/manageAddress.ejs',{user,userId,categories,userPresent})
 }
 
 usrCtrl.addAddress = async(req,res)=>{
@@ -565,7 +637,7 @@ usrCtrl.addAddress = async(req,res)=>{
 
 const clearCart = async(userId)=>{
   await Cart.findOneAndUpdate({userId},{
-    $set:{items:[],total:0}
+    $set:{items:[],total:0,discount:0}
   });
   console.log("cart cleared")
 }
@@ -614,8 +686,8 @@ usrCtrl.placeOrder = async(req,res)=>{
       country:address.country,
       pin:address.pin,
     },
-   
     total:cart.total,
+    discount:cart.total,
     paymentMethod,
     status:'Processing', 
   })
@@ -650,11 +722,16 @@ usrCtrl.getMyOrders= async(req,res)=>{
   const categories = await Category.find()
   const ordersOrg = await Order.find({userId})
   const orders = ordersOrg.reverse();
-  if(orders.length > 0){
-    
-    res.render('user/myOrders.ejs',{orders,hasOrders:true,user,userId,categories})
+  let userPresent;
+  if(req.session.userId){
+    userPresent = true;
   }else{
-    res.render('user/myOrders.ejs',{hasOrders:false,user,userId,categories})
+    userPresent = false;
+  }
+  if(orders.length > 0){
+    res.render('user/myOrders.ejs',{orders,hasOrders:true,user,userId,categories,userPresent})
+  }else{
+    res.render('user/myOrders.ejs',{hasOrders:false,user,userId,categories,userPresent})
   }
   
 }
@@ -665,17 +742,23 @@ usrCtrl.myOrderDetail = async(req,res)=>{
   const user = await User.findById(userId);
   const categories = await Category.find()
   const order = await Order.findById(orderId)
+  let userPresent;
+  if(req.session.userId){
+    userPresent = true;
+  }else{
+    userPresent = false;
+  }
   if(order.status === "Delivered"){
-    res.render('user/myOrderDetail.ejs',{order,user,userId,categories,delivered:true,returned:false,cancelled:false})
+    res.render('user/myOrderDetail.ejs',{order,user,userId,categories,delivered:true,returned:false,cancelled:false,userPresent})
   }
   else if(order.status === "Returned"){
-    res.render('user/myOrderDetail.ejs',{order,user,userId,categories,delivered:false,returned:true,cancelled:false})
+    res.render('user/myOrderDetail.ejs',{order,user,userId,categories,delivered:false,returned:true,cancelled:false,userPresent})
   }
   else if(order.status === "Cancelled"){
-    res.render('user/myOrderDetail.ejs',{order,user,userId,categories,delivered:false,returned:true,cancelled:true})
+    res.render('user/myOrderDetail.ejs',{order,user,userId,categories,delivered:false,returned:true,cancelled:true,userPresent})
   }
   else{
-    res.render('user/myOrderDetail.ejs',{order,user,userId,categories,delivered:false,returned:false,cancelled:false})
+    res.render('user/myOrderDetail.ejs',{order,user,userId,categories,delivered:false,returned:false,cancelled:false,userPresent})
   }
 }
 
@@ -711,7 +794,13 @@ usrCtrl.getSuccess = async(req,res)=>{
   const userId = req.session.userId;
   const user = await User.findById(userId)
   const categories = await Category.find()
-  res.render('user/success.ejs',{user,userId,categories})
+  let userPresent;
+  if(req.session.userId){
+    userPresent = true;
+  }else{
+    userPresent = false;
+  }
+  res.render('user/success.ejs',{user,userId,categories,userPresent})
 }
 
 
@@ -769,12 +858,18 @@ usrCtrl.checkStock = async(req,res)=>{
 
 usrCtrl.listCoupons = async(req,res)=>{
   const userId = req.session.userId;
+  let userPresent;
+  if(req.session.userId){
+    userPresent = true;
+  }else{
+    userPresent = false;
+  }
   try {
     const coupons = await Coupon.find();
     const categories = await Category.find()
     const user = await User.findById(userId);
   
-    res.render('user/coupons.ejs',{coupons,categories,user,userId})
+    res.render('user/coupons.ejs',{coupons,categories,user,userId,userPresent})
   } catch (error) {
     console.log(error)
   }
@@ -786,32 +881,45 @@ usrCtrl.applyCoupon = async(req,res)=>{
     const coupon  = await Coupon.findOne({code:couponCode})
     if(!coupon){
       res.status(400).json({msg:"coupon not found"})
+      return;
     }
 
     const currentDate = new Date();
     if(coupon.expiryDate < currentDate){
       res.status(400).json({msg:"Coupon has expired"})
+      return;
     }
 
     if(coupon.usedBy.includes(userId)){
       res.status(409).json({msg:"Coupon already used"})
+      return;
+    }
+
+    const cart = await Cart.findById(cartId);
+    
+    if(cart.total < 500){
+      res.status(409).json({msg:"Coupon not applicable below 500"})
+      return;
     }
 
     const discount = coupon.discount;
     console.log(discount)
-    const cart = await Cart.findById(cartId);
-    const newTotal = (cart.total - discount) > 0 ? (cart.total - discount) : 0;
-    console.log(newTotal);
-    try {
+    
+    try{
       await Coupon.findByIdAndUpdate(coupon._id,{
         $push:{usedBy:userId}
       })
+
+      const newTotal = cart.total - discount;
+      console.log("newTotal:")
+      console.log(newTotal)
+
       await Cart.findByIdAndUpdate(cartId,{
-        $set:{total:newTotal}
+        $set:{total:newTotal,discount:discount}
       })
-      
+
       res.status(200).json({newTotal:newTotal,discount:discount}) 
-    } catch (error) {
+    }catch(error){
       res.status(500).json({msg:"Something went wrong"})
     }
 }
@@ -895,6 +1003,119 @@ usrCtrl.filterByPrice = async(req,res)=>{
         console.error(error);
         res.status(500).json({msg:'Error retrieving products'});
       }
+}
+
+usrCtrl.downloadInvoice = async(req,res)=>{
+  const doc = new PDFDocument();
+  const orderId = req.params.id;
+  const order = await Order.findById(orderId)
+  const date = new Date(Date.now()).toDateString();
+
+  doc.text('Tax Invoice', { align: 'center', fontSize: 30 });
+  doc.moveDown();
+  doc.text('Order details:', { fontSize: 22 });
+  doc.text(`Order ID:${orderId}`, { fontSize: 16 });
+  doc.text(`Invoice Date:${date}`, { fontSize: 16 });
+  
+  const clientAddress = `${order.address.addressline1}`+','
+  +`${order.address.addressline2}`+','+`${order.address.city}`+','
+  +`${order.address.pin}`+','+`${order.address.state}`+','
+  +`${order.address.country}`;
+  doc.moveDown();
+  doc.text('Deliver to:', { fontSize: 22 });
+  doc.text(`${order.address.name}`, { fontSize: 16 });
+  doc.text(clientAddress, { fontSize: 12 });
+  doc.text(`Phone:${order.address.mobile}`, { fontSize: 16 });
+  doc.text(`Total items:${order.items.length}`, { fontSize: 14 });
+
+  doc.strokeColor('black').lineWidth(1).moveTo(50, 250).lineTo(550, 250).stroke();
+
+  let rowsArray = [];
+  order.items.forEach((item,i)=>{
+    rowsArray.push([item.name,item.quantity,item.price])
+  })
+
+  const table = {
+    headers: ['Item', 'Quantity', 'Price'],
+    rows: rowsArray,
+  };
+  
+  
+  const tableTop = 270; 
+  const tableLeft = 80; 
+  const cellPadding = 10; 
+
+  const columnWidths = [150, 100, 100]; 
+
+ 
+  doc.font('Helvetica-Bold').fontSize(12);
+
+  
+  let currentY = tableTop;
+  table.headers.forEach((header, columnIndex) => {
+  doc.text(header, tableLeft + columnIndex * columnWidths[columnIndex], currentY);
+  doc.strokeColor('black').lineWidth(1).moveTo(50, currentY+13).lineTo(550, currentY+13).stroke();
+
+  });
+
+  
+  doc.font('Helvetica').fontSize(10);
+
+  table.rows.forEach((row, rowIndex) => {
+  currentY += 20;
+
+  row.forEach((cell, columnIndex) => {
+      doc.text(cell, tableLeft + columnIndex * columnWidths[columnIndex], currentY, {
+        width: columnWidths[columnIndex],
+        align: 'left',
+      });
+      });
+  
+      doc.strokeColor('black').lineWidth(1).moveTo(50, currentY+11).lineTo(550, currentY+11).stroke();
+
+  });
+
+  doc.moveDown();
+
+  doc.text('Grand Total: ₹' + `${order.total}`, { fontSize: 30 });
+
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', 'attachment; filename="invoice.pdf"');
+
+  await doc.pipe(res);
+
+  doc.end();
+  res.end();
+}
+
+usrCtrl.searchProducts = async(req,res)=>{
+  let products = []
+  const userId = req.session.userId
+  const categories = await Category.find()
+  const squery = req.query.search;
+  let userPresent;
+  if(req.session.userId){
+    userPresent = true;
+  }else{
+    userPresent = false;
+  }
+  const noProduct = 'No Matching Search results'
+
+  if (squery) {
+    const regex = new RegExp(squery, 'i');
+    productsroducts = await Product.find({ name: { $regex: regex } })
+    if (products.length > 0) {
+        console.log(products)
+        res.render('user/search.ejs', { Products:products,userPresent,userId,categories});
+    } else {
+        res.render('user/search.ejs', { Products:products,userPresent, noProduct,userId,categories });
+    }
+  }
+  else {
+      products = await Product.find();
+      res.render('user/search.ejs', {Products:products,userPresent, noProduct,userId,categories })
+  }
+
 }
 
 module.exports = usrCtrl;

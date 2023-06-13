@@ -50,16 +50,26 @@
                         <h5>Payment Mode: <%=order.paymentMethod%></h5>
                         <h4 id="initStatus">Status: <%=order.status%></h4>
                         <div class="grpBtns" style="display: flex;justify-content: space-between;">
-                            <%if(delivered){%>
-                                <button class="btn btn-primary" type="button" id="return" data-orderid="<%=order._id%>" aria-haspopup="true" aria-expanded="false"> Return </button>
-                                <button class="btn btn-primary" type="button" style="display:none;" id="cancel" data-orderid="<%=order._id%>" aria-haspopup="true" aria-expanded="false"> Cancel Order </button>
-                            <%}else if(returned || cancelled){%>
-                                <button class="btn btn-primary" type="button" style="display: none;" id="return" data-orderid="<%=order._id%>" aria-haspopup="true" aria-expanded="false"> Return </button>
-                                <button class="btn btn-primary" type="button" style="display: none;" id="cancel" data-orderid="<%=order._id%>" aria-haspopup="true" aria-expanded="false"> Cancel Order </button>
-                            <%}else{%>
-                                <button class="btn btn-primary" type="button" style="display: none;" id="return" data-orderid="<%=order._id%>" aria-haspopup="true" aria-expanded="false"> Return </button>
-                                <button class="btn btn-primary" type="button" id="cancel" data-orderid="<%=order._id%>" aria-haspopup="true" aria-expanded="false"> Cancel Order </button>
-                            <%}%>
+                            <div class="changeBtn">
+                                <%if(delivered){%>
+                                    <button class="btn btn-primary" type="button" id="return" data-orderid="<%=order._id%>" aria-haspopup="true" aria-expanded="false"> Return </button>
+                                    <button class="btn btn-primary" type="button" style="display:none;" id="cancel" data-orderid="<%=order._id%>" aria-haspopup="true" aria-expanded="false"> Cancel Order </button>
+                                <%}else if(returned || cancelled){%>
+                                    <button class="btn btn-primary" type="button" style="display: none;" id="return" data-orderid="<%=order._id%>" aria-haspopup="true" aria-expanded="false"> Return </button>
+                                    <button class="btn btn-primary" type="button" style="display: none;" id="cancel" data-orderid="<%=order._id%>" aria-haspopup="true" aria-expanded="false"> Cancel Order </button>
+                                <%}else{%>
+                                    <button class="btn btn-primary" type="button" style="display: none;" id="return" data-orderid="<%=order._id%>" aria-haspopup="true" aria-expanded="false"> Return </button>
+                                    <button class="btn btn-primary" type="button" id="cancel" data-orderid="<%=order._id%>" aria-haspopup="true" aria-expanded="false"> Cancel Order </button>
+                                <%}%>
+                            </div>
+
+                            <div class="invoice">
+                                <span style="color: #555;">Invoice Download:</span>
+                                
+                                <a class="btn btn-success" href='/invoice/<%=order._id%>'>
+                                    Download
+                                </a>
+                            </div>
 
                             <div class="dropdown">
                                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> More </button>
@@ -179,6 +189,8 @@
         })
 
       })
+
+    
       
       </script>
 
