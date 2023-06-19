@@ -11,6 +11,7 @@ const orderSchema = new mongoose.Schema({
             image:{type:String},
             quantity:{type:Number,required:true},
             subTotal:{type:Number,required:true},
+            itemDiscount:{type:Number,default:0,required:true},
         }
         ],default:[]},
     address:{type:{
@@ -25,6 +26,7 @@ const orderSchema = new mongoose.Schema({
     },default:{},required:true},
     total:{type:Number,required:true},
     discount:{type:Number},
+    couponDiscount:{type:Number},
     paymentMethod:{type:String,required:true},
     createdAt:{type:Date,default:Date.now},
     date:{type:Date,default:Date.now},

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>MultiShop - Online Shop Website Template</title>
+    <title>Usecart</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Free HTML Templates" name="keywords">
     <meta content="Free HTML Templates" name="description">
@@ -43,22 +43,26 @@
             </div>
 
             <div class="col-lg-9 h-auto mb-30">
-                <div class="h-100 bg-light p-30">
+                <div class="h-100 bg-light p-30" style="display: flex;flex-direction: column;">
                     <h3>Personal Information</h3>
                     <h5>Name: <%=user.username%></h5>
                     <h5>Email: <%=user.email%></h5>
                     <h5>Mobile: <%=user.mobile%></h5>
+                    <h3>Address:</h3>
                     <% if(user.address.length > 0){%>
                         <%user.address.forEach((addrs,i)=>{%>
-                            <h4>Address <%=i+1%>: </h4>
-                            <h5>Address line 1: <%=addrs.addressline1%></h5>
-                            <h5>Address line 2: <%=addrs.addressline2%></h5>
-                            <h5>City: <%=addrs.city%></h5>
-                            <h5>State: <%=addrs.state%></h5>
-                            <h5>Pin: <%=addrs.pin%></h5>
-                            <h5>Country: <%=addrs.country%></h5>
-                        <%})%>
-                    <%}%>
+                            <div class="row">
+                                <h4><%=i+1%>: </h4> &nbsp;
+                                <h5>Address line 1: <%=addrs.addressline1%>,</h5>&nbsp;
+                                <h5>Address line 2: <%=addrs.addressline2%>,</h5>&nbsp;
+                                <h5>City: <%=addrs.city%>,</h5>&nbsp;
+                                <h5>State: <%=addrs.state%>,</h5>&nbsp;
+                                <h5>Pin: <%=addrs.pin%>,</h5>&nbsp;
+                                <h5>Country: <%=addrs.country%>,</h5>
+                            </div>
+                            <%})%>
+                        <%}%>
+
                 </div>
             </div>
         </div>

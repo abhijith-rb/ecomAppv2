@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>MultiShop - Online Shop Website Template</title>
+    <title>Usecart</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Free HTML Templates" name="keywords">
     <meta content="Free HTML Templates" name="description">
@@ -49,10 +49,11 @@
 
     <!-- Cart Start -->
     <div class="container-fluid">
+        <h2 style="text-align: center;display: none;" id="emptyNotice">Cart is empty</h2>
         <%if(isEmpty){%>
             <h2 style="text-align: center;">Cart is empty</h2>
         <%}else{%>
-        <div class="row px-xl-5">
+        <div class="row px-xl-5" id="cartTable">
 
             <div class="col-lg-8 table-responsive mb-5">
                 <table class="table table-light table-borderless table-hover text-center mb-0">
@@ -111,6 +112,8 @@
                     </div>
                 </form>
 
+                <p style="color: red;" id="msgTag"></p>
+
                 <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Cart Summary</span></h5>
                 <div class="bg-light p-30 mb-5">
                     <div class="border-bottom pb-2">
@@ -121,18 +124,27 @@
                         </div>
                         <div class="d-flex justify-content-between mb-3">
                             <h6>Discount</h6>
-                            <h6 id="intialDiscount">₹0</h6>
+                            <h6 id="intialDiscount">-₹<%=cart.discount%></h6>
                             <h6 id="updatedDiscount" style="display: none;"></h6>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <h6>Coupons for you</h6>
+                            <%if(cart.couponDiscount > 0){%>
+                                <h6 id="intialCouponDiscount">-₹<%=cart.couponDiscount%></h6>
+                            <%}else{%>
+                                <h6 id="intialCouponDiscount">0</h6>
+                            <%}%>
+                            <h6 id="updatedCouponDiscount" style="display: none;"></h6>
                         </div>
                         <div class="d-flex justify-content-between">
                             <h6 class="font-weight-medium">Delivery charge</h6>
-                            <h6 class="font-weight-medium">₹10</h6>
+                            <h6 class="font-weight-medium">Free</h6>
                         </div>
                     </div>
                     <div class="pt-2">
                         <div class="d-flex justify-content-between mt-2">
                             <h5>Total Amount</h5>
-                            <h5 id="intialTotal">₹<%=cart.total+10%></h5>
+                            <h5 id="intialTotal">₹<%=cart.total-(cart.discount + cart.couponDiscount )%></h5>
                             <h5 id="updatedTotal" style="display: none;"></h5>
                         </div>
                         <a class="btn btn-block btn-primary font-weight-bold my-3 py-3" href="/checkout">Proceed To Checkout</a>
@@ -164,19 +176,35 @@
                 let msg = document.getElementById('msg');
                 let intPrice = document.getElementById('intialPrice')
                 let updtPrice = document.getElementById('updatedPrice')
+                let intialDiscount = document.getElementById('intialDiscount')
+                let updatedDiscount = document.getElementById('updatedDiscount')
                 let intTotal = document.getElementById('intialTotal')
                 let updtTotal = document.getElementById('updatedTotal')
+                const emptyNotice = document.getElementById('emptyNotice');
+                const cartTable = document.getElementById('cartTable');
                 $.ajax({
                     url:`/removeItem/${itemid}`,
                     method:'GET',
                     success:(data)=>{
+                        console.log("updtCart.items.length:")
+                        console.log(data.updtCart.items.length)
+                        if(data.updtCart.items.length === 0){
+                            
+                            emptyNotice.style.display = 'block';
+                            cartTable.style.display = 'none';
+                        }
                         row.style.display = 'none';
                         intPrice.style.display = 'none'
                         updtPrice.style.display = 'block'
                         updtPrice.textContent = data.updtCart.total;
+                        intialDiscount.style.display = 'none'
+                        updatedDiscount.style.display = 'block'
+                        updatedDiscount.textContent = data.updtCart.discount;
                         intTotal.style.display = 'none'
                         updtTotal.style.display = 'block'
-                        updtTotal.textContent = data.updtCart.total + 10;
+                        updtTotal.textContent = data.updtCart.total ;
+
+                        
                     },
                     error:(err)=>{
                         console.log(err)
@@ -196,6 +224,8 @@
                 let updtElem = document.getElementsByClassName('updatedST')[index]
                 let intPrice = document.getElementById('intialPrice')
                 let updtPrice = document.getElementById('updatedPrice')
+                let intialDiscount = document.getElementById('intialDiscount')
+                let updatedDiscount = document.getElementById('updatedDiscount')
                 let intTotal = document.getElementById('intialTotal')
                 let updtTotal = document.getElementById('updatedTotal')
                 // console.log("qnty"+quantity)
@@ -219,9 +249,12 @@
                                         intPrice.style.display = 'none'
                                         updtPrice.style.display = 'block'
                                         updtPrice.textContent = '₹'+data.updtCart.total;
+                                        intialDiscount.style.display = 'none'
+                                        updatedDiscount.style.display = 'block'
+                                        updatedDiscount.textContent = '-₹'+data.updtCart.discount;
                                         intTotal.style.display = 'none'
                                         updtTotal.style.display = 'block'
-                                        updtTotal.textContent = '₹'+(data.updtCart.total + 10);
+                                        updtTotal.textContent = '₹'+(data.updtCart.total-(data.updtCart.discount+data.updtCart.couponDiscount));
                                 },
                                 error:(err)=>{
                                     console.log(err)
@@ -247,6 +280,8 @@
                 let updtElem = document.getElementsByClassName('updatedST')[index]
                 let intPrice = document.getElementById('intialPrice')
                 let updtPrice = document.getElementById('updatedPrice')
+                let intialDiscount = document.getElementById('intialDiscount')
+                let updatedDiscount = document.getElementById('updatedDiscount')
                 let intTotal = document.getElementById('intialTotal')
                 let updtTotal = document.getElementById('updatedTotal')
 
@@ -262,18 +297,19 @@
                             intPrice.style.display = 'none'
                             updtPrice.style.display = 'block'
                             updtPrice.textContent = '₹'+data.updtCart.total;
+                            intialDiscount.style.display = 'none'
+                            updatedDiscount.style.display = 'block'
+                            updatedDiscount.textContent = '-₹'+data.updtCart.discount;
                             intTotal.style.display = 'none'
                             updtTotal.style.display = 'block'
-                            updtTotal.textContent = '₹'+(data.updtCart.total + 10);
+                            updtTotal.textContent = '₹'+(data.updtCart.total-(data.updtCart.discount + data.updtCart.couponDiscount));
                         },
                         error:(err)=>{
                             console.log(err)
                         }
                     })
-                }else{
-                    let newVal = 1;
-                    document.getElementsByClassName('qty')[index].value = newVal.toString();
-                }            
+                }
+                            
             })
         }); 
 
@@ -284,8 +320,8 @@
             const couponCode = document.getElementById('couponCode').value;
             const cartid = e.target.dataset.cartid;
             const userid = e.target.dataset.userid;
-            let intDscnt = document.getElementById('intialDiscount')
-            let updtDscnt = document.getElementById('updatedDiscount')
+            let intCouponDscnt = document.getElementById('intialCouponDiscount')
+            let updtCouponDscnt = document.getElementById('updatedCouponDiscount')
             let intTotal = document.getElementById('intialTotal')
             let updtTotal = document.getElementById('updatedTotal')
             if(couponCode === ""){
@@ -302,13 +338,18 @@
                 return response.json()})
                 .then((data)=>{
                     
-                    console.log(data.newTotal)
-                        intDscnt.style.display = 'none'
-                        updtDscnt.style.display = 'block'
-                        updtDscnt.textContent = '₹'+(data.discount);
+                    if(data.couponDiscount){
+                        intCouponDscnt.style.display = 'none'
+                        updtCouponDscnt.style.display = 'block'
+                        updtCouponDscnt.textContent = '₹'+(data.couponDiscount);
                         intTotal.style.display = 'none'
                         updtTotal.style.display = 'block'
-                        updtTotal.textContent = '₹'+(data.newTotal + 10);
+                        updtTotal.textContent = '₹'+(data.total-(data.couponDiscount+data.discount));
+                    }else{
+                        console.log(data.msg)
+                        const msgTag = document.getElementById('msgTag');
+                        msgTag.textContent = data.msg
+                    }
 
                 })
                 .catch((error)=>{console.log(error)})

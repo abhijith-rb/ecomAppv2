@@ -31,6 +31,17 @@ const storage = multer.diskStorage({
 
 const upload = multer({storage})
 
+const singleStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'public/images'); 
+    },
+    filename: (req, file, cb) => {
+      cb(null, file.originalname); 
+    }
+  });
+
+const uploadSingle = multer({ storage: singleStorage });  
+
 router.get('/login',admnCtrl.isLoggedin, admnCtrl.getAdminLogin)
 
 //adminAuth
@@ -63,6 +74,8 @@ router.get('/editProduct/:id',admnCtrl.isAdmin, admnCtrl.getEditProduct)
 
 router.post("/editProduct/:id",admnCtrl.isAdmin,upload.array("images"), admnCtrl.editProduct)
 
+router.get('/removeimg', admnCtrl.removeImg)
+
 //Soft delete product
 router.get('/deleteProduct/:id',admnCtrl.isAdmin, admnCtrl.deleteProduct)
 //recover product
@@ -73,13 +86,13 @@ router.get('/recoverProduct/:id',admnCtrl.isAdmin, admnCtrl.recoverProduct)
 router.get('/addCategory',admnCtrl.isAdmin, admnCtrl.getAddCategory)
 
 //post new Category
-router.post('/addCategory',admnCtrl.isAdmin, upload.single("image"), admnCtrl.addCategory)
+router.post('/addCategory',admnCtrl.isAdmin, uploadSingle.single("image"), admnCtrl.addCategory)
 
 //get Category edit page
 router.get('/editCategory/:id',admnCtrl.isAdmin, admnCtrl.getEditCategory)
 
 //post Category edits
-router.post("/editCategory/:id",admnCtrl.isAdmin,upload.single("image"), admnCtrl.editCategory)
+router.post("/editCategory/:id",admnCtrl.isAdmin,uploadSingle.single("image"), admnCtrl.editCategory)
 
 //Delete Category
 router.get('/deleteCategory/:id',admnCtrl.isAdmin, admnCtrl.deleteCategory)
@@ -87,12 +100,12 @@ router.get('/deleteCategory/:id',admnCtrl.isAdmin, admnCtrl.deleteCategory)
 //Order Management
 router.get('/getOrders',admnCtrl.isAdmin,admnCtrl.getOrders);
 
-// router.get('/stocks', admnCtrl.getStockManage)
-
 router.get('/order/:id',admnCtrl.isAdmin, admnCtrl.orderDetail)
 
 router.post('/changeStatus',admnCtrl.isAdmin, admnCtrl.changeStatus)
 
+
+//coupon
 router.get('/couponManage',admnCtrl.isAdmin, admnCtrl.getCouponMng)
 
 router.get('/addCoupon',admnCtrl.isAdmin, admnCtrl.getAddCoupon)
@@ -105,10 +118,42 @@ router.post('/editCoupon/:id',admnCtrl.isAdmin, admnCtrl.postEditCoupon )
 
 router.get('/deleteCoupon/:id',admnCtrl.isAdmin, admnCtrl.deleteCoupon)
 
+
+//dashboard
 router.get('/saleschart',admnCtrl.getSalesChart)
 
 router.get('/getreport', admnCtrl.getReport)
 
-router.get('/removeimg', admnCtrl.removeImg)
+
+//offer
+
+router.get('/offermanage',admnCtrl.isAdmin,admnCtrl.getOfferMng)
+
+router.get('/addoffer',admnCtrl.isAdmin, admnCtrl.getAddOffer)
+
+router.post('/addoffer',admnCtrl.isAdmin, admnCtrl.postAddOffer)
+
+router.get('/editoffer/:id',admnCtrl.isAdmin, admnCtrl.getEditOffer )
+
+router.post('/editoffer/:id',admnCtrl.isAdmin, admnCtrl.postEditOffer )
+
+router.get('/deleteoffer/:id',admnCtrl.isAdmin, admnCtrl.deleteOffer)
+
+
+//banner
+router.get('/bannermanage',admnCtrl.isAdmin, admnCtrl.getBannerMng)
+
+router.get('/addbanner',admnCtrl.isAdmin, admnCtrl.getAddBanner)
+
+router.post('/addbanner',admnCtrl.isAdmin,uploadSingle.single("image"),admnCtrl.addBanner)
+
+router.get('/deletebanner/:id',admnCtrl.isAdmin,admnCtrl.deleteBanner)
+
+router.get('/editbanner/:id',admnCtrl.isAdmin,admnCtrl.getEditBanner)
+
+router.post("/editbanner/:id",admnCtrl.isAdmin,uploadSingle.single("image"),admnCtrl.editBanner)
+
+router.post('/cropimage',admnCtrl.cropImage)
+
 
 module.exports = router;

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Admin</title>
+    <!-- plugins:css -->
+    <link rel="stylesheet" href="/assets/vendors/mdi/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="/assets/vendors/css/vendor.bundle.base.css">
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <link rel="stylesheet" href="/assets/vendors/jvectormap/jquery-jvectormap.css">
+    <link rel="stylesheet" href="/assets/vendors/flag-icon-css/css/flag-icon.min.css">
+    <link rel="stylesheet" href="/assets/vendors/owl-carousel-2/owl.carousel.min.css">
+    <link rel="stylesheet" href="/assets/vendors/owl-carousel-2/owl.theme.default.min.css">
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <!-- endinject -->
+    <!-- Layout styles -->
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <!-- End layout styles -->
+    <link rel="shortcut icon" href="/assets/images/favicon.png" />
+  </head>
+  <body>
+    <div class="container-scroller">
+  
+      <%- include('./adminSidebar.ejs') %>
+      <!-- partial -->
+      <div class="container-fluid page-body-wrapper">
+    
+        <%- include('./adminTopbar.ejs') %>
+        <!-- partial -->
+        <div class="main-panel">
+          <div class="content-wrapper">
+            <div class="col-md-6 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">Edit Offer</h4>
+                  <h4 class="card-title"><%=offer.title%></h4>
+                  <form class="forms-sample" action="/admin/editoffer" method="post" id="addForm" data-offerid="<%=offer._id%>">
+                    
+                    <div class="form-group row">
+                      <label class="col-sm-3 col-form-label">Offer title</label>
+                      <div class="col-sm-9">
+                        <input type="text"  name="title" class="form-control" value="<%=offer.title%>">
+                      </div>
+                    </div>
+                    
+                    <div class="form-group row">
+                      <label class="col-sm-3 col-form-label">Discount</label>
+                      <div class="col-sm-9">
+                        <input type="number"  name="discount" class="form-control"  value="<%=offer.discount%>">
+                      </div>
+                    </div>
+
+                    <div class="form-group row">
+                      <label class="col-sm-3 col-form-label">Start Date</label>
+                      <div class="col-sm-9">
+                        <input type="date"  name="startDate" class="form-control"  value="<%=offer.startDate.toISOString().split('T')[0]%>">
+                      </div>
+                    </div>
+                    
+                    <div class="form-group row">
+                      <label class="col-sm-3 col-form-label">End Date</label>
+                      <div class="col-sm-9">
+                        <input type="date"  name="endDate" class="form-control"  value="<%=offer.endDate.toISOString().split('T')[0]%>">
+                      </div>
+                    </div>
+
+                    <div class="form-group row">
+                      <label for="exampleInputConfirmPassword2" class="col-sm-3 col-form-label">Description</label>
+                      <div class="col-sm-9">
+                        <input type="text" name="description" class="form-control"  value="<%=offer.description%>">
+                      </div>
+                    </div>
+                   
+                    <div class="form-group row">
+                      <label class="col-sm-3 col-form-label">Category</label>
+                      <div class="col-sm-9">
+                        <select class="form-control" name="category">
+                          <option value="<%=offer.categoryId%>"><%=offer.category%></option>
+                          <%categories.forEach((category,i)=>{%>
+                              <option value="<%=category._id%>"><%=category.name%></option>
+                            <%})%>
+                        </select>
+                      </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary mr-2">Update</button>
+                    <a class="btn btn-secondary" href="/admin/OfferManage" style="text-decoration: none;color:black;align-self:center;">
+                      Cancel
+                    </a>
+                    <p id="errMsg" style="color: red; text-align: center;margin-top: 10px;"></p>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- content-wrapper ends -->
+          <!-- partial:partials/_footer.html -->
+          <footer class="footer">
+            
+          </footer>
+          <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+    <!-- container-scroller -->
+    <script>
+    const form = document.getElementById('addForm');
+    
+    form.addEventListener('submit',async(e)=>{
+    e.preventDefault();
+
+    const offerid = e.target.dataset.offerid;
+
+    const title = document.getElementsByName('title')[0].value;
+    const discount = document.getElementsByName('discount')[0].value;
+    const category = document.getElementsByName('category')[0].value;
+    const startDate = document.getElementsByName('startDate')[0].value;
+    const endDate = document.getElementsByName('endDate')[0].value;
+    const description = document.getElementsByName('description')[0].value;
+
+    if(title == ""){
+        alert('Enter a valid title');
+        return;
+    }
+    if(discount == ""){
+        alert('Enter a valid discount');
+        return;
+    }
+    if(category == ""){
+        alert('Enter a valid category');
+        return;
+    }
+    if(startDate == ""){
+        alert('Enter a valid start date');
+        return;
+    }
+    if(endDate == ""){
+        alert('Enter a valid end date');
+        return;
+    }
+    if(description == ""){
+        alert('Enter a valid description');
+        return;
+    }
+
+    fetch(`/admin/editoffer/${offerid}`,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({title,discount,startDate,endDate,description,category})
+    }).then((response)=>{
+      const data = response.json()
+      if(!response.ok){
+        throw new Error('Request failed with status'+ response.status)
+      }else{
+        window.location.href = '/admin/offerManage'
+      }
+    }).catch((error)=>{
+      console.error(error);
+    })
+  })
+  </script>
+    <!-- plugins:js -->
+    <script src="/assets/vendors/js/vendor.bundle.base.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <script src="/assets/vendors/chart.js/Chart.min.js"></script>
+    <script src="/assets/vendors/progressbar.js/progressbar.min.js"></script>
+    <script src="/assets/vendors/jvectormap/jquery-jvectormap.min.js"></script>
+    <script src="/assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
+    <script src="/assets/vendors/owl-carousel-2/owl.carousel.min.js"></script>
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="/assets/js/off-canvas.js"></script>
+    <script src="/assets/js/hoverable-collapse.js"></script>
+    <script src="/assets/js/misc.js"></script>
+    <script src="/assets/js/settings.js"></script>
+    <script src="/assets/js/todolist.js"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page -->
+    <script src="/assets/js/dashboard.js"></script>
+    <!-- End custom js for this page -->
+  </body>
+</html>

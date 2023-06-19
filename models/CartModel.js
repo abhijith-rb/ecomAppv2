@@ -11,10 +11,12 @@ const cartSchema = new mongoose.Schema({
             image:{type:String},
             quantity:{type:Number,required:true},
             subTotal:{type:Number,required:true},
+            itemDiscount:{type:Number,default:0,required:true},
         }
         ],default:[]},
     total:{type:Number,required:true},
-    discount:{type:Number,default:0}
+    discount:{type:Number,default:0},
+    couponDiscount:{type:Number,default:0},
 })
 
 const Cart = mongoose.model('Cart',cartSchema);

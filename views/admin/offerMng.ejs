@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Admin</title>
+    <!-- plugins:css -->
+    <link rel="stylesheet" href="/assets/vendors/mdi/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="/assets/vendors/css/vendor.bundle.base.css">
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <link rel="stylesheet" href="/assets/vendors/jvectormap/jquery-jvectormap.css">
+    <link rel="stylesheet" href="/assets/vendors/flag-icon-css/css/flag-icon.min.css">
+    <link rel="stylesheet" href="/assets/vendors/owl-carousel-2/owl.carousel.min.css">
+    <link rel="stylesheet" href="/assets/vendors/owl-carousel-2/owl.theme.default.min.css">
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <!-- endinject -->
+    <!-- Layout styles -->
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <!-- End layout styles -->
+    <link rel="shortcut icon" href="/assets/images/favicon.png" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <style>
+      .modal{
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        color: red;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+
+      .modal-content{
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 400px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .modalBtn{
+        width: 33%;
+        margin-left: 30%;        
+      }
+    </style>
+    <div class="container-scroller">
+      <!-- partial:partials/_sidebar.html -->
+      <%- include('./adminSidebar.ejs') %>
+      <!-- partial -->
+      <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_navbar.html -->
+        <%- include('./adminTopbar.ejs') %>    
+        <!-- partial -->
+        <div class="main-panel">
+          <div class="content-wrapper">
+            <div class="col-lg-12 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h3 class="card-title" style="text-align: center;">offer List</h3>
+                  <a class="btn btn-info" href="/admin/addoffer" style="text-decoration:none;color:white;">Add offer</a>
+                  <div class="table-responsive">
+                    <table class="table ">
+                      <thead>
+                        <tr>
+                          <th> Title </th>
+                          <th> Discount </th>
+                          <th> Category </th>
+                          <th> Start Date </th>
+                          <th> End Date </th>
+                          <th> Description </th>
+                          <th> Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <%offers.forEach((offer,i)=>{ %>
+                          <tr class="trow">
+                          <td><%=offer.title%></td>
+                          <td><%=offer.discount%>%</td>
+                          <td><%=offer.category%></td>
+                          <td><%=offer.startDate.toString().slice(0,15)%></td>
+                          <td><%=offer.endDate.toString().slice(0,15)%></td>
+                          <td><%=offer.description%></td>
+                          
+                          <td>
+                              <a class="btn btn-info" href="/admin/editoffer/<%=offer._id%>" style="text-decoration: none;color:white;">
+                                Edit
+                              </a>
+                          </td>
+
+                          <td>
+                              <button class="deleter btn btn-danger " data-offerid="<%=offer._id%>" data-index="<%=i%>"  style="text-decoration: none;color:white;">
+                                Delete
+                              </button>
+                          </td>
+                          
+                          </tr>
+                      <%}) %>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div id="deleteModal" class="modal">
+                    <div class="modal-content">
+                      <h3>Confirm Deletion</h3>
+                      <p>Are you sure you want to delete?</p>
+                      <button class="btn btn-danger modalBtn" id="confirmDelete">Confirm</button>
+                      <button class="btn btn-primary modalBtn" id="cancelDelete">Cancel</button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- content-wrapper ends -->
+          <!-- partial:partials/_footer.html -->
+          <footer class="footer">
+            
+          </footer>
+          <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+
+    <script>
+      const searchForm = document.getElementById('searchForm');
+
+
+      searchForm.addEventListener('submit',(e)=>{
+          e.preventDefault();
+
+          const squery = document.getElementsByName('search')[0].value;
+
+          if(squery === ''){
+              alert('Enter key to search');
+              return;
+          }
+          
+          searchForm.submit();
+      })
+
+      const deleteButtons = document.querySelectorAll('.deleter');
+      const deleteModal = document.getElementById('deleteModal')
+      const confirmDelete = document.getElementById('confirmDelete')
+      const cancelDelete = document.getElementById('cancelDelete')
+
+      let offerId = null;
+      let index = null;
+
+      deleteButtons.forEach(button=>{
+        button.addEventListener('click',()=>{
+          offerId = button.dataset.offerid;
+          index = button.dataset.index;
+          deleteModal.style.display='block';
+        })
+      })
+
+      confirmDelete.addEventListener('click',()=>{
+        if(offerId){
+          deleteoffer(offerId,index)
+        }
+      })
+
+      cancelDelete.addEventListener('click',()=>{
+        offerId = null;
+        index=null;
+        deleteModal.style.display = 'none';
+      })
+
+
+      function deleteoffer(offerId,index){
+          fetch(`/admin/deleteoffer/${offerId}`)
+          .then((response)=>{
+            const data = response.json();
+            if(response.ok){
+                const trow = document.getElementsByClassName('trow')[index];
+                offerId = null;
+                index=null;
+                trow.style.display = 'none';
+                deleteModal.style.display = 'none';
+
+            }else{
+              console.log('errorrr')
+            }
+          })
+      }
+
+    </script>
+    <!-- container-scroller -->
+    <!-- plugins:js -->
+    <script src="/assets/vendors/js/vendor.bundle.base.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <script src="/assets/vendors/chart.js/Chart.min.js"></script>
+    <script src="/assets/vendors/progressbar.js/progressbar.min.js"></script>
+    <script src="/assets/vendors/jvectormap/jquery-jvectormap.min.js"></script>
+    <script src="/assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
+    <script src="/assets/vendors/owl-carousel-2/owl.carousel.min.js"></script>
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="/assets/js/off-canvas.js"></script>
+    <script src="/assets/js/hoverable-collapse.js"></script>
+    <script src="/assets/js/misc.js"></script>
+    <script src="/assets/js/settings.js"></script>
+    <script src="/assets/js/todolist.js"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page -->
+    <script src="/assets/js/dashboard.js"></script>
+    <!-- End custom js for this page -->
+   
+  </body>
+</html>

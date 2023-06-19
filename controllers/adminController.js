@@ -8,6 +8,13 @@ const Order = require('../models/OrderModel');
 const Coupon = require('../models/CouponModel');
 const PDFDocument = require('pdfkit');
 const ExcelJS = require('exceljs');
+const Offer = require('../models/OfferModel ');
+const mongoose = require('mongoose');
+const Banner = require('../models/BannerModel');
+const ObjectId = mongoose.Types.ObjectId;
+const Jimp = require('jimp');
+const path = require('path');
+const fs = require('fs');
 
 const admnCtrl = {}
 
@@ -186,14 +193,25 @@ admnCtrl.addProduct = async (req, res) => {
 }
 
 admnCtrl.getEditProduct = async (req, res) => {
-    const prodId = req.params.id;
-    const adminId = req.session.adminId;
-    const admin = await Admin.findById(adminId)
-    const product = await Product.findOne({ _id: prodId })
-    const categories = await Category.find();
-    const prodCat = await Category.findById(product.category);
-
-    res.render('admin/edtPdt.ejs', { product, adminId, admin, categories,prodCat })
+    try {
+        const prodId = req.params.id;
+        const product = await Product.findOne({ _id: prodId })
+        if(!product){
+            const error = new Error('404 not found');
+            error.statusCode = 404;
+            throw error;
+          }
+        const adminId = req.session.adminId;
+        const admin = await Admin.findById(adminId)
+        const categories = await Category.find();
+        const prodCat = await Category.findById(product.category);
+    
+        res.render('admin/edtPdt.ejs', { product, adminId, admin, categories,prodCat })
+        
+    } catch (error) {
+        console.log(error)
+        res.render('404page.ejs')
+    }
 }
 
 admnCtrl.editProduct = async (req, res) => {
@@ -289,12 +307,23 @@ admnCtrl.addCategory = async (req, res) => {
 }
 
 admnCtrl.getEditCategory = async (req, res) => {
-    const catId = req.params.id;
-    const adminId = req.session.adminId;
-    const admin = await Admin.findById(adminId)
-
-    const category = await Category.findOne({ _id: catId })
-    res.render('admin/edtCat.ejs', { category, adminId, admin })
+    try {
+        const catId = req.params.id;
+        const category = await Category.findOne({ _id: catId })
+        if(!category){
+            const error = new Error('404 not found');
+            error.statusCode = 404;
+            throw error;
+          }
+        const adminId = req.session.adminId;
+        const admin = await Admin.findById(adminId)
+    
+        res.render('admin/edtCat.ejs', { category, adminId, admin })
+        
+    } catch (error) {
+        console.log(error)
+        res.render('404page.ejs')
+    }
 }
 
 admnCtrl.editCategory = async (req, res) => {
@@ -371,13 +400,25 @@ admnCtrl.getOrders = async (req, res) => {
 
 
 admnCtrl.orderDetail = async(req,res)=>{
-    const adminId = req.session.adminId;
-    const admin = await Admin.findById(adminId)
-    const orderid = req.params.id;
-    const order = await Order.findById(orderid);
-    const user = await User.findById(order.userId)
-    console.log(order)
-    res.render('admin/orderDetail.ejs',{order,admin,user})
+    try {
+        const orderid = req.params.id;
+        const order = await Order.findById(orderid);
+        if(!order){
+            const error = new Error('404 not found');
+            error.statusCode = 404;
+            throw error;
+        }
+        const adminId = req.session.adminId;
+        const admin = await Admin.findById(adminId)
+        const user = await User.findById(order.userId)
+        console.log(order)
+        res.render('admin/orderDetail.ejs',{order,admin,user})
+        
+    } catch (error) {
+        console.log(error)
+        res.render('404page.ejs')
+        
+    }
 }
 
 admnCtrl.changeStatus = async(req,res)=>{
@@ -443,10 +484,21 @@ admnCtrl.postAddCoupon = async(req,res)=>{
 }
 
 admnCtrl.getEditCoupon = async(req,res)=>{
-    const admin = await Admin.findById(req.session.adminId);
-    const couponId = req.params.id;
-    const coupon = await Coupon.findById(couponId);
-    res.render('admin/editCoupon.ejs',{admin,coupon})
+    try {
+        const couponId = req.params.id;
+        const coupon = await Coupon.findById(couponId);
+        if(!coupon){
+            const error = new Error('404 not found');
+            error.statusCode = 404;
+            throw error;
+          }
+        const admin = await Admin.findById(req.session.adminId);
+        res.render('admin/editCoupon.ejs',{admin,coupon})
+        
+    } catch (error) {
+        console.log(error)
+        res.render('404page.ejs')
+    }
 }
 
 admnCtrl.postEditCoupon = async(req,res)=>{
@@ -486,7 +538,7 @@ admnCtrl.getSalesChart = async(req,res)=>{
     const currentYear = parseInt(date.toDateString().split(' ')[3]);
     const currentMonth = date.toDateString().split(' ')[1];
     const currentDay = date.toDateString().split(' ')[0];
-    // Fri Jun 09 2023
+    
     const interval = req.query.interval;
     if(interval === "year"){
         data = [0, 0, 0, 0, 0, 0];
@@ -516,7 +568,7 @@ admnCtrl.getSalesChart = async(req,res)=>{
             labels.push(weekArray[k])
         }
     }
-    const orders = await Order.find();
+    const orders = await Order.find({status:'Delivered'});
     try {
         orders.forEach(order=>{
             const year = order.date.toDateString().split('-')[0].split(' ')[3];
@@ -556,7 +608,7 @@ admnCtrl.getSalesChart = async(req,res)=>{
 admnCtrl.getReport = async(req,res)=>{
     const report = req.query.report;
     const doctype = req.query.doctype;
-    const orders = await Order.find();
+    const sales = await Order.find({status:'Delivered'});
     const products = await Product.find();
     const cancels = await Order.find({status:'Cancelled'})
 
@@ -571,7 +623,7 @@ admnCtrl.getReport = async(req,res)=>{
                 doc.text('Sales Report', { align: 'center', fontSize: 20 });
                 doc.moveDown();
                 let rowsArray = [];
-                orders.forEach((order,i)=>{
+                sales.forEach((order,i)=>{
                     const date = order.createdAt.toString().slice(0,15);
                     rowsArray.push([order._id,date,order.status,order.total,order.paymentMethod])
                 })
@@ -712,16 +764,338 @@ admnCtrl.getReport = async(req,res)=>{
 
     admnCtrl.removeImg = async(req,res)=>{
         const prodId = req.query.prodId;
+        const baseDirectory = process.cwd();
         const filename = req.query.filename;
+        const imgPath = `/images/${filename}`
+        const filePath = path.join(baseDirectory,'public',imgPath)
         try {
             await Product.findByIdAndUpdate(prodId,{
                 $pull:{image:{filename:filename}}
             })
+
+            if(fs.existsSync(filePath)){
+                fs.unlink(filePath,(error)=>{
+                    if(error){
+                        console.log(error)
+                    }else{
+                        console.log("Image deleted")
+                    }
+                })
+            }else{
+                console.log('Image not found')
+            }
+            
             res.status(200).json({})
         } catch (error) {
             res.status(500).json({})
         }
         
     }
+
+    admnCtrl.getOfferMng = async(req,res)=>{
+        try {
+            const admin = await Admin.findById(req.session.adminId)
+            const squery = req.query.search;
+            let offers = [];
+            if (squery) {
+                const regex = new RegExp(squery, 'i');
+                offers = await Offer.aggregate([
+                    {
+                      $match: {
+                        title: { $regex: regex }
+                      }
+                    },
+                    {
+                      $lookup: {
+                        from: 'categories',
+                        localField: 'category',
+                        foreignField: '_id',
+                        as: 'categoryInfo'
+                      }
+                    },
+                    {
+                      $project: {
+                        _id: 1,
+                        title: 1,
+                        discount: 1,
+                        startDate: 1,
+                        endDate: 1,
+                        description: 1,
+                        category: {
+                          $arrayElemAt: ['$categoryInfo.name', 0]
+                        }
+                      }
+                    }
+                  ]);
+                  
+                  
+                const noOffer = 'No Matching Search results'
+                if (offers.length > 0) {
+                    console.log(offers)
+                    res.render('admin/offerMng.ejs', { offers, adminId:admin._id, admin });
+                } else {
+                    res.render('admin/offerMng.ejs', { offers, noOffer, adminId:admin._id, admin });
+                }
+            }
+            else {
+                offers = await Offer.aggregate([
+                    {
+                      $lookup: {
+                        from: 'categories',
+                        localField: 'category',
+                        foreignField: '_id',
+                        as: 'categoryInfo'
+                      }
+                    },
+                    {
+                      $project: {
+                        _id: 1,
+                        title: 1,
+                        discount: 1,
+                        startDate: 1,
+                        endDate: 1,
+                        description: 1,
+                        category: {
+                          $arrayElemAt: ['$categoryInfo.name', 0]
+                        }
+                      }
+                    }
+                  ]);
+                console.log(offers)
+                res.render('admin/offerMng.ejs', { offers, adminId:admin._id, admin })
+            }
+            
+    
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    admnCtrl.getAddOffer = async(req,res)=>{
+        const admin = await Admin.findById(req.session.adminId)
+        const categories = await Category.find();
+        res.render('admin/addOffer.ejs',{admin,categories})
+    }
+    
+    admnCtrl.postAddOffer = async(req,res)=>{
+        const {title,discount,startDate,endDate,description,category} = req.body;
+        const categorySelected = await Category.findOne({name:category})
+        const newOffer = new Offer({title,discount,startDate,endDate,description,category:categorySelected._id})
+    
+        await newOffer.save();
+    
+        res.redirect('/admin/offermanage');
+    }
+
+    admnCtrl.getEditOffer = async(req,res)=>{
+        try {
+            const admin = await Admin.findById(req.session.adminId);
+            const OfferId = req.params.id;
+            const categories = await Category.find();
+            console.log(OfferId)
+            const offerArray = await Offer.aggregate([
+                {
+                    $match: {
+                      _id:new ObjectId(OfferId)
+                    }
+                  },
+                {
+                  $lookup: {
+                    from: 'categories',
+                    localField: 'category',
+                    foreignField: '_id',
+                    as: 'categoryInfo'
+                  }
+                },
+                {
+                  $project: {
+                    _id: 1,
+                    title: 1,
+                    discount: 1,
+                    startDate: 1,
+                    endDate: 1,
+                    description: 1,
+                    category: {
+                      $arrayElemAt: ['$categoryInfo.name', 0]
+                    },
+                    categoryId: {
+                      $arrayElemAt: ['$categoryInfo._id', 0]
+                    },
+                  }
+                }
+              ]);
+            
+            const offer = offerArray[0]
+            if(!offer){
+                const error = new Error('404 not found');
+                error.statusCode = 404;
+                throw error;
+              }
+            console.log("offer:")
+            console.log(offer)
+            res.render('admin/editOffer.ejs',{admin,offer,categories})
+            
+        } catch (error) {
+            console.log(error)
+            res.render('404page.ejs')
+        }
+    }
+    
+    admnCtrl.postEditOffer = async(req,res)=>{
+        const OfferId = req.params.id;
+        console.log(req.body)
+        const {title,discount,startDate,endDate,description,category} = req.body;
+        try {
+            console.log("qwertyoffer")
+            const updtdOffer = await Offer.findByIdAndUpdate({_id:OfferId},{
+                $set:{title,discount,startDate,endDate,description,category}
+            },{new:true});
+            console.log("upd"+updtdOffer);
+    
+            res.status(200).json({msg:"Offer Updated"})
+            
+        } catch (error) {
+            res.status(500).json({msg:"Something went wrong"})
+        }
+    }
+    
+    admnCtrl.deleteOffer = async(req,res)=>{
+        const OfferId = req.params.id;
+        try {
+            await Offer.findByIdAndDelete(OfferId)
+            res.status(200).json({msg:"deleted Offer"})
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    admnCtrl.getBannerMng = async(req,res)=>{
+        const adminId = req.session.adminId;
+        const admin = await Admin.findById(adminId)
+        const Banners = await Banner.find();
+        res.render('admin/banMng.ejs',{admin,Banners})
+    }
+
+    admnCtrl.getAddBanner = async (req, res) => {
+        const adminId = req.session.adminId;
+        const admin = await Admin.findById(adminId)
+    
+        res.render('admin/addBanner.ejs', { adminId, admin });
+    }
+    
+    admnCtrl.addBanner = async (req, res) => {
+        const adminId = req.session.adminId;
+        const { title, description,buttonText,buttonUrl,size } = req.body;
+        console.log("check it:")
+        console.log(req.body)
+        try {
+            if (req.file) {
+                const image = req.file.originalname;
+                const newBanner = new Banner({image, title, description, buttonText,buttonUrl,size })
+                await newBanner.save();
+            }
+            else {
+                console.log('Here is no req.file')
+                const newBanner = new Banner({ title, description,buttonText,buttonUrl,size })
+                await newBanner.save();
+            }
+            res.status(200).json({ adminId: adminId })
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({ msg: 'Something went wrong' })
+        }
+    
+    }
+
+    admnCtrl.deleteBanner = async(req,res)=>{
+        const bannerId = req.params.id;
+        try {
+            await Banner.findByIdAndDelete(bannerId)
+            res.status(200).json({msg:"Banner deleted successfully"})
+        } catch (error) {
+            console.log(error)
+            res.status(500).json(error)
+        }
+    }
+
+    admnCtrl.getEditBanner = async(req,res)=>{
+        try {
+            const bannerId = req.params.id;
+            const banner = await Banner.findById(bannerId);
+            if(!banner){
+                const error = new Error('404 not found');
+                error.statusCode = 404;
+                throw error;
+              }
+            const adminId = req.session.adminId;
+            const admin = await Admin.findById(adminId)
+            res.render('admin/editBanner.ejs',{admin,banner})
+        } catch (error) {
+            console.log(error)
+            res.render('404page.ejs')
+        }
+    }
+
+    admnCtrl.editBanner = async (req, res) => {
+        const adminId = req.session.adminId;
+        const bannerid = req.params.id;
+        const { title, description,buttonText,buttonUrl,size } = req.body;
+        
+        try {
+            if (req.file) {
+                const image = req.file.originalname;
+                await Banner.findByIdAndUpdate(bannerid,
+                    {$set:{image, title, description, buttonText,buttonUrl,size }})
+                
+            }
+            else {
+                console.log('Here is no req.file')
+                await Banner.findByIdAndUpdate(bannerid,
+                    {$set:{title, description, buttonText,buttonUrl,size }})
+                
+            }
+            res.status(200).json({ adminId: adminId })
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({ msg: 'Something went wrong' })
+        }
+    
+    }
+
+    admnCtrl.cropImage = async(req,res)=>{
+        try {
+            console.log(req.body)
+            const {x,y,width,height} = req.body.cropData;
+            const imgPath = req.body.imgPath;
+            const baseDirectory = process.cwd();
+            const filePath = path.join(baseDirectory,'public',imgPath)
+            console.log(filePath)
+            const image = await Jimp.read(filePath);
+            console.log(image)
+            image.crop(x,y,width,height);
+            console.log(image)
+
+            if(fs.existsSync(filePath)){
+                fs.unlink(filePath,(error)=>{
+                    if(error){
+                        console.log(error)
+                    }else{
+                        console.log("Image deleted")
+                    }
+                })
+            }else{
+                console.log('Image not found')
+            }
+    
+            await image.writeAsync(filePath);
+    
+            res.status(200).json({msg:"Image cropped successfully"})
+
+        } catch (error) {
+            console.error('Error cropping image:', error);
+            res.status(500).json({ msg: 'Error occurred while cropping the image.' });
+        }
+    }
+
 
 module.exports = admnCtrl;

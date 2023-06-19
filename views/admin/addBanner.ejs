@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Admin</title>
+    <!-- plugins:css -->
+    <link rel="stylesheet" href="/assets/vendors/mdi/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="/assets/vendors/css/vendor.bundle.base.css">
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <link rel="stylesheet" href="/assets/vendors/jvectormap/jquery-jvectormap.css">
+    <link rel="stylesheet" href="/assets/vendors/flag-icon-css/css/flag-icon.min.css">
+    <link rel="stylesheet" href="/assets/vendors/owl-carousel-2/owl.carousel.min.css">
+    <link rel="stylesheet" href="/assets/vendors/owl-carousel-2/owl.theme.default.min.css">
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <!-- endinject -->
+    <!-- Layout styles -->
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <!-- End layout styles -->
+    <link rel="shortcut icon" href="/assets/images/favicon.png" />
+    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+  </head>
+  <body>
+    
+    <div class="container-scroller">
+      
+      <%- include('./adminSidebar.ejs') %>
+      <!-- partial -->
+      <div class="container-fluid page-body-wrapper">
+        
+        <%- include('./adminTopbar.ejs') %>
+        <!-- partial -->
+        <div class="main-panel">
+          <div class="content-wrapper">
+            <div class="col-md-6 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">Add new Banner</h4>
+                  <form class="forms-sample" action="/admin/addbanner" method="post" id="addForm" enctype="multipart/form-data">
+                    
+                    <div class="form-group row">
+                      <label  class="col-sm-3 col-form-label">Title</label>
+                      <div class="col-sm-9">
+                        <input type="text"  name="title" id="title" class="form-control"  placeholder="Title">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-sm-3 col-form-label">Image</label>
+                      <div class="col-sm-9">
+                        <input type="file" name="image" id="image" class="form-control"  placeholder="Image">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-sm-3 col-form-label">Description</label>
+                      <div class="col-sm-9">
+                        <input type="text" name="description" id="description" class="form-control"  placeholder="Description">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-sm-3 col-form-label">Button Text</label>
+                      <div class="col-sm-9">
+                        <input type="text" name="buttonText" id="buttonText" class="form-control"  placeholder="Button Text">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-sm-3 col-form-label">Button Url</label>
+                      <div class="col-sm-9">
+                        <input type="text" name="buttonUrl" id="buttonUrl" class="form-control"  placeholder="Button Url">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-sm-3 col-form-label">Size</label>
+                      <div class="col-sm-9">
+                        <input type="text" name="size" id="size" class="form-control"  placeholder="Size">
+                      </div>
+                    </div>
+                   
+                    <button type="submit" class="btn btn-primary mr-2">Add Banner</button>
+                    <a class="btn btn-secondary" href="/admin/bannermanage" style="text-decoration: none;color:black;align-self:center;">
+                      Cancel
+                    </a>
+                    <p id="errMsg" style="color: red; text-align: center;margin-top: 10px;"></p>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- content-wrapper ends -->
+          <!-- partial:partials/_footer.html -->
+          <footer class="footer">
+            
+          </footer>
+          <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+    <!-- container-scroller -->
+    <script>
+    const addForm = document.getElementById('addForm');
+    
+    addForm.addEventListener('submit',async(e)=>{
+    e.preventDefault();
+
+    const title = document.getElementById('title').value;
+    const image = document.getElementById('image').files[0];
+    const description = document.getElementById('description').value;
+    const buttonText = document.getElementById('buttonText').value;
+    const buttonUrl = document.getElementById('buttonUrl').value;
+    const size = document.getElementById('size').value;
+    const errMsg = document.getElementById('errMsg')
+
+    if(title == ""){
+      errMsg.textContent ='Category name must be atleast 3 characters long and valid';
+        return;
+    }
+
+    if(description == ""){
+      errMsg.textContent ='Enter a valid description';
+        return;
+    }
+    if(buttonText == ""){
+      errMsg.textContent ='Enter a valid buttonText';
+        return;
+    }
+    if(buttonUrl == ""){
+      errMsg.textContent ='Enter a valid buttonUrl';
+        return;
+    }
+    if(size == ""){
+      errMsg.textContent ='Enter a valid size';
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('image', image);
+    formData.append('description', description);
+    formData.append('buttonText', buttonText);
+    formData.append('buttonUrl', buttonUrl);
+    formData.append('size', size);
+    
+    const response = await fetch('/admin/addbanner',{
+      method:'POST',
+      body:formData
+    })
+
+    const data = await response.json();
+
+    if(response.ok){
+      window.location.href = `/admin/bannermanage`
+    }else{
+      
+      errMsg.textContent = data.msg;
+    }
+  })
+  </script>
+    <!-- plugins:js -->
+    <script src="/assets/vendors/js/vendor.bundle.base.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <script src="/assets/vendors/chart.js/Chart.min.js"></script>
+    <script src="/assets/vendors/progressbar.js/progressbar.min.js"></script>
+    <script src="/assets/vendors/jvectormap/jquery-jvectormap.min.js"></script>
+    <script src="/assets/vendors/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
+    <script src="/assets/vendors/owl-carousel-2/owl.carousel.min.js"></script>
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="/assets/js/off-canvas.js"></script>
+    <script src="/assets/js/hoverable-collapse.js"></script>
+    <script src="/assets/js/misc.js"></script>
+    <script src="/assets/js/settings.js"></script>
+    <script src="/assets/js/todolist.js"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page -->
+    <script src="/assets/js/dashboard.js"></script>
+    <!-- End custom js for this page -->
+  </body>
+</html>

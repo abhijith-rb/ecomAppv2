@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>MultiShop - Online Shop Website Template</title>
+    <title>Usecart</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Free HTML Templates" name="keywords">
     <meta content="Free HTML Templates" name="description">
@@ -24,6 +24,8 @@
 
     <!-- Customized Bootstrap Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 </head>
 
 <body>
@@ -53,9 +55,21 @@
                 <div class="bg-light p-30 mb-5">
                     <div id="adrsProvider" data-primeaddress="<%=JSON.stringify(user.address[0])%>"></div>
                     <% if(user.address.length > 0){%>
-                        <%user.address.forEach((addrs,i)=>{%>
+                        <div class="row">
+                            <h4><input type="radio" name="adrsRadio" checked class="adrsRadios" data-index=<%=parseInt(0)%> >Address 1: </h4>
+                            <span>Name: <%=user.address[0].name%></span> &nbsp;
+                            <span>Mobile: <%=user.address[0].mobile%></span> &nbsp;
+                            <span>Address line 1: <%=user.address[0].addressline1%></span> &nbsp;
+                            <span>Address line 2: <%=user.address[0].addressline2%></span> &nbsp;
+                            <span>City: <%=user.address[0].city%></span> &nbsp;
+                            <span>State: <%=user.address[0].state%></span> &nbsp;
+                            <span>Pin: <%=user.address[0].pin%></span> &nbsp;
+                            <span>Country: <%=user.address[0].country%></span> 
+                        </div>
+                        <button class="deliverBtns btn-primary" style="display: none;" data-address="<%=JSON.stringify(user.address[0])%>">Deliver here</button>
+                        <%user.address.slice(1).forEach((addrs,i)=>{%>
                             <div class="row">
-                                <h4>Address <%=i+1%>: </h4>
+                                <h4><input type="radio" name="adrsRadio" class="adrsRadios" data-index="<%=i+1%>">Address <%=i+2%>: </h4>
                                 <span>Name: <%=addrs.name%></span> &nbsp;
                                 <span>Mobile: <%=addrs.mobile%></span> &nbsp;
                                 <span>Address line 1: <%=addrs.addressline1%></span> &nbsp;
@@ -65,7 +79,7 @@
                                 <span>Pin: <%=addrs.pin%></span> &nbsp;
                                 <span>Country: <%=addrs.country%></span> 
                             </div>
-                            <button class="deliverBtns btn-primary" data-address="<%=JSON.stringify(addrs)%>">Deliver here</button>
+                            <button class="deliverBtns btn-primary" style="display: none;" data-address="<%=JSON.stringify(addrs)%>">Deliver here</button>
                         <%})%>
                     <%}%>
 
@@ -122,6 +136,7 @@
                                     <input class="form-control" name="pin" id="pinAdd" type="text" >
                                 </div>
                                 <button type="submit" class="btn btn-primary">Save & Deliver here</button>
+                                <p style="color: green;" id="adrsSaved"></p>
                             </div>
                         </form>
                     </div>
@@ -146,15 +161,23 @@
                             <h6>Subtotal</h6>
                             <h6>₹<%=cart.total%></h6>
                         </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <h6>Discount</h6>
+                            <h6>-₹<%=cart.discount%></h6>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <h6>Coupon Discount</h6>
+                            <h6>-₹<%=cart.couponDiscount%></h6>
+                        </div>
                         <div class="d-flex justify-content-between">
                             <h6 class="font-weight-medium">Delivery charge</h6>
-                            <h6 class="font-weight-medium">₹10</h6>
+                            <h6 class="font-weight-medium">Free</h6>
                         </div>
                     </div>
                     <div class="pt-2">
                         <div class="d-flex justify-content-between mt-2">
                             <h5>Total</h5>
-                            <h5>₹<%=cart.total+10%></h5>
+                            <h5>₹<%=cart.total-(cart.discount + cart.couponDiscount)%></h5>
                         </div>
                     </div>
                 </div>
@@ -253,6 +276,8 @@
             const data = response.json();
             if(response.ok){
                 cancelBox()
+                const adrsSaved = document.getElementById('adrsSaved');
+                adrsSaved.textContent = 'Address Saved'
             }
         } )
         .catch((err)=>console.log(err))
@@ -348,6 +373,36 @@
 
             })
             }
+
+            $(document).ready(()=>{
+                const adrsRadios = document.querySelectorAll('.adrsRadios');
+                adrsRadios.forEach(input=>{
+                    if(input.checked){
+                        const index = input.dataset.index;
+                        console.log("index:")
+                        console.log(index)
+                        const deliverButtons = document.querySelectorAll('.deliverBtns')
+                        deliverButtons[index].style.display = 'block'
+                    }
+                    input.addEventListener('change',(e)=>{
+                        if(e.target.checked){
+                            const index = e.target.dataset.index;
+                            console.log("index:")
+                            console.log(index)
+                            const deliverButtons = document.querySelectorAll('.deliverBtns')
+                            deliverButtons[index].style.display = 'block'
+                            deliverButtons.forEach((db,i)=>{
+                                if(i != index ){
+                                    console.log(i)
+                                    db.style.display = 'none';
+                                }
+                            })
+                        }
+                    })
+                })
+
+            })
+
     </script>
 
     <!-- JavaScript Libraries -->

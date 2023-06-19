@@ -14,6 +14,9 @@ const instance = new Razorpay({
     key_secret: 'Q15DfBbJFIrDy1K1FTsDE7CA', });
 
 const PDFDocument = require('pdfkit');
+const Offer = require('../models/OfferModel ');
+const Banner = require('../models/BannerModel');
+const Wallet = require('../models/WalletModel');
 
 
 const usrCtrl = {};
@@ -72,8 +75,23 @@ usrCtrl.isLoggedOut = async(req,res,next)=>{
 
 
 usrCtrl.createCart = async(userId)=>{
-  const newCart = new Cart({userId,items:[],total:0})
-  await newCart.save();
+  try {
+    const newCart = new Cart({userId,items:[],total:0})
+    await newCart.save();
+    
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+usrCtrl.createWallet = async(userId)=>{
+  try {
+    const newWallet = new Wallet({userId})
+    await newWallet.save();
+    
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 usrCtrl.createUser = async(req,res)=>{
@@ -86,7 +104,10 @@ usrCtrl.createUser = async(req,res)=>{
         const hashedPassword = await bcrypt.hash(password,salt)
         const newUser = new User({username,email,mobile,password:hashedPassword});
     
-        await newUser.save();
+        const user = await newUser.save();
+        console.log(user)
+        usrCtrl.createCart(user._id)
+        usrCtrl.createWallet(user._id)
         res.redirect('/otplogin');
     
     } catch (error) {
@@ -127,7 +148,43 @@ usrCtrl.userAuth = async (req, res) => {
 
 usrCtrl.getHome = async(req,res)=>{
   const categories = await Category.find()
-  const Products = await Product.find().limit(16);
+  const banners = await Banner.find();
+  const largeBanners = banners.filter((banner,i)=>{
+    return banner.size === 'large'
+  })
+  const mediumBanners = banners.filter((banner,i)=>{
+    return banner.size === 'medium'
+  })
+  const Products = await Product.aggregate([
+    {
+      $match:{deleted:false}
+    },
+    {
+      $lookup:{
+        from:'offers',
+        localField:'category',
+        foreignField:'category',
+        as:'offerInfo'
+      },
+    },
+    {  
+      $project:{
+        _id:1,
+        name:1,
+        price:1,
+        image:1,
+        deleted:1,
+        category:1,
+        color:1,
+        description:1,
+        quantity:1,
+        createdAt:1,
+        offerDiscount:{
+          $arrayElemAt:['$offerInfo.discount',0]
+        },
+      }
+    }
+  ]);
   const recentProducts = Products.slice(8,16).reverse();
   const featuredProducts = Products.slice(0,8);
   if(req.session.userId){
@@ -145,11 +202,11 @@ usrCtrl.getHome = async(req,res)=>{
         }
       })
     }else{
-      res.render('user/home.ejs',{recentProducts,featuredProducts,categories,userPresent:true})
+      res.render('user/home.ejs',{recentProducts,featuredProducts,categories,userPresent:true,largeBanners:largeBanners.reverse(),mediumBanners})
     }
   }
   else{
-    res.render('user/home.ejs',{recentProducts,featuredProducts,categories,userPresent:false})
+    res.render('user/home.ejs',{recentProducts,featuredProducts,categories,userPresent:false,largeBanners:largeBanners.reverse(),mediumBanners})
   }
 }
 
@@ -284,15 +341,28 @@ usrCtrl.verifyOtp = async(req,res)=>{
   return res.status(200).json({userId});
 }
 
-usrCtrl.getChangePwd = (req,res)=>{
-  const userId = req.params.id;
-  let userPresent;
-  if(req.session.userId){
-    userPresent = true;
-  }else{
-    userPresent = false;
+usrCtrl.getChangePwd = async(req,res)=>{
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+    if(!user){
+      const error = new Error('404 not found');
+      error.statusCode = 404;
+      throw error;
+    }
+    const categories = await Category.find()
+    let userPresent;
+    if(req.session.userId){
+      userPresent = true;
+    }else{
+      userPresent = false;
+    }
+    res.render('user/changepwd.ejs',{userId,userPresent,categories})
+    
+  } catch (error) {
+    console.log(error)
+    res.render('404page.ejs')
   }
-  res.render('user/changepwd.ejs',{userId,userPresent})
 }
 
 usrCtrl.updatePwd = async(req,res)=>{
@@ -373,42 +443,94 @@ usrCtrl.smsVerify = async(req,res)=>{
 }
 
 usrCtrl.getCatPrdts = async(req,res)=>{
-  const category = await Category.findById(req.params.id)
-  const userId = req.session.userId
-  const categories = await Category.find()
-  const Products = await Product.find({category:category._id}).limit(9)
-  if(req.session.userId){
-    res.render('user/category.ejs',{Products,userPresent:true,userId,categories,category})
-  }else{
-    res.render('user/category.ejs',{Products,userPresent:false,categories,category})
+  try {
+    const category = await Category.findById(req.params.id)
+    if (!category) {
+      const error = new Error('Category not found');
+      error.statusCode = 404;
+      throw error;
+    }
+    const userId = req.session.userId
+    const categories = await Category.find()
+    let Products=[];
+    Products = await Product.aggregate([
+      {
+        $match:{category:category._id,deleted:false}
+      },
+      {
+        $lookup:{
+          from:'offers',
+          localField:'category',
+          foreignField:'category',
+          as:'offerInfo'
+        },
+      },
+      {  
+        $project:{
+          _id:1,
+          name:1,
+          price:1,
+          image:1,
+          deleted:1,
+          category:1,
+          color:1,
+          description:1,
+          quantity:1,
+          createdAt:1,
+          offerDiscount:{
+            $arrayElemAt:['$offerInfo.discount',0]
+          },
+        }
+      }
+    ]);
+    if(req.session.userId){
+      res.render('user/category.ejs',{Products,userPresent:true,userId,categories,category})
+    }else{
+      res.render('user/category.ejs',{Products,userPresent:false,categories,category})
+    }
+    
+  } catch (error) {
+    console.log(error)
+    res.render('404page.ejs')
   }
 }
 
 
 usrCtrl.getDetail = async(req,res)=>{
-  const userId = req.session.userId;
-  const prodId = req.params.id;
-  const categories = await Category.find()
-  const product = await Product.findById(prodId);
-  const pcString = product.category.toString()
-  const similar = await Product.find({category:pcString}).limit(4);
-  let userPresent;
-  if(req.session.userId){
-    userPresent = true;
-  }else{
-    userPresent = false;
-  }
-  if(req.session.userId){ 
-    const userId=req.session.userId
-    const cart = await Cart.findOne({userId},{items:{$elemMatch:{productId:prodId}}})
-    console.log("pp" + cart);
-    if(cart.items.length>0){
-      res.render('user/detail.ejs',{userPresent,product,added:true,userId,categories,similar})
-    }else{
-      res.render('user/detail.ejs',{userPresent,product,added:false,userId,categories,similar})
+  try {
+    const userId = req.session.userId;
+    const prodId = req.params.id;
+    const product = await Product.findById(prodId);
+    if(!product){
+      const error = new Error('Category not found');
+      error.statusCode = 404;
+      throw error;
     }
-  }else{
-    res.render('user/detail.ejs',{userPresent,product,added:false,categories,similar})
+    const categories = await Category.find()
+    const pcString = product.category.toString()
+    const similar = await Product.find({category:pcString}).limit(4);
+    let userPresent;
+    if(req.session.userId){
+      userPresent = true;
+    }else{
+      userPresent = false;
+    }
+    if(req.session.userId){ 
+      const userId=req.session.userId
+      const cart = await Cart.findOne({userId},{items:{$elemMatch:{productId:prodId}}})
+      console.log("pp" + cart);
+      if(cart.items.length>0){
+        res.render('user/detail.ejs',{userPresent,product,added:true,userId,categories,similar})
+      }else{
+        res.render('user/detail.ejs',{userPresent,product,added:false,userId,categories,similar})
+      }
+    }else{
+      res.render('user/detail.ejs',{userPresent,product,added:false,categories,similar})
+    }
+    
+  } catch (error) {
+    console.log(error)
+    res.render('404page.ejs')
   }
 }
 
@@ -422,15 +544,17 @@ usrCtrl.addToCart = async(req,res)=>{
   const quantity = 1;
   const subTotal = price * quantity;
   const cart = await Cart.findOne({userId})
+  const offer = await Offer.findOne({category:product.category})
+  const itemDiscount = Math.floor(price * (offer.discount)/100);
 
   if(product.quantity > 0){
     try {
       if(cart){
         const cartId = cart._id;
-        const newItem = {productId,name,price,image,quantity,subTotal}
+        const newItem = {productId,name,price,image,quantity,subTotal,itemDiscount}
         const updatedCart = await Cart.findByIdAndUpdate(cartId,{
           $push:{items:newItem},
-          $inc:{total:newItem.subTotal}
+          $inc:{total:newItem.subTotal,discount:itemDiscount}
         },{new:true})
         console.log("Cart Update Success",updatedCart)
         await Product.findByIdAndUpdate(productId,{
@@ -452,6 +576,8 @@ usrCtrl.getCart = async(req,res)=>{
   const userId = req.session.userId;
   const categories = await Category.find()
   const cart = await Cart.findOne({userId})
+  console.log("cart:")
+  console.log(cart)
   let userPresent;
   if(req.session.userId){
     userPresent = true;
@@ -460,15 +586,13 @@ usrCtrl.getCart = async(req,res)=>{
   }
   if(cart){
     if(cart.items.length>0){
-        
+      console.log(cart)
       res.render('user/cart.ejs',{cart,isEmpty:false,categories,userId,userPresent});
     }else{
       res.render('user/cart.ejs',{cart,isEmpty:true,categories,userId,userPresent});
     }
-  }else{
-    usrCtrl.createCart(userId);    
-    res.render('user/cart.ejs',{isEmpty:true,categories,userId,userPresent});
   }
+  
 }
 
 usrCtrl.removeItem = async(req,res)=>{
@@ -477,12 +601,18 @@ usrCtrl.removeItem = async(req,res)=>{
     const itemId = req.params.id;
     const found = await Cart.findOne({userId},{items:{$elemMatch:{_id:itemId}}})
     const productId = found.items[0].productId;
+    const quantity = found.items[0].quantity;
+    const product = await Product.findById(productId);
+    const price = product.price;
+    const offer = await Offer.findOne({category:product.category});
+    const discountDec = Math.floor(price*quantity*(offer.discount)/100);
+
     const updtCart = await Cart.findOneAndUpdate({userId},{
       $pull:{items:{_id:itemId}},
-      $inc:{total:-found.items[0].subTotal}
+      $inc:{total:-found.items[0].subTotal,discount:-discountDec}
     },{new:true})
     await Product.findByIdAndUpdate(productId,{
-      $inc:{quantity:found.items[0].quantity}
+      $inc:{quantity:quantity}
     })
     res.status(200).json({updtCart})
   } catch (error) {
@@ -515,12 +645,18 @@ usrCtrl.incQty = async(req,res)=>{
   const found = await Cart.findOne({userId}, {items:{$elemMatch:{_id:itemid}}})
   const productId = found.items[0].productId;
   const product = await Product.findById(productId);
+  const offer = await Offer.findOne({category:product.category});
+  const discountInc = Math.floor(price*(offer.discount)/100);
+  const itemDiscount = Math.floor(newSubTotal*(offer.discount)/100);
 
   if(product.quantity > 0){
     try {
       const updtCart = await Cart.findOneAndUpdate({userId, 'items._id':itemid},{
-        $set:{'items.$.quantity':qty,'items.$.subTotal':newSubTotal},
-        $inc:{total:price}
+        $set:{'items.$.quantity':qty,
+        'items.$.subTotal':newSubTotal,
+        'items.$.itemDiscount':itemDiscount,
+      },
+        $inc:{total:price,discount:discountInc}
       },{new:true});
 
       await Product.findByIdAndUpdate(productId,{
@@ -546,11 +682,17 @@ usrCtrl.decQty = async(req,res)=>{
   const newSubTotal = price * qty;
   const found = await Cart.findOne({userId}, {items:{$elemMatch:{_id:itemid}}})
   const productId = found.items[0].productId;
+  const product = await Product.findById(productId);
+  const offer = await Offer.findOne({category:product.category});
+  const discountDec = Math.floor(price*(offer.discount)/100);
+  const itemDiscount = Math.floor(newSubTotal*(offer.discount)/100);
 
   try {
     const updtCart = await Cart.findOneAndUpdate({userId, 'items._id':itemid},{
-      $set:{'items.$.quantity':qty,'items.$.subTotal':newSubTotal},
-      $inc:{total:-price}
+      $set:{'items.$.quantity':qty,
+      'items.$.subTotal':newSubTotal,
+      'items.$.itemDiscount':itemDiscount,},
+      $inc:{total:-price,discount:-discountDec}
     },{new:true})
     await Product.findByIdAndUpdate(productId,{
       $inc:{quantity:1}
@@ -637,16 +779,16 @@ usrCtrl.addAddress = async(req,res)=>{
 
 const clearCart = async(userId)=>{
   await Cart.findOneAndUpdate({userId},{
-    $set:{items:[],total:0,discount:0}
+    $set:{items:[],total:0,discount:0,couponDiscount:0}
   });
   console.log("cart cleared")
 }
 
 const generateRazorpay = (orderId,total)=>{
   return new Promise((resolve,reject)=>{
-      const deliveryCharge = 10;
+      
       const options={
-          amount:(total+deliveryCharge)*100,
+          amount:(total)*100,
           currency:"INR",
           receipt:''+orderId
       };
@@ -668,11 +810,10 @@ usrCtrl.placeOrder = async(req,res)=>{
   const userId = req.session.userId;
   const cart = await Cart.findOne({userId});
   const items = cart.items;
-  console.log(req.body);
+  const deliveryCharge = 0;
+  const total = cart.total-(cart.discount + cart.couponDiscount + deliveryCharge);
   const {address,paymentMethod} = req.body;
-  console.log("Address:")
-  console.log(address)
-  console.log(typeof address)
+ 
   const newOrder = new Order({
     userId:userId,
     items:[...items],
@@ -686,8 +827,9 @@ usrCtrl.placeOrder = async(req,res)=>{
       country:address.country,
       pin:address.pin,
     },
-    total:cart.total,
-    discount:cart.total,
+    total:total,
+    discount:cart.discount,
+    couponDiscount:cart.couponDiscount,
     paymentMethod,
     status:'Processing', 
   })
@@ -695,7 +837,6 @@ usrCtrl.placeOrder = async(req,res)=>{
   
     const order = await newOrder.save();
     const orderId = order._id;
-    const total = cart.total;
     clearCart(userId);
     if(paymentMethod === 'COD'){
       await Order.findByIdAndUpdate(orderId,{
@@ -737,39 +878,62 @@ usrCtrl.getMyOrders= async(req,res)=>{
 }
 
 usrCtrl.myOrderDetail = async(req,res)=>{
-  const orderId = req.params.id;
-  const userId = req.session.userId;
-  const user = await User.findById(userId);
-  const categories = await Category.find()
-  const order = await Order.findById(orderId)
-  let userPresent;
-  if(req.session.userId){
-    userPresent = true;
-  }else{
-    userPresent = false;
-  }
-  if(order.status === "Delivered"){
-    res.render('user/myOrderDetail.ejs',{order,user,userId,categories,delivered:true,returned:false,cancelled:false,userPresent})
-  }
-  else if(order.status === "Returned"){
-    res.render('user/myOrderDetail.ejs',{order,user,userId,categories,delivered:false,returned:true,cancelled:false,userPresent})
-  }
-  else if(order.status === "Cancelled"){
-    res.render('user/myOrderDetail.ejs',{order,user,userId,categories,delivered:false,returned:true,cancelled:true,userPresent})
-  }
-  else{
-    res.render('user/myOrderDetail.ejs',{order,user,userId,categories,delivered:false,returned:false,cancelled:false,userPresent})
+  try {
+      const orderId = req.params.id;
+      const order = await Order.findById(orderId)
+      if(!order){
+        const error = new Error('Order not found');
+        error.statusCode = 404;
+        throw error;
+      }
+      const userId = req.session.userId;
+      const user = await User.findById(userId);
+      const categories = await Category.find()
+      let userPresent;
+      if(req.session.userId){
+        userPresent = true;
+      }else{
+        userPresent = false;
+      }
+      if(order.status === "Delivered"){
+        res.render('user/myOrderDetail.ejs',{order,user,userId,categories,delivered:true,returned:false,cancelled:false,userPresent})
+      }
+      else if(order.status === "Returned"){
+        res.render('user/myOrderDetail.ejs',{order,user,userId,categories,delivered:false,returned:true,cancelled:false,userPresent})
+      }
+      else if(order.status === "Cancelled"){
+        res.render('user/myOrderDetail.ejs',{order,user,userId,categories,delivered:false,returned:true,cancelled:true,userPresent})
+      }
+      else{
+        res.render('user/myOrderDetail.ejs',{order,user,userId,categories,delivered:false,returned:false,cancelled:false,userPresent})
+      }
+    
+  } catch (error) {
+    console.log(error)
+    res.render('404page.ejs')
   }
 }
 
 usrCtrl.cancelOrder = async(req,res)=>{
+  const userId = req.session.userId;
   const status = req.body.status;
   const orderid = req.body.orderid;
   const date = Date.now();
+  console.log("order cancelled")
   try {
       const order = await Order.findByIdAndUpdate(orderid,{
           $set:{status:status,date:date}
       },{new:true})
+
+      if(order.paymentMethod !== "COD"){
+        const amountPaid = order.total - order.discount;
+        await Wallet.updateOne({userId:userId},
+          {$push:{ordersArray:order._id},
+           $inc:{balance:amountPaid}
+          }
+          )
+      }
+
       res.status(200).json(order)
   } catch (error) {
       console.log(error)
@@ -777,6 +941,7 @@ usrCtrl.cancelOrder = async(req,res)=>{
 }
 
 usrCtrl.returnOrder = async(req,res)=>{
+  const userId = req.session.userId;
   const status = req.body.status;
   const orderid = req.body.orderid;
   const date = Date.now();
@@ -784,6 +949,16 @@ usrCtrl.returnOrder = async(req,res)=>{
       const order = await Order.findByIdAndUpdate(orderid,{
           $set:{status:status,date:date}
       },{new:true})
+
+      if(order.paymentMethod !== "COD"){
+        const amountPaid = order.total - order.discount;
+        await Wallet.updateOne({userId:userId},
+          {$push:{ordersArray:order._id},
+           $inc:{balance:amountPaid}
+          }
+          )
+      }
+
       res.status(200).json(order)
   } catch (error) {
       console.log(error)
@@ -902,119 +1077,41 @@ usrCtrl.applyCoupon = async(req,res)=>{
       return;
     }
 
-    const discount = coupon.discount;
-    console.log(discount)
+    const couponDiscount = coupon.discount;
+    console.log("couponDiscount:")
+    console.log(couponDiscount)
     
     try{
       await Coupon.findByIdAndUpdate(coupon._id,{
         $push:{usedBy:userId}
       })
 
-      const newTotal = cart.total - discount;
-      console.log("newTotal:")
-      console.log(newTotal)
 
-      await Cart.findByIdAndUpdate(cartId,{
-        $set:{total:newTotal,discount:discount}
-      })
+      const updatedCart = await Cart.findByIdAndUpdate(cart._id,{
+        $inc:{couponDiscount:couponDiscount}
+      },{new:true})
 
-      res.status(200).json({newTotal:newTotal,discount:discount}) 
+      console.log("updatedCart:")
+      console.log(updatedCart)
+      res.status(200).json({couponDiscount:couponDiscount,total:cart.total,discount:cart.discount}) 
     }catch(error){
       res.status(500).json({msg:"Something went wrong"})
     }
 }
 
-usrCtrl.filterByPrice = async(req,res)=>{
-      const {checkedInputs,category} = req.body;
-      const updatedProducts = []
-      if (checkedInputs.includes('price-all')) {
-        let prds = await Product.find({category:category})
-        updatedProducts.push(...prds)
-      } else {
-
-        if (checkedInputs.includes('price-1')) {
-          let prds = await Product.find({
-            category: category,
-            $expr: {
-              $and: [
-                { $gte: ['$price', 0] },
-                { $lte: ['$price', 1000] }
-              ]
-            }
-          });
-          updatedProducts.push(...prds)
-        }
-
-        if (checkedInputs.includes('price-2')) {
-          let prds = await Product.find({
-            category: category,
-            $expr: {
-              $and: [
-                { $gte: ['$price', 1000] },
-                { $lte: ['$price', 2000] }
-              ]
-            }
-          });
-          updatedProducts.push(...prds)
-        }
-        if (checkedInputs.includes('price-3')) {
-          let prds = await Product.find({
-            category: category,
-            $expr: {
-              $and: [
-                { $gte: ['$price', 2000] },
-                { $lte: ['$price', 3000] }
-              ]
-            }
-          });
-          updatedProducts.push(...prds)
-        }
-        if (checkedInputs.includes('price-4')) {
-          let prds = await Product.find({
-            category: category,
-            $expr: {
-              $and: [
-                { $gte: ['$price', 3000] },
-                { $lte: ['$price', 4000] }
-              ]
-            }
-          });
-          updatedProducts.push(...prds)
-        }
-        if (checkedInputs.includes('price-5')) {
-          let prds = await Product.find({
-            category: category,
-            $expr: {
-              $and: [
-                { $gte: ['$price', 4000] },
-                { $lte: ['$price', 100000] }
-              ]
-            }
-          });
-          updatedProducts.push(...prds)
-        }
-      }
-      console.log('filterConditions:')
-      try {
-        console.log('updatedProducts:')
-        console.log(updatedProducts)
-        res.status(200).json(updatedProducts);
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({msg:'Error retrieving products'});
-      }
-}
 
 usrCtrl.downloadInvoice = async(req,res)=>{
   const doc = new PDFDocument();
   const orderId = req.params.id;
   const order = await Order.findById(orderId)
   const date = new Date(Date.now()).toDateString();
+  const createdAt = order.createdAt.toDateString();
 
   doc.text('Tax Invoice', { align: 'center', fontSize: 30 });
   doc.moveDown();
   doc.text('Order details:', { fontSize: 22 });
   doc.text(`Order ID:${orderId}`, { fontSize: 16 });
+  doc.text(`Ordered Date:${createdAt}`, { fontSize: 16 });
   doc.text(`Invoice Date:${date}`, { fontSize: 16 });
   
   const clientAddress = `${order.address.addressline1}`+','
@@ -1032,11 +1129,13 @@ usrCtrl.downloadInvoice = async(req,res)=>{
 
   let rowsArray = [];
   order.items.forEach((item,i)=>{
-    rowsArray.push([item.name,item.quantity,item.price])
+    const itemTotal = parseInt(item.subTotal - item.itemDiscount);
+   
+    rowsArray.push([item.name, item.quantity,`Rs.${item.subTotal}`,`Rs.${item.itemDiscount}`,`Rs.${itemTotal}`])
   })
 
   const table = {
-    headers: ['Item', 'Quantity', 'Price'],
+    headers: ['Item', 'Quantity', 'Amount','Discount','Total'],
     rows: rowsArray,
   };
   
@@ -1045,7 +1144,7 @@ usrCtrl.downloadInvoice = async(req,res)=>{
   const tableLeft = 80; 
   const cellPadding = 10; 
 
-  const columnWidths = [150, 100, 100]; 
+  const columnWidths = [150, 100, 100, 100, 100]; 
 
  
   doc.font('Helvetica-Bold').fontSize(12);
@@ -1077,7 +1176,7 @@ usrCtrl.downloadInvoice = async(req,res)=>{
 
   doc.moveDown();
 
-  doc.text('Grand Total: ₹' + `${order.total}`, { fontSize: 30 });
+  doc.text('Grand Total: Rs.' + `${order.total}`, { fontSize: 30 });
 
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', 'attachment; filename="invoice.pdf"');
@@ -1092,30 +1191,76 @@ usrCtrl.searchProducts = async(req,res)=>{
   let products = []
   const userId = req.session.userId
   const categories = await Category.find()
-  const squery = req.query.search;
+  const squery = req.query.searchQuery;
   let userPresent;
   if(req.session.userId){
     userPresent = true;
   }else{
     userPresent = false;
   }
-  const noProduct = 'No Matching Search results'
 
-  if (squery) {
     const regex = new RegExp(squery, 'i');
-    productsroducts = await Product.find({ name: { $regex: regex } })
-    if (products.length > 0) {
+    products = await Product.aggregate([
+      {
+        $match:{name: { $regex: regex },deleted:false}
+      },
+      {
+        $lookup:{
+          from:'offers',
+          localField:'category',
+          foreignField:'category',
+          as:'offerInfo'
+        },
+      },
+      {  
+        $project:{
+          _id:1,
+          name:1,
+          price:1,
+          image:1,
+          deleted:1,
+          category:1,
+          color:1,
+          description:1,
+          quantity:1,
+          createdAt:1,
+          offerDiscount:{
+            $arrayElemAt:['$offerInfo.discount',0]
+          },
+        }
+      }
+    ]);
         console.log(products)
-        res.render('user/search.ejs', { Products:products,userPresent,userId,categories});
-    } else {
-        res.render('user/search.ejs', { Products:products,userPresent, noProduct,userId,categories });
-    }
+        res.render('user/search.ejs', { products,userPresent,userId,categories});
+   
   }
-  else {
-      products = await Product.find();
-      res.render('user/search.ejs', {Products:products,userPresent, noProduct,userId,categories })
-  }
+  
+usrCtrl.getMenPage = async(req,res)=>{
+  const category = await Category.findOne({name:"Men"})
+  res.redirect(`/category/${category._id}`)
+}
+usrCtrl.getWomenPage = async(req,res)=>{
+  const category = await Category.findOne({name:"Women"})
+  res.redirect(`/category/${category._id}`)
+}
+usrCtrl.getKidsPage = async(req,res)=>{
+  const category = await Category.findOne({name:"Kids"})
+  res.redirect(`/category/${category._id}`)
+}
 
+usrCtrl.getWallet = async(req,res)=>{
+  const userId = req.session.userId;
+  const user = await User.findById(userId);
+  const username = user.name;
+  const categories = await Category.find()
+  const wallet = await Wallet.findOne({userId:userId})
+ 
+  console.log("wallet:")
+  console.log(wallet)
+  const orders = await Order.find({
+    _id: { $in: wallet.ordersArray }
+  });
+  res.render('user/wallet.ejs',{wallet,user,username,categories,orders,userPresent:true})
 }
 
 module.exports = usrCtrl;

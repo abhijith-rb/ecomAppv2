@@ -101,11 +101,15 @@ router.get('/coupons',usrCtrl.isLoggedOut,usrCtrl.listCoupons)
 
 router.post('/applyCoupon',usrCtrl.isLoggedOut,usrCtrl.applyCoupon)
 
-router.post('/priceFilter',usrCtrl.filterByPrice)
-
 router.get('/invoice/:id', usrCtrl.downloadInvoice)
 
-router.get('/searchproducts',usrCtrl.searchProducts)
+router.get('/searchproducts',usrCtrl.isLoggedOut,usrCtrl.searchProducts)
+
+router.get('/men',usrCtrl.isLoggedOut, usrCtrl.getMenPage)
+router.get('/women',usrCtrl.isLoggedOut, usrCtrl.getWomenPage)
+router.get('/kids',usrCtrl.isLoggedOut, usrCtrl.getKidsPage)
+
+router.get('/wallet',usrCtrl.isLoggedOut, usrCtrl.getWallet)
 
 module.exports = router;
 
