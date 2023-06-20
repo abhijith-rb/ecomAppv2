@@ -122,6 +122,8 @@ router.get('/deleteCoupon/:id',admnCtrl.isAdmin, admnCtrl.deleteCoupon)
 //dashboard
 router.get('/saleschart',admnCtrl.getSalesChart)
 
+router.get('/orderschart',admnCtrl.getOrdersChart)
+
 router.get('/getreport', admnCtrl.getReport)
 
 

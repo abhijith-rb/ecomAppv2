@@ -52,7 +52,7 @@
                           <th> Status </th>
                         </tr>
                       </thead>
-                      <%if(searched){%>
+                      <%if(searched && result){%>
                         <tbody>
                           <% result.forEach((order,i)=>{ %>
                             <tr data-orderid="<%=order.orderId%>" class="trow" >
@@ -70,7 +70,7 @@
                             </tr>
                           <% }) %>
                         </tbody>
-                      <%}else{%>
+                      <%}else if(orderList){%>
                         <tbody>
                           <% orderList.forEach((order,i)=>{ %>
                             <tr data-orderid="<%=order.orderId%>" class="trow">

@@ -134,8 +134,10 @@
                   <div class="card-body">
 
                     <div style="display: flex;justify-content: space-around;align-items: center;margin-bottom: 1rem;">
-                      <img src="/images/<%=product.image[0].filename%>" id="myImage" style="height: 20rem; width: 20rem;">
-                      <!-- <button class="btn btn-primary" >Edit</button> -->
+                      <%if(product.image[0]){%>
+                        <img src="/images/<%=product.image[0].filename%>" id="myImage" style="height: 20rem; width: 20rem;">
+
+                      <%}%>
                     </div>
 
                     <div style="display: flex;justify-content: space-around;flex-wrap: wrap;">
@@ -172,30 +174,35 @@
 
             </div>
 
-            <div class="row" id="croprow" style="visibility: hidden;">
-              <div class="col-md-6 grid-margin stretch-card">
-                <div class="card">
-                  <div class="card-body">
-                    <h4 class="card-title">Edit Image</h4>
-                    <div>
-                      <img src="/images/<%=product.image[0].filename%>" id="editableImage" alt="Image" style="height: 20rem; width: 20rem;">
-                      <button class="btn btn-primary" id="cropImageBtn">Crop</button>
-
+            <%if(product.image[0]){%>
+              <div class="row" id="croprow" style="visibility: hidden;">
+                <div class="col-md-6 grid-margin stretch-card">
+                  <div class="card">
+                    <div class="card-body">
+                      <h4 class="card-title">Edit Image</h4>
+                      
+                      <div>
+                        <img src="/images/<%=product.image[0].filename%>" id="editableImage" alt="Image" style="height: 20rem; width: 20rem;">
+                        <button class="btn btn-primary" id="cropImageBtn">Crop</button>
+                        <button class="btn btn-secondary" id="cropCancelBtn" onclick="hideEditor()">Cancel</button>
+  
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 grid-margin stretch-card">
+                  <div class="card">
+                    <div class="card-body">
+                      <div style="display: flex;align-items: center;justify-content: center;">
+                        <img src="" id="output" style="height: 50vh;">
+  
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="col-md-6 grid-margin stretch-card">
-                <div class="card">
-                  <div class="card-body">
-                    <div style="display: flex;align-items: center;justify-content: center;">
-                      <img src="" id="output" style="height: 50vh;">
 
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <%}%>
 
           </div>
           <!-- content-wrapper ends -->
@@ -379,6 +386,9 @@
         })
       })
 
+      function hideEditor(){
+        croprow.style.visibility = 'hidden';
+      }
 
   </script>
     <!-- plugins:js -->
