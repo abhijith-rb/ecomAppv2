@@ -9,7 +9,7 @@
     <meta content="Free HTML Templates" name="description">
 
     <!-- Favicon -->
-    <link href="img/favicon.ico" rel="icon">
+    <link href="/img/cartIcon.png" rel="icon" type="image/x-icon">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -27,6 +27,25 @@
 </head>
 
 <body>
+    <style>
+        .infoDiv{
+            display: flex;
+            flex-direction: column;
+            /* align-items: center; */
+        }
+        .adrsGrp{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2vw;
+           
+        }
+        .adrsDiv{
+            width:fit-content;
+            border: 2px solid grey;
+            border-radius: 5px;
+            padding:2vh 1vw 1vw 2vw;
+        }
+    </style>
     <%- include('../partials/user-header') %>
 
 
@@ -36,6 +55,7 @@
                 <div class="bg-light p-3" >
                     <h6>Hello,</h6>
                     <span><%=user.username%></span><br>
+                    <h5 style="text-align: center;"><a href="/profile" style="text-decoration: none;color: #777;">MY PROFILE</a></h5><br>
                     <h5 style="text-align: center;"><a href="/myorders" style="text-decoration: none;color: #777;">MY ORDERS</a></h5><br>
                     <h5 style="text-align: center;"><a href="/editProfile" style="text-decoration: none;color: #777;">EDIT PROFILE</a></h5>
                 </div>
@@ -44,24 +64,29 @@
 
             <div class="col-lg-9 h-auto mb-30">
                 <div class="h-100 bg-light p-30" style="display: flex;flex-direction: column;">
-                    <h3>Personal Information</h3>
-                    <h5>Name: <%=user.username%></h5>
-                    <h5>Email: <%=user.email%></h5>
-                    <h5>Mobile: <%=user.mobile%></h5>
-                    <h3>Address:</h3>
-                    <% if(user.address.length > 0){%>
-                        <%user.address.forEach((addrs,i)=>{%>
-                            <div class="row">
-                                <h4><%=i+1%>: </h4> &nbsp;
-                                <h5>Address line 1: <%=addrs.addressline1%>,</h5>&nbsp;
-                                <h5>Address line 2: <%=addrs.addressline2%>,</h5>&nbsp;
-                                <h5>City: <%=addrs.city%>,</h5>&nbsp;
-                                <h5>State: <%=addrs.state%>,</h5>&nbsp;
-                                <h5>Pin: <%=addrs.pin%>,</h5>&nbsp;
-                                <h5>Country: <%=addrs.country%>,</h5>
-                            </div>
-                            <%})%>
-                        <%}%>
+                    <h3 style="text-align: center;">Personal Information</h3>
+                    <div class="infoDiv">
+                        <h5>Name: <%=user.username%></h5>
+                        <h5>Email: <%=user.email%></h5>
+                        <h5>Mobile: <%=user.mobile%></h5>
+                        
+                    </div>
+                    
+                    <div class="adrsGrp">
+                        <% if(user.address.length > 0){%>
+                            <%user.address.forEach((addrs,i)=>{%>
+                                <div class="adrsDiv">
+                                    <h4>Address <%=i+1%>: </h4> &nbsp;
+                                    <h5>Address line 1: <%=addrs.addressline1%>,</h5>&nbsp;
+                                    <h5>Address line 2: <%=addrs.addressline2%>,</h5>&nbsp;
+                                    <h5>City: <%=addrs.city%>,</h5>&nbsp;
+                                    <h5>State: <%=addrs.state%>,</h5>&nbsp;
+                                    <h5>Pin: <%=addrs.pin%>,</h5>&nbsp;
+                                    <h5>Country: <%=addrs.country%>,</h5>
+                                </div>
+                                <%})%>
+                            <%}%>
+                    </div>
 
                 </div>
             </div>

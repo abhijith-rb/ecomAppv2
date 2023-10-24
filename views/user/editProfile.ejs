@@ -9,7 +9,7 @@
     <meta content="Free HTML Templates" name="description">
 
     <!-- Favicon -->
-    <link href="img/favicon.ico" rel="icon">
+    <link href="/img/cartIcon.png" rel="icon" type="image/x-icon">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -26,24 +26,31 @@
     <link href="css/style.css" rel="stylesheet">
 
     <style>
+        .btnsDiv{
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
        #cancelBtn{
         text-decoration: none;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-left: 41%;
-        margin-right: 41%;
-        color: white;
        }
        
        #updateBtn{
-        width: 20%;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-left: 40%;
-        margin-right: 20%;
         color: white;
+       }
+
+       #editForm{
+        padding: 0 20vw 0 20vw;
+        @media (max-width:800px){
+            padding: 0 10vw 0 10vw;
+        }
        }
     </style>
 </head>
@@ -58,6 +65,7 @@
                 <div class="bg-light p-3" >
                     <h6>Hello,</h6>
                     <span><%=user.username%></span><br>
+                    <h5 style="text-align: center;"><a href="/profile" style="text-decoration: none;color: #777;">MY PROFILE</a></h5><br>
                     <h5 style="text-align: center;"><a href="/myorders" style="text-decoration: none;color: #777;">MY ORDERS</a></h5><br>
                     <h5 style="text-align: center;"><a href="/editProfile" style="text-decoration: none;color: #777;">EDIT PROFILE</a></h5>
                     <h5 style="text-align: center;"><a href="/manageAddress" style="text-decoration: none;color: #777;">Manage Address</a></h5>
@@ -67,7 +75,7 @@
 
             <div class="col-lg-9 h-auto mb-30 ">
                 <div class="h-100 bg-light p-30 ">
-                    <form class="login-form " action="/editProfile" method="post" id="editForm">
+                    <form class="login-form" action="/editProfile" method="post" id="editForm">
                         <div class="form-outline mb-4">
                             <input type="text" name="username"  class="form-control" placeholder="Username" value=<%=user.username%> />
                         </div>
@@ -80,15 +88,18 @@
                             <input type="text" name="mobile" class="form-control" placeholder="mobile" value=<%=user.mobile%> />
                         </div>
                     
-                        <button type="submit" class="btn btn-primary " id="updateBtn">Update</button>
-                    
+                        <div class="btnsDiv">
+                            <button type="submit" class="btn btn-primary " id="updateBtn">Update</button>
+                        
+                            <button  class="btn btn-secondary" href="/profile" id="cancelBtn">
+                                Cancel
+                            </button>
+
+                        </div>
                     </form>
 
                     <p style="color:red;text-align: center;" id="errMsg"></p>
 
-                    <a  class="btn btn-warning" href="/profile" id="cancelBtn">
-                        Cancel
-                    </a>
                 </div>
             </div>
         </div>

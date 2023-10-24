@@ -6,7 +6,7 @@ const path = require('path')
 const app = express();
 const connectDB = require('./db.js');
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 const mongoURI = process.env.MongoURI;
 

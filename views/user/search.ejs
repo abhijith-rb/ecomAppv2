@@ -9,7 +9,7 @@
     <meta content="Free HTML Templates" name="description">
 
     <!-- Favicon -->
-    <link href="img/favicon.ico" rel="icon">
+    <link href="/img/cartIcon.png" rel="icon" type="image/x-icon">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -27,28 +27,48 @@
 </head>
 
 <body>
+    <style>
+
+        #rowDiv{
+            width: 100%;
+            height: 100%;
+            /* border: 2px solid red; */
+        }
+
+        #productList{
+            width: 100%;
+            min-height: 60vh;
+            /* border: 2px solid green; */
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap; 
+            justify-content: space-between;
+            margin-top: 2vh;
+            @media (max-width:700px){
+                height: auto;
+                flex-direction: column;
+                flex-wrap: nowrap;
+            }
+        }
+
+        .product-img{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-img > img {
+            /* border: 2px solid red; */
+            max-width: none;
+            @media (min-width:700px) {
+                max-width: 15vw;
+                max-height: 15rem;
+            }
+        }
+    </style>
 
     <%- include('../partials/user-header') %>
     
-    <!-- Breadcrumb Start -->
-    <!-- <div class="container-fluid">
-        <div class="row px-xl-5">
-            <div class="col-12">
-                <nav class="breadcrumb bg-light mb-30">
-                    <%#if(userPresent){%>
-                        <a class="breadcrumb-item text-dark" href="/uhome/">Home</a>
-                    <%#}else{%>
-                        <a class="breadcrumb-item text-dark" href="">Home</a>
-                    <%#}%>
-                    <a class="breadcrumb-item text-dark" href="/category/<%#category._id%>"><%#category.name%></a>
-                    <span class="breadcrumb-item active">Product List</span>
-                </nav>
-            </div>
-        </div>
-    </div> -->
-    <!-- Breadcrumb End -->
-
-
     <!-- Shop Start -->
     <div class="container-fluid">
         <div class="row px-xl-5">
@@ -100,10 +120,10 @@
 
             <!-- Shop Product Start -->
             <div class="col-lg-9 h-auto mb-30" style="display: flex;">
-                <div class="row pb-1">
+                <div class="pb-1" id="rowDiv">
                     <div class="col-12 pb-1" style="display: flex; justify-content: end;">
 
-                        <div class="d-flex align-items-center justify-content-between mb-4">
+                        <!-- <div class="d-flex align-items-center justify-content-between mb-4"> -->
                             
                             <div class="ml-2">
                                 <div class="btn-group">
@@ -116,18 +136,18 @@
                                 </div>
                                 
                             </div>
-                        </div>
+                        <!-- </div> -->
 
                     </div>
 
                     <div class="col-12 pb-1" >
-                        <div class="col-lg pb-1" style="display: flex;flex-direction: row;flex-wrap: wrap; justify-content: space-between;" id="productList" data-fullproducts="<%=JSON.stringify(products)%>">
+                        <div class="col-lg pb-1" id="productList" data-fullproducts="<%=JSON.stringify(products)%>">
 
                         <%if(products.length){%>
                             <%products.slice(0,8).forEach((product,i)=>{%>
                                             <div class="product-item bg-light mb-4">
                                                 <div class="product-img position-relative overflow-hidden" style="height: 15rem;">
-                                                    <img style="width: 15vw;" src="/images/<%=product.image[0].filename%>" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
+                                                    <img style="width: auto;" src="/images/<%=product.image[0].filename%>" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
                                                     <div class="product-action">
                                                         <a class="btn btn-outline-dark btn-square" href="/detail/<%=product._id%>"><i class="fa fa-search"></i></a>
                                                     </div>
