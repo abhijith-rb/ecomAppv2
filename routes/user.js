@@ -103,7 +103,7 @@ router.post('/applyCoupon',usrCtrl.isLoggedOut,usrCtrl.applyCoupon)
 
 router.get('/invoice/:id', usrCtrl.downloadInvoice)
 
-router.get('/searchproducts',usrCtrl.isLoggedOut,usrCtrl.searchProducts)
+router.get('/searchproducts',usrCtrl.searchProducts)
 
 router.get('/men',usrCtrl.isLoggedOut, usrCtrl.getMenPage)
 router.get('/women',usrCtrl.isLoggedOut, usrCtrl.getWomenPage)

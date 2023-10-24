@@ -215,6 +215,7 @@
         const productList = document.getElementById('productList');
         let fullproducts = JSON.parse(productList.dataset.fullproducts);
         let products=fullproducts.slice(0,8);
+        console.log(products)
 
         const pageLinks = document.getElementsByClassName('page-link');
         const plArray = [...pageLinks]
@@ -240,27 +241,64 @@
                     }
                 }
                 else if(pn === '2'){
-                    products = fullproducts.slice(8,16)
-                    if(!list2.classList.contains('active')){
-                        list2.classList.add('active')
-                    }
-                    if(list1.classList.contains('active')){
-                        list1.classList.remove('active')
-                    }
-                    if(list3.classList.contains('active')){
-                        list3.classList.remove('active')
+                    if(fullproducts.length > 8){
+                        products = fullproducts.slice(8,16)
+                        if(!list2.classList.contains('active')){
+                            list2.classList.add('active')
+                        }
+                        if(list1.classList.contains('active')){
+                            list1.classList.remove('active')
+                        }
+                        if(list3.classList.contains('active')){
+                            list3.classList.remove('active')
+                        }
+                    }else{
+                        products = fullproducts.slice(0,8);
+                        if(!list1.classList.contains('active')){
+                        list1.classList.add('active')
+                        }
+                        if(list2.classList.contains('active')){
+                            list2.classList.remove('active')
+                        }
+                        if(list3.classList.contains('active')){
+                            list3.classList.remove('active')
+                        }
                     }
                 }
                 else if(pn === '3'){
-                    products = fullproducts.slice(16,24)
-                    if(!list3.classList.contains('active')){
-                        list3.classList.add('active')
-                    }
-                    if(list1.classList.contains('active')){
-                        list1.classList.remove('active')
-                    }
-                    if(list2.classList.contains('active')){
-                        list2.classList.remove('active')
+                    if(fullproducts.length > 16){
+                        products = fullproducts.slice(16,24)
+                        if(!list3.classList.contains('active')){
+                            list3.classList.add('active')
+                        }
+                        if(list1.classList.contains('active')){
+                            list1.classList.remove('active')
+                        }
+                        if(list2.classList.contains('active')){
+                            list2.classList.remove('active')
+                        }
+                    }else if(fullproducts.length > 8){
+                        products = fullproducts.slice(8,16)
+                        if(!list2.classList.contains('active')){
+                            list2.classList.add('active')
+                        }
+                        if(list1.classList.contains('active')){
+                            list1.classList.remove('active')
+                        }
+                        if(list3.classList.contains('active')){
+                            list3.classList.remove('active')
+                        }
+                    }else{
+                        products = fullproducts.slice(0,8)
+                        if(!list1.classList.contains('active')){
+                            list1.classList.add('active')
+                        }
+                        if(list2.classList.contains('active')){
+                            list2.classList.remove('active')
+                        }
+                        if(list3.classList.contains('active')){
+                            list3.classList.remove('active')
+                        }
                     }
                 }
 
@@ -272,7 +310,7 @@
                     updatedHTML += `
                                 <div class="product-item bg-light mb-4">
                                     <div class="product-img position-relative overflow-hidden" style="height: 15rem;">
-                                        <img style="width: 15vw;" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
+                                        <img style="width: auto;" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
                                         <div class="product-action">
                                             <a class="btn btn-outline-dark btn-square" href="/detail/${product._id}"><i class="fa fa-search"></i></a>
                                         </div>
@@ -357,7 +395,7 @@
                     updatedHTML += `
                                 <div class="product-item bg-light mb-4">
                                     <div class="product-img position-relative overflow-hidden" style="height: 15rem;">
-                                        <img style="width: 15vw;" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
+                                        <img style="width: auto;" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
                                         <div class="product-action">
                                             <a class="btn btn-outline-dark btn-square" href="/detail/${product._id}"><i class="fa fa-search"></i></a>
                                         </div>
@@ -394,7 +432,7 @@
                     updatedHTML += `
                                 <div class="product-item bg-light mb-4">
                                     <div class="product-img position-relative overflow-hidden" style="height: 15rem;">
-                                        <img style="width: 15vw;" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
+                                        <img style="width: auto;" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
                                         <div class="product-action">
                                             <a class="btn btn-outline-dark btn-square" href="/detail/${product._id}"><i class="fa fa-search"></i></a>
                                         </div>
@@ -431,7 +469,7 @@
                     updatedHTML += `
                                 <div class="product-item bg-light mb-4">
                                     <div class="product-img position-relative overflow-hidden" style="height: 15rem;">
-                                        <img style="width: 15vw;" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
+                                        <img style="width: auto;" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
                                         <div class="product-action">
                                             <a class="btn btn-outline-dark btn-square" href="/detail/${product._id}"><i class="fa fa-search"></i></a>
                                         </div>
@@ -468,7 +506,7 @@
                     updatedHTML += `
                                 <div class="product-item bg-light mb-4">
                                     <div class="product-img position-relative overflow-hidden" style="height: 15rem;">
-                                        <img style="width: 15vw;" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
+                                        <img style="width: auto;" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
                                         <div class="product-action">
                                             <a class="btn btn-outline-dark btn-square" href="/detail/${product._id}"><i class="fa fa-search"></i></a>
                                         </div>
