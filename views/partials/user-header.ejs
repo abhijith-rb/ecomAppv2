@@ -1,4 +1,14 @@
  <!-- Topbar Start -->
+ <!-- <style>
+    #navDiv{
+        display: flex;
+        align-items: center;
+        border: 2px solid red;
+        @media (max-width:990px){
+            flex-direction: column;
+        }
+    }
+ </style> -->
  <div class="container-fluid">
 
     <div class="row align-items-center bg-light py-3 px-xl-5 d-none d-lg-flex">
@@ -56,36 +66,37 @@
                 </button>
                 <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
                     <div class="navbar-nav mr-auto py-0 align-items-center">
-                        <a href="/" class="nav-item nav-link">Home</a>
-                        <%categories.forEach((category,i)=>{%>
-                            <a href="/category/<%=category._id%>" class="nav-item nav-link"><%=category.name%></a>
-                        <%})%>
-
-                        <%if(userPresent){%>
-                            <div class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">My Account<i class="fa fa-angle-down mt-1"></i></a>
-                                <div class="dropdown-menu bg-primary rounded-0 border-0 m-0">
-                                    <a href="/profile" class="dropdown-item">My Profile</a>
-                                    <a href="/myorders" class="dropdown-item">My Orders</a>
-                                    <a href="/wallet" class="dropdown-item">Wallet</a>
-                                    <a href="/coupons" class="dropdown-item">Coupons</a>
-                                    <a href="/logout" class="dropdown-item">Logout</a>
+                            <a href="/" class="nav-item nav-link">Home</a>
+                            <%categories.forEach((category,i)=>{%>
+                                <a href="/category/<%=category._id%>" class="nav-item nav-link"><%=category.name%></a>
+                            <%})%>
+    
+                            <%if(userPresent){%>
+                                <div class="nav-item dropdown">
+                                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">My Account<i class="fa fa-angle-down mt-1"></i></a>
+                                    <div class="dropdown-menu bg-primary rounded-0 border-0 m-0">
+                                        <a href="/profile" class="dropdown-item">My Profile</a>
+                                        <a href="/myorders" class="dropdown-item">My Orders</a>
+                                        <a href="/wallet" class="dropdown-item">Wallet</a>
+                                        <a href="/coupons" class="dropdown-item">Coupons</a>
+                                        <a href="/logout" class="dropdown-item">Logout</a>
+                                    </div>
                                 </div>
-                            </div>
+    
+                            <%}else{%>
+                                <a href="/login" class="nav-item nav-link">Login</a>
+                            <%}%>
+    
+                            <%if(userPresent){%>
+                                <a href="/cart" class="btn px-0 ml-3">
+                                    <i class="fas fa-shopping-cart text-primary"></i>
+                                </a>
+                            <%}else{%>
+                                <a href="/login" class="btn px-0 ml-3">
+                                    <i class="fas fa-shopping-cart text-primary"></i>
+                                </a>
+                            <%}%>
 
-                        <%}else{%>
-                            <a href="/login" class="nav-item nav-link">Login</a>
-                        <%}%>
-
-                        <%if(userPresent){%>
-                            <a href="/cart" class="btn px-0 ml-3">
-                                <i class="fas fa-shopping-cart text-primary"></i>
-                            </a>
-                        <%}else{%>
-                            <a href="/login" class="btn px-0 ml-3">
-                                <i class="fas fa-shopping-cart text-primary"></i>
-                            </a>
-                        <%}%>
                     </div>
                    
                 </div>

@@ -108,7 +108,7 @@ usrCtrl.createUser = async(req,res)=>{
         console.log(user)
         usrCtrl.createCart(user._id)
         usrCtrl.createWallet(user._id)
-        res.redirect('/otplogin');
+        res.redirect('/login');
     
     } catch (error) {
         console.log(error)
@@ -440,6 +440,65 @@ usrCtrl.smsVerify = async(req,res)=>{
 
   res.status(200).json({userId});
   
+}
+
+usrCtrl.sendCode = async(req,res)=>{
+  const {email} = req.body;
+  console.log("req success",email)
+
+  const otpExisting = await OtpModel.findOne({email})
+if(otpExisting){
+  await OtpModel.findByIdAndDelete(otpExisting._id);
+}
+try {
+  const OTP = generateOTP(); 
+
+  const otpDoc = new OtpModel({email,otp:OTP})
+  await otpDoc.save();
+  console.log(process.env.SENDGRID_API_KEY)
+
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+    const msg = {
+      to: email, 
+      from: 'abhijithrb91@gmail.com', 
+      subject: 'Your OTP to verify Email',
+      text: `Your OTP is ${OTP}`,
+    }
+    sgMail
+      .send(msg)
+      .then(() => {
+        console.log('Email sent')
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+
+    res.status(200).json({msg:'Otp Sent successfully'})
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({msg:'Something went wrong'})
+    }
+}
+
+usrCtrl.verifyEmail = async (req,res)=>{
+  const otp = req.body.otp;
+  const email = req.body.email;
+  try {
+    const validOtp = await OtpModel.findOne({email,otp})
+    console.log("Validotp",validOtp)
+    if(validOtp === null){
+      console.log("Invalid")
+      return res.status(401).json({msg:"Invalid Otp number"})
+    }
+  
+    await OtpModel.findByIdAndDelete(validOtp._id)
+  
+    res.status(200).json({msg:"Email verified"});
+    
+  } catch (error) {
+    res.status(500).json({msg:"Something went wrong"})
+  }
 }
 
 usrCtrl.getCatPrdts = async(req,res)=>{

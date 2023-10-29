@@ -33,6 +33,11 @@ router.get('/changepwd/:id', usrCtrl.getChangePwd)
 
 router.post('/newpwd/:id', usrCtrl.updatePwd)
 
+//email verification for register
+
+router.post('/send-code',usrCtrl.sendCode)
+router.post('/verify-code',usrCtrl.verifyEmail)
+
 //Otp through Sms
 
 router.get('/otplogin',usrCtrl.isLoggedIn, usrCtrl.getSmsOtpPage)
