@@ -191,13 +191,12 @@
            
                     <div class="col-12">
                         <nav>
-                          <ul class="pagination justify-content-center" style="cursor: pointer;">
-                            <!-- <li class="page-item disabled"><a class="page-link" href="#">Previous</span></a></li> -->
-                            <li class="page-item active" id="list1"><a class="page-link" data-pgnmbr="1">1</a></li>
-                            <li class="page-item" id="list2"><a class="page-link" data-pgnmbr="2">2</a></li>
-                            <li class="page-item" id="list3"><a class="page-link" data-pgnmbr="3">3</a></li>
-                            <!-- <li class="page-item"><a class="page-link" href="#">Next</a></li> -->
-                          </ul>
+                            <ul class="pagination justify-content-center" style="cursor: pointer;">
+                                <li class="page-item"><a class="page-link" onclick="movePrev()">Previous</a></li>
+                                <li class="page-item page-link active" id="pgnmbr">1</li>
+                                <li class="page-item"><a class="page-link" onclick="moveNext()">Next</a></li>
+                               
+                            </ul>
                         </nav>
                     </div>
 
@@ -219,322 +218,171 @@
     <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
 
     <script>
-
         const productList = document.getElementById('productList');
         let fullproducts = JSON.parse(productList.dataset.fullproducts);
-        let products=fullproducts.slice(0,8);
-        console.log(products)
+        let pgNmbrElement = document.getElementById("pgnmbr");
+        let page = Number(pgNmbrElement.textContent);
+        const prodPerPg = 8;
+        let products = fullproducts;
 
-        const pageLinks = document.getElementsByClassName('page-link');
-        const plArray = [...pageLinks]
-        console.log("pageLinks:")
-        console.log(pageLinks)
-        plArray.forEach((pl,i)=>{
-            pl.addEventListener('click',(e)=>{
-                const pn = pl.dataset.pgnmbr;
-                const list1 = document.getElementById('list1')
-                const list2 = document.getElementById('list2')
-                const list3 = document.getElementById('list3')
-                console.log(pn)
-                if(pn === '1'){
-                    products = fullproducts.slice(0,8)
-                    if(!list1.classList.contains('active')){
-                        list1.classList.add('active')
-                    }
-                    if(list2.classList.contains('active')){
-                        list2.classList.remove('active')
-                    }
-                    if(list3.classList.contains('active')){
-                        list3.classList.remove('active')
-                    }
-                }
-                else if(pn === '2'){
-                    if(fullproducts.length > 8){
-                        products = fullproducts.slice(8,16)
-                        if(!list2.classList.contains('active')){
-                            list2.classList.add('active')
-                        }
-                        if(list1.classList.contains('active')){
-                            list1.classList.remove('active')
-                        }
-                        if(list3.classList.contains('active')){
-                            list3.classList.remove('active')
-                        }
-                    }else{
-                        products = fullproducts.slice(0,8);
-                        if(!list1.classList.contains('active')){
-                        list1.classList.add('active')
-                        }
-                        if(list2.classList.contains('active')){
-                            list2.classList.remove('active')
-                        }
-                        if(list3.classList.contains('active')){
-                            list3.classList.remove('active')
-                        }
-                    }
-                }
-                else if(pn === '3'){
-                    if(fullproducts.length > 16){
-                        products = fullproducts.slice(16,24)
-                        if(!list3.classList.contains('active')){
-                            list3.classList.add('active')
-                        }
-                        if(list1.classList.contains('active')){
-                            list1.classList.remove('active')
-                        }
-                        if(list2.classList.contains('active')){
-                            list2.classList.remove('active')
-                        }
-                    }else if(fullproducts.length > 8){
-                        products = fullproducts.slice(8,16)
-                        if(!list2.classList.contains('active')){
-                            list2.classList.add('active')
-                        }
-                        if(list1.classList.contains('active')){
-                            list1.classList.remove('active')
-                        }
-                        if(list3.classList.contains('active')){
-                            list3.classList.remove('active')
-                        }
-                    }else{
-                        products = fullproducts.slice(0,8)
-                        if(!list1.classList.contains('active')){
-                            list1.classList.add('active')
-                        }
-                        if(list2.classList.contains('active')){
-                            list2.classList.remove('active')
-                        }
-                        if(list3.classList.contains('active')){
-                            list3.classList.remove('active')
-                        }
-                    }
-                }
-
-                
-                let updatedHTML = '';
-                if(products.length > 0){
+        const updaterFunc = (products)=>{
+            let updatedHTML = '';
+                if (products.length > 0) {
 
                     products.forEach(product => {
-                    updatedHTML += `
-                                <div class="product-item bg-light mb-4">
-                                    <div class="product-img position-relative overflow-hidden" style="height: 15rem;">
-                                        <img style="width: auto;" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
-                                        <div class="product-action">
-                                            <a class="btn btn-outline-dark btn-square" href="/detail/${product._id}"><i class="fa fa-search"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="text-center py-4">
-                                        <a class="h6 text-decoration-none text-truncate" href="">${product.name}</a>
-                                        <div class="d-flex align-items-center justify-content-center mt-2">
-                                            <h5>₹${Math.floor(product.price-product.price*product.offerDiscount/100)}</h5><h6 class="text-muted ml-2"><del>₹${product.price}</del></h6>
-                                        </div>
-                                        
-                                    </div>
+                        updatedHTML += `
+                        <div class="product-item bg-light mb-4">
+                            <div class="product-img position-relative overflow-hidden" style="height: 15rem;">
+                                <img style="width: auto;" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
+                                <div class="product-action">
+                                    <a class="btn btn-outline-dark btn-square" href="/detail/${product._id}"><i class="fa fa-search"></i></a>
                                 </div>
-                        `;
+                            </div>
+                            <div class="text-center py-4">
+                                <a class="h6 text-decoration-none text-truncate" href="">${product.name}</a>
+                                <div class="d-flex align-items-center justify-content-center mt-2">
+                                    <h5>₹${Math.floor(product.price - product.price * product.offerDiscount / 100)}</h5><h6 class="text-muted ml-2"><del>₹${product.price}</del></h6>
+                                </div>
+                                
+                            </div>
+                        </div>
+                `;
                     });
-                }else{
-                    updatedHTML += ''
+                } else {
+                    updatedHTML += `<div class="product-item bg-light mb-4" style="width: 100%; height: 60vh; display: flex;align-items: center;justify-content: center;">
+                                        <h3>No matching search results</h3>
+                                    </div>`
                 }
 
                 productList.innerHTML = updatedHTML;
-            })
-        })
+        }
 
-        let filteredProducts;
-        let sortableProducts = products;
+        let temp;
+        const movePrev = () => {
+            console.log("Prev Called")
+            console.log(page)
+            if (page > 1) {
+                console.log("enter prev")
+                page--;
+                pgNmbrElement.textContent = String(page);
+
+                temp = products.slice((page-1)*prodPerPg, (page-1)*prodPerPg+prodPerPg);
+                updaterFunc(temp)
+              
+            }
+        }
+
+        const moveNext = () => {
+            console.log("Next called")
+            console.log(page)
+            const upLimit = Math.ceil(products.length / prodPerPg) 
+            console.log(upLimit)
+            if (page < upLimit) {
+                console.log("enter next")
+                page++;
+                pgNmbrElement.textContent = String(page)
+
+                temp = products.slice((page-1)*prodPerPg, (page-1)*prodPerPg+prodPerPg);
+                updaterFunc(temp)
+                
+            }
+        }
+
+
         //Filter by price
         const priceFilter = document.getElementById('priceFilter');
-        
-        priceFilter.addEventListener('click',(e)=>{
+
+        priceFilter.addEventListener('click', (e) => {
             e.preventDefault();
             let checkedInputs = [];
 
             const priceInputs = document.querySelectorAll('.priceInputs');
-            priceInputs.forEach(input=>{
-                if(input.checked){
+            priceInputs.forEach(input => {
+                if (input.checked) {
                     checkedInputs.push(input.name)
                 }
             })
             console.log(checkedInputs);
-            if(checkedInputs.length === 0){
+            if (checkedInputs.length === 0) {
                 return;
             }
             console.log('price filtering')
-             
-            filteredProducts = products.filter((product) => {
-                    if (checkedInputs.includes('price-all')) {
+
+            products = fullproducts.filter((product) => {
+                if (checkedInputs.includes('price-all')) {
                     return true;
-                    }
-                    if (checkedInputs.includes('price-1')) {
-                        if(product.price >= 0 && product.price <= 1000){
-                            return true;
-                        };
-                    }
-                    if (checkedInputs.includes('price-2')) {
-                        if(product.price >= 1000 && product.price <= 2000){
-                            return true;
-                        };
-                    }
-                    if (checkedInputs.includes('price-3')) {
-                        if(product.price >= 2000 && product.price <= 3000){
-                            return true;
-                        };
-                    }
-                    if (checkedInputs.includes('price-4')) {
-                        if(product.price >= 3000 && product.price <= 4000){
-                            return true;
-                        };
-                    }
-                    if (checkedInputs.includes('price-5')) {
-                        if(product.price >= 4000 && product.price <= 100000){
-                            return true;
-                        };
-                    }
-            }); 
-            sortableProducts = filteredProducts;
-            console.log("filteredProducts:")   
-            console.log(filteredProducts)   
-            console.log(products)   
-                let updatedHTML = '';
-                if(filteredProducts.length > 0){
-
-                    filteredProducts.forEach(product => {
-                    updatedHTML += `
-                                <div class="product-item bg-light mb-4">
-                                    <div class="product-img position-relative overflow-hidden" style="height: 15rem;">
-                                        <img style="width: auto;" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
-                                        <div class="product-action">
-                                            <a class="btn btn-outline-dark btn-square" href="/detail/${product._id}"><i class="fa fa-search"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="text-center py-4">
-                                        <a class="h6 text-decoration-none text-truncate" href="">${product.name}</a>
-                                        <div class="d-flex align-items-center justify-content-center mt-2">
-                                            <h5>₹${Math.floor(product.price-product.price*product.offerDiscount/100)}</h5><h6 class="text-muted ml-2"><del>₹${product.price}</del></h6>
-                                        </div>
-                                        
-                                    </div>
-                                </div>
-                        `;
-                    });
-                }else{
-                    updatedHTML += '<h2 style="text-align:center">No Matching Results</h2>'
                 }
+                if (checkedInputs.includes('price-1')) {
+                    if (product.price >= 0 && product.price <= 1000) {
+                        return true;
+                    };
+                }
+                if (checkedInputs.includes('price-2')) {
+                    if (product.price >= 1000 && product.price <= 2000) {
+                        return true;
+                    };
+                }
+                if (checkedInputs.includes('price-3')) {
+                    if (product.price >= 2000 && product.price <= 3000) {
+                        return true;
+                    };
+                }
+                if (checkedInputs.includes('price-4')) {
+                    if (product.price >= 3000 && product.price <= 4000) {
+                        return true;
+                    };
+                }
+                if (checkedInputs.includes('price-5')) {
+                    if (product.price >= 4000 && product.price <= 100000) {
+                        return true;
+                    };
+                }
+            });
+         
+            temp = products.slice((page-1)*prodPerPg, (page-1)*prodPerPg+prodPerPg);
+            updaterFunc(temp)
 
-                productList.innerHTML = updatedHTML;
-            })
+        })
 
         //sort Latest
         const sortLatestElement = document.getElementById('sortLatest');
 
         sortLatestElement.addEventListener('click', (event) => {
             event.preventDefault();
-            
 
-            sortableProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-            let updatedHTML = '';
-            if (sortableProducts.length > 0) {
-                sortableProducts.forEach((product) => {
-                    updatedHTML += `
-                                <div class="product-item bg-light mb-4">
-                                    <div class="product-img position-relative overflow-hidden" style="height: 15rem;">
-                                        <img style="width: auto;" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
-                                        <div class="product-action">
-                                            <a class="btn btn-outline-dark btn-square" href="/detail/${product._id}"><i class="fa fa-search"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="text-center py-4">
-                                        <a class="h6 text-decoration-none text-truncate" href="">${product.name}</a>
-                                        <div class="d-flex align-items-center justify-content-center mt-2">
-                                            <h5>₹${Math.floor(product.price-product.price*product.offerDiscount/100)}</h5><h6 class="text-muted ml-2"><del>₹${product.price}</del></h6>
-                                        </div>
-                                        
-                                    </div>
-                                </div>
-                        `;
-                    });
-            } else {
-                updatedHTML += '<h2 style="text-align:center">No Matching Results</h2>';
-            }
-
-            productList.innerHTML = updatedHTML;
-            });
+            temp = products.slice((page-1)*prodPerPg, (page-1)*prodPerPg+prodPerPg);
+            updaterFunc(temp)
+           
+        });
 
         //sort Low to High
         const sortLowToHigh = document.getElementById('sortLoHi');
 
         sortLowToHigh.addEventListener('click', (event) => {
             event.preventDefault();
-        
 
-            sortableProducts.sort((a, b) => a.price - b.price);
+            products.sort((a, b) => a.price - b.price);
 
-            let updatedHTML = '';
-            if (sortableProducts.length > 0) {
-                sortableProducts.forEach((product) => {
-                    updatedHTML += `
-                                <div class="product-item bg-light mb-4">
-                                    <div class="product-img position-relative overflow-hidden" style="height: 15rem;">
-                                        <img style="width: auto;" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
-                                        <div class="product-action">
-                                            <a class="btn btn-outline-dark btn-square" href="/detail/${product._id}"><i class="fa fa-search"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="text-center py-4">
-                                        <a class="h6 text-decoration-none text-truncate" href="">${product.name}</a>
-                                        <div class="d-flex align-items-center justify-content-center mt-2">
-                                            <h5>₹${Math.floor(product.price-product.price*product.offerDiscount/100)}</h5><h6 class="text-muted ml-2"><del>₹${product.price}</del></h6>
-                                        </div>
-                                        
-                                    </div>
-                                </div>
-                        `;
-                    });
-            } else {
-                updatedHTML += '<h2 style="text-align:center">No Matching Results</h2>';
-            }
+            temp = products.slice((page-1)*prodPerPg, (page-1)*prodPerPg+prodPerPg);
+            updaterFunc(temp)
+   
+        });
 
-            productList.innerHTML = updatedHTML;
-            });
 
         // sort High to Low    
         const sortHighToLow = document.getElementById('sortHiLo');
 
         sortHighToLow.addEventListener('click', (event) => {
             event.preventDefault();
-       
 
-            sortableProducts.sort((a, b) => b.price - a.price);
+            products.sort((a, b) => b.price - a.price);
 
-            let updatedHTML = '';
-            if (sortableProducts.length > 0) {
-                sortableProducts.forEach((product) => {
-                    updatedHTML += `
-                                <div class="product-item bg-light mb-4">
-                                    <div class="product-img position-relative overflow-hidden" style="height: 15rem;">
-                                        <img style="width: auto;" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
-                                        <div class="product-action">
-                                            <a class="btn btn-outline-dark btn-square" href="/detail/${product._id}"><i class="fa fa-search"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="text-center py-4">
-                                        <a class="h6 text-decoration-none text-truncate" href="">${product.name}</a>
-                                        <div class="d-flex align-items-center justify-content-center mt-2">
-                                            <h5>₹${Math.floor(product.price-product.price*product.offerDiscount/100)}</h5><h6 class="text-muted ml-2"><del>₹${product.price}</del></h6>
-                                        </div>
-                                        
-                                    </div>
-                                </div>
-                        `;
-                    });
-            } else {
-                updatedHTML += '<h2 style="text-align:center">No Matching Results</h2>';
-            }
-
-            productList.innerHTML = updatedHTML;
-            });
+            temp = products.slice((page-1)*prodPerPg, (page-1)*prodPerPg+prodPerPg);
+            updaterFunc(temp)
+   
+        });
 
     </script>
 
