@@ -87,6 +87,7 @@ router.post('/editProfile',usrCtrl.isLoggedOut,usrCtrl.editProfile)
 router.get('/manageAddress',usrCtrl.isLoggedOut,usrCtrl.getMngAddress)
 
 router.post('/addAddress',usrCtrl.isLoggedOut,usrCtrl.addAddress)
+router.delete('/delete-address',usrCtrl.isLoggedOut,usrCtrl.deleteAddress)
 
 router.get('/myorders',usrCtrl.isLoggedOut,usrCtrl.getMyOrders)
 

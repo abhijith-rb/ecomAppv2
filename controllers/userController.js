@@ -122,7 +122,7 @@ usrCtrl.userAuth = async (req, res) => {
     try {
       const user = await User.findOne({ username });
       if (!user) {
-        return res.status(400).json(errMsg);
+        return res.status(400).json({msg:'Create an Account'});
       }
 
       if(user.blocked){
@@ -835,6 +835,26 @@ usrCtrl.addAddress = async(req,res)=>{
   }
 }
 
+usrCtrl.deleteAddress = async(req,res)=>{
+  const userId = req.session.userId;
+  const index = req.query.i;
+  try {
+   console.log("index to delete =>", index);
+   const user = await User.findById(userId);
+   const newAddress = user.address.filter((ad,i)=> i!= index);
+
+   const updtdUser = await User.updateOne({_id:userId},{
+    $set:{address:[...newAddress]}
+   },{new:true})
+
+   console.log(updtdUser)
+   console.log(newAddress);
+   res.status(200).json({msg:"Address Deleted",address:newAddress})
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({msg:"Something went wrong"})
+  }
+}
 
 const clearCart = async(userId)=>{
   await Cart.findOneAndUpdate({userId},{

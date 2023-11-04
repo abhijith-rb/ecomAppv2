@@ -5,8 +5,8 @@
     <meta charset="utf-8">
     <title>Usecart</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="Free HTML Templates" name="keywords">
-    <meta content="Free HTML Templates" name="description">
+    <meta content="Usecart" name="keywords">
+    <meta content="Usecart - Your one-stop ecommerce app for easy and convenient online shopping" name="description">
 
     <link href="/img/cartIcon.png" rel="icon" type="image/x-icon">
 
@@ -22,6 +22,13 @@
 </head>
 
 <body>
+    <style>
+        .product-item{
+           border-radius: 10px;
+           box-shadow: 5px 5px 22px -6px rgba(0,0,0,0.5);
+           background-color: #ffffff;
+        }
+    </style>
 
     <%- include('../partials/user-header') %>
     
@@ -154,7 +161,7 @@
 
         <%featuredProducts.forEach((fp,i)=>{%>
             <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <div class="product-item bg-light mb-4">
+                <div class="product-item mb-4 p-2">
                     <div class="product-img position-relative overflow-hidden" style="height: 20rem;">
                         <img class="img-fluid w-100" src="images/<%=fp.image[0].filename%>" alt="">
                         <div class="product-action">
@@ -217,7 +224,7 @@
 
         <%recentProducts.forEach((rp,i)=>{%>
             <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <div class="product-item bg-light mb-4">
+                <div class="product-item mb-4 p-2">
                     <div class="product-img position-relative overflow-hidden" style="height: 20rem;">
                         <img class="img-fluid w-100" src="images/<%=rp.image[0].filename%>" alt="">
                         <div class="product-action">

@@ -5,8 +5,7 @@
     <meta charset="utf-8">
     <title>Usecart</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="Free HTML Templates" name="keywords">
-    <meta content="Free HTML Templates" name="description">
+    
 
     <!-- Favicon -->
     <link href="/img/cartIcon.png" rel="icon" type="image/x-icon">
@@ -34,6 +33,23 @@
             /* border: 2px solid red; */
         }
 
+        .sidebar{
+            height: fit-content;
+            padding-top: 2vh;
+            border-radius: 5px;
+            box-shadow: 5px 5px 22px -6px rgba(0,0,0,0.5);
+           background-color: #ffffff;
+           display: flex;
+           flex-direction: column;
+           justify-content: center;
+           align-items: center;
+        }
+
+        .sortBtn{
+            box-shadow: 5px 5px 22px -6px rgba(0,0,0,0.5);
+           background-color: #ffffff;
+        }
+
         #productList {
             width: 100%;
             min-height: 60vh;
@@ -51,6 +67,12 @@
             }
         }
 
+        .product-item{
+           border-radius: 10px;
+           box-shadow: 5px 5px 22px -6px rgba(0,0,0,0.5);
+           background-color: #ffffff;
+        }
+
         .product-img {
             display: flex;
             align-items: center;
@@ -65,6 +87,19 @@
                 max-height: 15rem;
             }
         }
+
+        .paginationContainer{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pagination{
+            width: fit-content;
+            box-shadow: 5px 5px 22px -6px rgba(0,0,0,0.5);
+    background-color: #ffffff;
+        }
+
     </style>
 
     <%- include('../partials/user-header') %>
@@ -73,7 +108,7 @@
         <div class="container-fluid">
             <div class="row px-xl-5">
                 <!-- Shop Sidebar Start -->
-                <div class="col-lg-3 mb-30">
+                <div class="col-lg-3 mb-30 sidebar">
                     <!-- Price Start -->
                     <h5 class="section-title position-relative text-uppercase mb-3"><span
                             class="bg-secondary pr-3">Filter by price</span></h5>
@@ -140,7 +175,7 @@
                             <!-- <div class="d-flex align-items-center justify-content-between mb-4"> -->
 
                             <div class="ml-2">
-                                <div class="btn-group">
+                                <div class="btn-group sortBtn">
                                     <button type="button" class="btn btn-sm btn-light dropdown-toggle"
                                         data-toggle="dropdown">Sorting</button>
                                     <div class="dropdown-menu dropdown-menu-right" style="cursor: pointer;">
@@ -160,7 +195,7 @@
 
                                 <%if(products.length){%>
                                     <%products.slice(0,8).forEach((product,i)=>{%>
-                                        <div class="product-item bg-light mb-4">
+                                        <div class="product-item mb-4 p-2">
                                             <div class="product-img position-relative overflow-hidden"
                                                 style="height: 15rem;">
                                                 <img style="width: auto;" src="/images/<%=product.image[0].filename%>"
@@ -195,7 +230,7 @@
                         </div>
 
                         <div class="col-12">
-                            <nav>
+                            <nav class="paginationContainer">
                                 <ul class="pagination justify-content-center" style="cursor: pointer;">
                                     <li class="page-item"><a class="page-link" onclick="movePrev()">Previous</a></li>
                                     <li class="page-item page-link active" id="pgnmbr">1</li>
@@ -235,7 +270,7 @@
 
                             products.forEach(product => {
                                 updatedHTML += `
-                                <div class="product-item bg-light mb-4">
+                                <div class="product-item mb-4 p-2">
                                     <div class="product-img position-relative overflow-hidden" style="height: 15rem;">
                                         <img style="width: auto;" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
                                         <div class="product-action">

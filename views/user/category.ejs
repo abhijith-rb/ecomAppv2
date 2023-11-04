@@ -5,8 +5,7 @@
     <meta charset="utf-8">
     <title>Usecart</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="Free HTML Templates" name="keywords">
-    <meta content="Free HTML Templates" name="description">
+   
 
     <!-- Favicon -->
     <link href="/img/cartIcon.png" rel="icon" type="image/x-icon">
@@ -34,6 +33,22 @@
             height: 100%;
             /* border: 2px solid red; */
         }
+        .sidebar{
+            height: fit-content;
+            padding-top: 2vh;
+            border-radius: 5px;
+            box-shadow: 5px 5px 22px -6px rgba(0,0,0,0.5);
+           background-color: #ffffff;
+           display: flex;
+           flex-direction: column;
+           justify-content: center;
+           align-items: center;
+        }
+
+        .sortBtn{
+            box-shadow: 5px 5px 22px -6px rgba(0,0,0,0.5);
+           background-color: #ffffff;
+        }
 
         #productList{
             width: 100%;
@@ -42,13 +57,20 @@
             display: flex;
             flex-direction: row;
             flex-wrap: wrap; 
-            justify-content: space-between;
+            /* justify-content: space-between; */
             margin-top: 2vh;
+            gap: 2vw;
             @media (max-width:700px){
                 height: auto;
                 flex-direction: column;
                 flex-wrap: nowrap;
             }
+        }
+
+        .product-item{
+           border-radius: 10px;
+           box-shadow: 5px 5px 22px -6px rgba(0,0,0,0.5);
+           background-color: #ffffff;
         }
 
         .product-img{
@@ -63,6 +85,18 @@
                 max-width: 15vw;
                 max-height: 15rem;
             }
+        }
+
+        .paginationContainer{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pagination{
+            width: fit-content;
+            box-shadow: 5px 5px 22px -6px rgba(0,0,0,0.5);
+            background-color: #ffffff;
         }
     </style>
 
@@ -91,7 +125,7 @@
     <div class="container-fluid">
         <div class="row px-xl-5">
             <!-- Shop Sidebar Start -->
-            <div class="col-lg-3 mb-30">
+            <div class="col-lg-3 mb-30 sidebar">
                 <!-- Price Start -->
                 <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Filter by price</span></h5>
                 <div class="bg-light p-4 mb-30">
@@ -99,32 +133,32 @@
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
                             <input type="checkbox" class="custom-control-input priceInputs" id="price-all" name="price-all">
                             <label class="custom-control-label" for="price-all">All Price</label>
-                            <span class="badge border font-weight-normal">1000</span>
+                            <!-- <span class="badge border font-weight-normal">1000</span> -->
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
                             <input type="checkbox" class="custom-control-input priceInputs" id="price-1" name="price-1">
                             <label class="custom-control-label" for="price-1">₹0 - ₹1000</label>
-                            <span class="badge border font-weight-normal">150</span>
+                            <!-- <span class="badge border font-weight-normal">150</span> -->
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
                             <input type="checkbox" class="custom-control-input priceInputs" id="price-2" name="price-2">
                             <label class="custom-control-label" for="price-2">₹1000 - ₹2000</label>
-                            <span class="badge border font-weight-normal">295</span>
+                            <!-- <span class="badge border font-weight-normal">295</span> -->
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
                             <input type="checkbox" class="custom-control-input priceInputs" id="price-3" name="price-3">
                             <label class="custom-control-label" for="price-3">₹2000 - ₹3000</label>
-                            <span class="badge border font-weight-normal">246</span>
+                            <!-- <span class="badge border font-weight-normal">246</span> -->
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
                             <input type="checkbox" class="custom-control-input priceInputs" id="price-4"  name="price-4">
                             <label class="custom-control-label" for="price-4">₹3000 - ₹4000</label>
-                            <span class="badge border font-weight-normal">145</span>
+                            <!-- <span class="badge border font-weight-normal">145</span> -->
                         </div>
                         <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between">
                             <input type="checkbox" class="custom-control-input priceInputs" id="price-5"  name="price-5">
                             <label class="custom-control-label" for="price-5">₹4000 & above</label>
-                            <span class="badge border font-weight-normal">168</span>
+                            <!-- <span class="badge border font-weight-normal">168</span> -->
                         </div>
                         <button type="submit" class="btn btn-primary mt-2" style="align-self: center;" id="priceFilter">Filter</button>
                     </form>
@@ -144,7 +178,7 @@
                         <!-- <div id="" class="d-flex align-items-center justify-content-between mb-4"> -->
                             
                             <div class="ml-2">
-                                <div class="btn-group">
+                                <div class="btn-group sortBtn">
                                     <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Sorting</button>
                                     <div class="dropdown-menu dropdown-menu-right" style="cursor: pointer;">
                                         <a class="dropdown-item" id="sortLatest">Latest</a>
@@ -162,14 +196,14 @@
                         <div class="col-lg pb-1"  id="productList" data-fullproducts="<%=JSON.stringify(Products)%>">
                         <%if(Products.length){%>
                             <%Products.slice(0,8).forEach((product,i)=>{%>
-                                            <div class="product-item bg-light mb-4">
+                                            <div class="product-item mb-4 p-2" >
                                                 <div class="product-img position-relative overflow-hidden" style="height: 15rem;">
                                                     <img style="width: auto;" src="/images/<%=product.image[0].filename%>" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
                                                     <div class="product-action">
                                                         <a class="btn btn-outline-dark btn-square" href="/detail/<%=product._id%>"><i class="fa fa-search"></i></a>
                                                     </div>
                                                 </div>
-                                                <div class="text-center py-4">
+                                                <div class="text-center py-4" >
                                                     <a class="h6 text-decoration-none text-truncate" href=""><%=product.name%></a>
                                                     <div class="d-flex align-items-center justify-content-center mt-2">
                                                         <h5>₹<%=Math.floor(product.price-product.price*product.offerDiscount/100)%></h5><h6 class="text-muted ml-2"><del>₹<%=product.price%></del></h6>
@@ -190,7 +224,7 @@
                         </div>
            
                     <div class="col-12">
-                        <nav>
+                        <nav class="paginationContainer">
                             <ul class="pagination justify-content-center" style="cursor: pointer;">
                                 <li class="page-item"><a class="page-link" onclick="movePrev()">Previous</a></li>
                                 <li class="page-item page-link active" id="pgnmbr">1</li>
@@ -231,7 +265,7 @@
 
                     products.forEach(product => {
                         updatedHTML += `
-                        <div class="product-item bg-light mb-4">
+                        <div class="product-item mb-4 p-2">
                             <div class="product-img position-relative overflow-hidden" style="height: 15rem;">
                                 <img style="width: auto;" src="/images/${product.image[0].filename}" onerror="this.onerror=null;this.src='/images/noImg.png';" alt="">
                                 <div class="product-action">
